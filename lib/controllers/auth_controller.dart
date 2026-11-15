@@ -2,21 +2,26 @@
 // GetxController untuk state autentikasi
 // Referensi: PB-005, PB-006, PB-007, PB-008
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../models/user_model.dart';
 import '../repositories/auth_repository.dart';
+import '../services/biometric_service.dart';
 import '../services/storage_service.dart';
 import '../utils/constants.dart';
 
 class AuthController extends GetxController {
   final AuthRepository _repository;
   final StorageService _storage;
+  final BiometricService _biometricService;
 
   AuthController({
     AuthRepository? repository,
     StorageService? storage,
+    BiometricService? biometricService,
   })  : _repository = repository ?? AuthRepositoryImpl(),
-        _storage = storage ?? StorageService();
+        _storage = storage ?? StorageService(),
+        _biometricService = biometricService ?? BiometricService();
 
   // ── Observable state ──────────────────────────────────────────────────────
   final isLoading = false.obs;
@@ -184,5 +189,117 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void _safeSnackbar(String title, String message) {
+    if (Get.context != null) {
+      Get.snackbar(title, message, snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  // ── UBAH PASSWORD (PB-010) ──────────────────────────────────────────────────
+
+  Future<bool> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final user = currentUser.value;
+    if (user == null || user.email.isEmpty) {
+      _safeSnackbar(
+        'Gagal Ubah Password',
+        'Anda harus login terlebih dahulu.',
+      );
+      return false;
+    }
+
+    isLoading.value = true;
+    errorMessage.value = '';
+    try {
+      final success = await _repository.changePassword(
+        email: user.email,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
+      if (success) {
+        _safeSnackbar(
+          'Password Berhasil Diubah',
+          'Kata sandi akun Anda telah diperbarui dengan aman.',
+        );
+      }
+      return success;
+    } catch (e) {
+      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
+      _safeSnackbar(
+        'Gagal Ubah Password',
+        errorMessage.value,
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── AUTENTIKASI BIOMETRIK (PB-009) ──────────────────────────────────────────
+
+  Future<bool> authenticateWithBiometrics({
+    String reason =
+        'Gunakan sensor sidik jari atau Face ID untuk masuk ke Cinemate',
+  }) async {
+    try {
+      final isAvailable = await _biometricService.isBiometricAvailable();
+      if (!isAvailable) {
+        _safeSnackbar(
+          'Biometrik Tidak Tersedia',
+          'Perangkat tidak mendukung biometrik atau belum didaftarkan.',
+        );
+        return false;
+      }
+
+      final authenticated = await _biometricService.authenticate(
+        localizedReason: reason,
+      );
+
+      if (authenticated) {
+        _safeSnackbar(
+          'Autentikasi Berhasil',
+          'Identitas biometrik terverifikasi.',
+        );
+      }
+      return authenticated;
+    } catch (e) {
+      debugPrint('[AuthController] Biometric error: $e');
+      return false;
+    }
+  }
+
+  bool get isBiometricEnabled => _biometricService.isBiometricEnabled;
+  void setBiometricEnabled(bool v) => _biometricService.setBiometricEnabled(v);
+
+  /// Login menggunakan biometrik perangkat (PB-009)
+  Future<bool> loginWithBiometrics() async {
+    if (!isBiometricEnabled) {
+      _safeSnackbar(
+        'Biometrik Belum Aktif',
+        'Aktifkan login biometrik terlebih dahulu di Pengaturan.',
+      );
+      return false;
+    }
+    final authenticated = await authenticateWithBiometrics(
+      reason: 'Scan sidik jari atau Face ID untuk masuk ke Cinemate',
+    );
+    if (!authenticated) return false;
+
+    // Cek sesi login yang tersimpan
+    final user = await checkSession();
+    if (user != null) {
+      _resetLockout();
+      return true;
+    }
+
+    _safeSnackbar(
+      'Sesi Tidak Ditemukan',
+      'Silakan masuk dengan email dan kata sandi untuk pertama kali.',
+    );
+    return false;
   }
 }

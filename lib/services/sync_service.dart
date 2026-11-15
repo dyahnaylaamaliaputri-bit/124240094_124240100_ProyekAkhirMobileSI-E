@@ -100,7 +100,8 @@ class SyncService extends GetxService {
 
           // Saat status beralih dari Offline ke Online, jalankan sinkronisasi otomatis
           if (!wasOnline && connected) {
-            debugPrint('[SyncService] Koneksi internet pulih. Menjalankan auto-sync...');
+            debugPrint(
+                '[SyncService] Koneksi internet pulih. Menjalankan auto-sync...');
             await syncOfflineData();
           }
         },
@@ -145,7 +146,8 @@ class SyncService extends GetxService {
   Future<void> updateUnsyncedCounts() async {
     try {
       final tickets = await _storage.getCachedTickets() ?? [];
-      final pendingTickets = tickets.where((t) => t['is_synced'] != true).length;
+      final pendingTickets =
+          tickets.where((t) => t['is_synced'] != true).length;
       unsyncedTicketsCount.value = pendingTickets;
 
       final fnbOrders = await _fnbService.getUserOrders();
@@ -222,15 +224,18 @@ class SyncService extends GetxService {
                 'status': t['status'] ?? 'paid',
                 'total_price': t['total_price'] ?? 0,
                 'qr_data': t['qr_data'] ?? '',
-                'created_at': t['created_at'] ?? DateTime.now().toIso8601String(),
+                'created_at':
+                    t['created_at'] ?? DateTime.now().toIso8601String(),
               });
 
               // Kirim data kursi
               final seats = (t['seats'] as List<dynamic>?) ?? [];
-              final seatsPayload = seats.map((s) => {
-                    'booking_id': ticketId,
-                    'seat_label': s.toString(),
-                  }).toList();
+              final seatsPayload = seats
+                  .map((s) => {
+                        'booking_id': ticketId,
+                        'seat_label': s.toString(),
+                      })
+                  .toList();
 
               if (seatsPayload.isNotEmpty) {
                 await client.from('booking_seats').upsert(seatsPayload);

@@ -263,6 +263,42 @@ class _LoginViewState extends State<LoginView> {
                                 )
                               : const Text('Masuk'),
                         )),
+
+                    // Biometric Login Button (PB-009)
+                    if (_ctrl.isBiometricEnabled) ...[
+                      const SizedBox(height: 14),
+                      OutlinedButton.icon(
+                        onPressed: (_ctrl.isLoading.value || _ctrl.isLockedOut)
+                            ? null
+                            : () async {
+                                final success =
+                                    await _ctrl.loginWithBiometrics();
+                                if (success && mounted) {
+                                  Get.offAllNamed(Routes.dashboard);
+                                }
+                              },
+                        icon: const Icon(
+                          Icons.fingerprint_rounded,
+                          color: AppColors.gold,
+                          size: 22,
+                        ),
+                        label: const Text(
+                          'Masuk dengan Sidik Jari / Face ID',
+                          style: TextStyle(
+                            color: AppColors.gold,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppColors.gold),
+                          minimumSize: const Size(double.infinity, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

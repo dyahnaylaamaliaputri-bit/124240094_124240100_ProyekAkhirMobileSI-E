@@ -8,7 +8,9 @@ import '../../../controllers/auth_controller.dart';
 import '../../../controllers/cinema_controller.dart';
 import '../../../controllers/movie_controller.dart';
 import '../../../models/movie_model.dart';
+import '../../../models/mood_history_model.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/storage_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../widgets/cinema_card.dart';
 import '../../widgets/movie_card.dart';
@@ -62,6 +64,22 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Get.toNamed(Routes.chatbot),
+        backgroundColor: AppColors.primary,
+        elevation: 6,
+        icon:
+            const Icon(Icons.smart_toy_rounded, color: Colors.white, size: 20),
+        label: const Text(
+          'Tanya CineBot',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+            fontSize: 13,
+          ),
+        ),
+      ),
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
@@ -93,7 +111,8 @@ class _HomeTabState extends State<HomeTab> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search_rounded, color: AppColors.textPrimary),
+            icon:
+                const Icon(Icons.search_rounded, color: AppColors.textPrimary),
             tooltip: 'Cari',
             onPressed: () => Get.toNamed(Routes.search),
           ),
@@ -925,8 +944,233 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-  /// Banner Rekomendasi Film Berbasis Mood AI (PB-031)
+  /// Widget Rekomendasi AI Dashboard & Quick Mood Profiling (PB-016)
   Widget _buildMoodAiBanner(BuildContext context) {
+    try {
+      final history = StorageService().getMoodHistory();
+      if (history.isNotEmpty) {
+        final latest = MoodHistoryModel.fromJson(history.first);
+        if (latest.movies.isNotEmpty) {
+          final topMovie = latest.movies.first;
+          return _buildPersonalizedAiCard(context, latest, topMovie);
+        }
+      }
+    } catch (_) {}
+
+    return _buildMoodAiInviteBanner(context);
+  }
+
+  /// Kartu Rekomendasi Personal AI Berdasarkan Profiling Terakhir (PB-016)
+  Widget _buildPersonalizedAiCard(
+    BuildContext context,
+    MoodHistoryModel history,
+    MoodHistoryItemModel item,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2C0F4D), Color(0xFF140728)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.gold.withValues(alpha: 0.6),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8E2DE2).withValues(alpha: 0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header: AI Badge & Match Score
+            Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: AppColors.gold, width: 0.8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.auto_awesome,
+                          color: AppColors.gold, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        'AI REKOMENDASI (${history.moodEmoji} ${history.moodTitle})',
+                        style: const TextStyle(
+                          color: AppColors.gold,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00B09B),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${item.matchPercentage}% Cocok',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // Content: Poster thumbnail, Title & Reasoning
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    width: 60,
+                    height: 85,
+                    color: AppColors.card,
+                    child:
+                        item.posterPath != null && item.posterPath!.isNotEmpty
+                            ? Image.network(
+                                item.posterPath!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Center(
+                                  child: Icon(Icons.movie,
+                                      color: AppColors.textDisabled),
+                                ),
+                              )
+                            : const Center(
+                                child: Icon(Icons.movie,
+                                    color: AppColors.textDisabled),
+                              ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.aiReason ??
+                            'Film pilihan terbaik untuk menemani suasana hati ${history.moodTitle}.',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          height: 1.4,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 14),
+            const Divider(color: AppColors.divider, height: 1),
+            const SizedBox(height: 10),
+
+            // Action row: Pesan Tiket & Profiling Ulang
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  onPressed: () => Get.toNamed(Routes.moodPicker),
+                  icon: const Icon(Icons.refresh_rounded,
+                      color: AppColors.gold, size: 16),
+                  label: const Text(
+                    'Ubah Mood',
+                    style: TextStyle(
+                      color: AppColors.gold,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Cari film yang cocok dari daftar film di MovieController
+                    MovieModel? target;
+                    for (final m in _movieCtrl.allMovies) {
+                      if (m.id == item.movieId || m.title == item.title) {
+                        target = m;
+                        break;
+                      }
+                    }
+                    target ??= MovieModel(
+                      id: item.movieId,
+                      title: item.title,
+                      overview: item.aiReason ?? '',
+                      posterPath: item.posterPath ?? '',
+                      backdropPath: item.posterPath ?? '',
+                      releaseDate: '2026-01-01',
+                      voteAverage: 8.5,
+                      voteCount: 120,
+                      genreIds: const [18],
+                      popularity: 75.0,
+                    );
+                    Get.toNamed(Routes.bookByMovie, arguments: target);
+                  },
+                  icon: const Icon(Icons.confirmation_number_rounded, size: 16),
+                  label: const Text(
+                    'Pesan Tiket',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Banner Undangan AI Mood Profiling saat belum ada riwayat (PB-016 Fallback)
+  Widget _buildMoodAiInviteBanner(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(

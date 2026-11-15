@@ -21,6 +21,12 @@ abstract class AuthRepository {
   Future<UserModel?> checkSession();
 
   Future<void> logout();
+
+  Future<bool> changePassword({
+    required String email,
+    required String oldPassword,
+    required String newPassword,
+  });
 }
 
 // ── Concrete implementation ──────────────────────────────────────────────────
@@ -54,4 +60,16 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() => _authService.logout();
+
+  @override
+  Future<bool> changePassword({
+    required String email,
+    required String oldPassword,
+    required String newPassword,
+  }) =>
+      _authService.changePassword(
+        email: email,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
 }

@@ -70,8 +70,8 @@ class MoodHistoryModel {
       timestamp: DateTime.tryParse(json['timestamp']?.toString() ?? '') ??
           DateTime.now(),
       movies: rawMovies
-          .map((m) =>
-              MoodHistoryItemModel.fromJson(Map<String, dynamic>.from(m as Map)))
+          .map((m) => MoodHistoryItemModel.fromJson(
+              Map<String, dynamic>.from(m as Map)))
           .toList(),
     );
   }

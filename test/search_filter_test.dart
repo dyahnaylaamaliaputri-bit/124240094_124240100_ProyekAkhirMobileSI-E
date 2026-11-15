@@ -131,7 +131,9 @@ void main() {
     // ─────────────────────────────────────────────────────────────────────────
     // PB-051: Pencarian Multi-Entitas dengan Debounce
     // ─────────────────────────────────────────────────────────────────────────
-    test('PB-051: Search finds matches across Movies, Cinemas, and F&B simultaneously', () {
+    test(
+        'PB-051: Search finds matches across Movies, Cinemas, and F&B simultaneously',
+        () {
       // Cari kata kunci 'deadpool'
       controller.searchQuery.value = 'deadpool';
       controller.performSearch();
@@ -147,7 +149,8 @@ void main() {
       controller.searchQuery.value = 'popcorn';
       controller.performSearch();
 
-      expect(controller.filteredFnb.length, equals(2)); // Popcorn Caramel & Combo Puas Berdua
+      expect(controller.filteredFnb.length,
+          equals(2)); // Popcorn Caramel & Combo Puas Berdua
       expect(controller.filteredMovies, isEmpty);
 
       // Cari kata kunci 'depok' (harus mencocokkan bioskop)
@@ -155,12 +158,15 @@ void main() {
       controller.performSearch();
 
       expect(controller.filteredCinemas.length, equals(1));
-      expect(controller.filteredCinemas.first.name, equals('Bintang Cinema Depok'));
+      expect(controller.filteredCinemas.first.name,
+          equals('Bintang Cinema Depok'));
       expect(controller.filteredMovies, isEmpty);
       expect(controller.filteredFnb, isEmpty);
     });
 
-    test('PB-051: Search is case-insensitive and matches descriptions/overviews', () {
+    test(
+        'PB-051: Search is case-insensitive and matches descriptions/overviews',
+        () {
       // Overview film Inside Out 2: 'Riley navigates new emotions'
       controller.searchQuery.value = 'EMOTIONS';
       controller.performSearch();
@@ -193,8 +199,11 @@ void main() {
     // ─────────────────────────────────────────────────────────────────────────
     // PB-052: Filter Pencarian Multi-Kriteria
     // ─────────────────────────────────────────────────────────────────────────
-    test('PB-052: Filter by Entity Type narrows down result to specific category', () {
-      controller.searchQuery.value = ''; // Tanpa query, tapi filter entitas aktif
+    test(
+        'PB-052: Filter by Entity Type narrows down result to specific category',
+        () {
+      controller.searchQuery.value =
+          ''; // Tanpa query, tapi filter entitas aktif
       controller.setEntity(SearchEntityType.movie);
 
       expect(controller.filteredMovies.length, equals(mockMovies.length));
@@ -219,7 +228,8 @@ void main() {
       expect(controller.filteredMovies.length, equals(3));
     });
 
-    test('PB-052: Filter by High Rating (>= 7.0) excludes movies below 7.0', () {
+    test('PB-052: Filter by High Rating (>= 7.0) excludes movies below 7.0',
+        () {
       controller.setEntity(SearchEntityType.movie);
       controller.toggleHighRating();
 
@@ -280,15 +290,20 @@ void main() {
     // ─────────────────────────────────────────────────────────────────────────
     // PB-053: Pengurutan Hasil Pencarian
     // ─────────────────────────────────────────────────────────────────────────
-    test('PB-053: Sorting movies by Rating Descending orders highest rating first', () {
+    test(
+        'PB-053: Sorting movies by Rating Descending orders highest rating first',
+        () {
       controller.setEntity(SearchEntityType.movie);
       controller.setSortOption(SearchSortOption.ratingDesc);
 
       expect(controller.filteredMovies.length, equals(4));
       expect(controller.filteredMovies[0].voteAverage, equals(8.2)); // Deadpool
-      expect(controller.filteredMovies[1].voteAverage, equals(7.9)); // Inside Out 2
-      expect(controller.filteredMovies[2].voteAverage, equals(7.1)); // Sekawan Limo
-      expect(controller.filteredMovies[3].voteAverage, equals(6.8)); // A Quiet Place
+      expect(controller.filteredMovies[1].voteAverage,
+          equals(7.9)); // Inside Out 2
+      expect(controller.filteredMovies[2].voteAverage,
+          equals(7.1)); // Sekawan Limo
+      expect(controller.filteredMovies[3].voteAverage,
+          equals(6.8)); // A Quiet Place
     });
 
     test('PB-053: Sorting F&B by Price Ascending orders cheapest first', () {
@@ -302,7 +317,8 @@ void main() {
       expect(controller.filteredFnb[3].price, equals(85000)); // Combo
     });
 
-    test('PB-053: Sorting Cinemas by Distance Ascending orders closest first', () {
+    test('PB-053: Sorting Cinemas by Distance Ascending orders closest first',
+        () {
       controller.setEntity(SearchEntityType.cinema);
       controller.setSortOption(SearchSortOption.distanceAsc);
 
@@ -316,13 +332,16 @@ void main() {
       controller.setEntity(SearchEntityType.movie);
       controller.setSortOption(SearchSortOption.nameAsc);
 
-      expect(controller.filteredMovies.first.title, startsWith('A Quiet Place'));
+      expect(
+          controller.filteredMovies.first.title, startsWith('A Quiet Place'));
     });
 
     // ─────────────────────────────────────────────────────────────────────────
     // PB-054: Riwayat Pencarian Terakhir (Maksimal 5 item)
     // ─────────────────────────────────────────────────────────────────────────
-    test('PB-054: addSearchHistory stores up to 5 unique recent searches with LIFO order', () {
+    test(
+        'PB-054: addSearchHistory stores up to 5 unique recent searches with LIFO order',
+        () {
       controller.clearAllHistory();
       expect(controller.searchHistory, isEmpty);
 
@@ -345,10 +364,13 @@ void main() {
       controller.addSearchHistory('Batman');
       expect(controller.searchHistory.length, equals(5));
       expect(controller.searchHistory.first, equals('Batman'));
-      expect(controller.searchHistory.where((q) => q == 'Batman').length, equals(1));
+      expect(controller.searchHistory.where((q) => q == 'Batman').length,
+          equals(1));
     });
 
-    test('PB-054: removeHistoryItem removes specific search and clearAllHistory wipes list', () {
+    test(
+        'PB-054: removeHistoryItem removes specific search and clearAllHistory wipes list',
+        () {
       controller.clearAllHistory();
       controller.addSearchHistory('Film A');
       controller.addSearchHistory('Film B');
@@ -373,7 +395,8 @@ void main() {
     // ─────────────────────────────────────────────────────────────────────────
     // PB-055: State Kosong & Loading
     // ─────────────────────────────────────────────────────────────────────────
-    test('PB-055: isEmptyResult is true only when query yielded no results', () {
+    test('PB-055: isEmptyResult is true only when query yielded no results',
+        () {
       expect(controller.isEmptyResult, isFalse);
 
       // Cari query yang tidak ada

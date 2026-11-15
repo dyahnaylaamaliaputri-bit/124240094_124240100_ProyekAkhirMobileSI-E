@@ -66,7 +66,8 @@ void main() {
   });
 
   group('PB-061: Unggah Foto Profil Pengguna & Fallback Avatar', () {
-    test('Menyimpan path avatar kustom dan memperbarui currentUser avatarUrl', () async {
+    test('Menyimpan path avatar kustom dan memperbarui currentUser avatarUrl',
+        () async {
       const testPath = '/data/user/0/com.cinemate/cache/my_photo.jpg';
 
       profileCtrl.avatarPath.value = testPath;
@@ -81,7 +82,8 @@ void main() {
       expect(authCtrl.currentUser.value?.avatarUrl, testPath);
     });
 
-    test('Menghapus foto kustom dan kembali ke fallback avatar bawaan', () async {
+    test('Menghapus foto kustom dan kembali ke fallback avatar bawaan',
+        () async {
       profileCtrl.avatarPath.value = '/some/path/avatar.jpg';
       storage.avatarPath = '/some/path/avatar.jpg';
 
@@ -94,7 +96,8 @@ void main() {
   });
 
   group('PB-063: Halaman Pengaturan Aplikasi Lanjutan', () {
-    test('Mengubah preferensi tema aplikasi dan menyimpan ke local storage', () {
+    test('Mengubah preferensi tema aplikasi dan menyimpan ke local storage',
+        () {
       expect(profileCtrl.themeMode.value, 'dark');
 
       profileCtrl.setThemeMode('light');
@@ -142,7 +145,8 @@ void main() {
 
   group('PB-064: Layar "My Cinemate" (Statistik, Badge Loyalitas & Genre)', () {
     test('Memuat preferensi genre default dan toggle genre film', () async {
-      expect(profileCtrl.favoriteGenres, containsAll(['Action', 'Sci-Fi', 'Drama']));
+      expect(profileCtrl.favoriteGenres,
+          containsAll(['Action', 'Sci-Fi', 'Drama']));
 
       // Tambahkan genre baru 'Horror'
       profileCtrl.toggleFavoriteGenre('Horror');
@@ -155,7 +159,9 @@ void main() {
       expect(storage.getFavoriteGenres(), isNot(contains('Sci-Fi')));
     });
 
-    test('Tidak menghapus genre jika hanya tersisa 1 genre terpilih (minimal 1)', () {
+    test(
+        'Tidak menghapus genre jika hanya tersisa 1 genre terpilih (minimal 1)',
+        () {
       profileCtrl.favoriteGenres.assignAll(['Animation']);
 
       profileCtrl.toggleFavoriteGenre('Animation');
@@ -171,7 +177,9 @@ void main() {
       expect(storage.getFavoriteGenres(), ['Comedy', 'Romance', 'Fantasy']);
     });
 
-    test('Menentukan tingkatan loyalitas penonton secara akurat berdasarkan tiket', () {
+    test(
+        'Menentukan tingkatan loyalitas penonton secara akurat berdasarkan tiket',
+        () {
       // 0-2 tiket: Bronze
       expect(LoyaltyLevel.fromTicketCount(0), LoyaltyLevel.bronze);
       expect(LoyaltyLevel.fromTicketCount(1), LoyaltyLevel.bronze);
@@ -192,7 +200,9 @@ void main() {
       expect(LoyaltyLevel.fromTicketCount(25), LoyaltyLevel.platinum);
     });
 
-    test('Menghitung progres level dan sisa tiket menuju tier loyalitas berikutnya', () {
+    test(
+        'Menghitung progres level dan sisa tiket menuju tier loyalitas berikutnya',
+        () {
       // Skenario 1: 1 tiket (Bronze)
       profileCtrl.watchedCount.value = 1;
       expect(profileCtrl.currentLoyalty, LoyaltyLevel.bronze);
@@ -265,7 +275,8 @@ void main() {
       // Urutan LIFO: record2 paling atas
       expect(profileCtrl.moodHistory.first.id, 'mood-rec-002');
       expect(profileCtrl.moodHistory.first.moodType, 'thrilled');
-      expect(profileCtrl.moodHistory.first.movies.first.title, 'Mission: Impossible');
+      expect(profileCtrl.moodHistory.first.movies.first.title,
+          'Mission: Impossible');
 
       final rawFromStorage = storage.getMoodHistory();
       expect(rawFromStorage.length, 2);

@@ -151,7 +151,7 @@ docs/
    ```bash
    flutter pub get
    ```
-5. **Jalankan pengujian unit (Semua 134 Unit Test Wajib Passed):**
+5. **Jalankan pengujian unit (Semua 160 Unit Test Wajib Passed):**
    ```bash
    flutter test
    ```
@@ -163,26 +163,45 @@ docs/
 
 ---
 
-## 🎯 Rekapitulasi Milestone & Pembagian Tugas Tim
+### 15. Epic Chatbot Asisten AI Cinemate (AIL — PB 15 / PB-039 s.d. PB-041) [SELESAI ✅]
+- [x] **PB-039 (Chatbot Interaktif Film, Bioskop, F&B & Jadwal):** Antarmuka CineBot estetik Dark Cinema dengan bubble chat responsif, input text bar, dan asisten cerdas yang menjawab pertanyaan terkait jadwal tayang, lokasi bioskop terdekat, camilan F&B, dan rekomendasi mood.
+- [x] **PB-040 (Riwayat Percakapan Chatbot di Hive):** Persistensi riwayat percakapan secara otomatis ke Hive box `chat_history`, dapat dibaca offline, dan dilengkapi tombol konfirmasi bersihkan riwayat chat.
+- [x] **PB-041 (Penanganan Error Cerdas & Rate Limiting):** Pembatasan kuota query chat (rate limiting 12 pesan/menit) dengan countdown timer jeda dan tombol retry interaktif saat error terjadi.
 
-> **📊 Status Pengerjaan Terkini:**  
-> Seluruh modul **PB 1 s/d PB 14 (total 75+ user stories)** telah tuntas 100% dikerjakan oleh **Developer 1 (Tikodjati)** dengan **134 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.  
-> Untuk melanjutkan pengembangan fitur lanjutan sesuai dengan dokumen **PB-CNM-001 (Product Backlog)** dan **SRS-CNM-001**, berikut adalah **Catatan Tugas untuk Rekan Tim (4 PB)** yang siap dikerjakan secara modular dan terisolasi.
+### 16. Epic Keamanan Akun & Autentikasi Biometrik (AUT — PB 16 / PB-009 s.d. PB-010) [SELESAI ✅]
+- [x] **PB-009 (Login Biometrik Fingerprint & Face ID):** Integrasi `local_auth` perangkat nyata dengan konfigurasi `USE_BIOMETRIC` & `USE_FINGERPRINT` di AndroidManifest dan `FlutterFragmentActivity`. Mendukung quick biometric login di `LoginView` dan switch toggle preferensi di Pengaturan.
+- [x] **PB-010 (Layar Ubah Kata Sandi Akun):** Layar `ChangePasswordView` dengan verifikasi hash lama, enkripsi salt + SHA-256 untuk kata sandi baru (minimal 8 karakter kombinasi huruf & angka), indikator kekuatan kata sandi, dan feedback interaktif.
+
+### 17. Epic Rekomendasi AI Dashboard & Quick Access Chatbot (DSH — PB 17 / PB-016 s.d. PB-017) [SELESAI ✅]
+- [x] **PB-016 (Widget Rekomendasi AI di Dashboard):** Integrasi kartu rekomendasi personal di `HomeTab` berdasarkan riwayat profiling mood pengguna terakhir lengkap dengan persentase kecocokan (*match score*), alasan rekomendasi AI, dan tombol langsung pesan tiket. Jika belum ada riwayat, otomatis menampilkan kartu ajakan AI interaktif.
+- [x] **PB-017 (Akses Cepat Tombol Chatbot FAB & Detail Film):** Floating Action Button (FAB) CineBot di `HomeTab` dan kartu akses konsultasi cerdas *"Tanya CineBot"* di `MovieDetailView` dengan passing argument query otomatis.
+
+### 18. Epic Profiling Mood Lanjutan & LLM Engine (AIL — PB 18 / PB-036 s.d. PB-038) [SELESAI ✅]
+- [x] **PB-036 (Layanan LLM Terabstraksi & JSON Validation):** Abstraksi `LlmService` dengan validasi skema JSON ketat, pembangunan prompt terstruktur, dan mesin aturan kurasi offline (*Curated Rule-Based Fallback Engine*) yang sangat tangguh.
+- [x] **PB-037 (Formulir Profiling Multi-Kriteria):** Layar `AdvancedProfilingView` dengan 4 kriteria terpadu: suasana hati (Mood), teman menonton (Sendiri, Pasangan, Keluarga, Teman), durasi film ideal, dan batas anggaran tiket (Budget limit).
+- [x] **PB-038 (Kartu Hasil Rekomendasi & Alasan AI):** Kartu rekomendasi film terbaik dengan skor kecocokan tinggi (88% - 99%), tag kesesuaian teman menonton, kartu alasan AI mendalam, dan tombol pemesanan langsung tiket bioskop (`Routes.bookByMovie`).
 
 ---
 
-## 📋 Catatan Tugas untuk Rekan Tim (4 PB Lanjutan)
+## 🎯 Rekapitulasi Milestone & Pembagian Tugas Tim
 
-Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil dan terstruktur untuk rekan pengembang:
+> **📊 Status Pengerjaan Terkini:**  
+> Seluruh modul **PB 1 s/d PB 18 (total 85+ user stories)** telah tuntas 100% dikerjakan dengan **160 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
+
+---
+
+## 📋 Catatan Status 4 PB (PB 15 s.d. PB 18) [SELESAI ✅]
+
+Berikut adalah status pencapaian 4 Product Backlog (PB) yang telah diselesaikan:
 
 ### 📦 Tugas Rekan 1: Epic Chatbot Asisten AI Cinemate (AIL — PB 15)
 *Menuntaskan asisten AI interaktif untuk tanya jawab film, sinopsis, jadwal bioskop, dan panduan tiket (PB-039 s.d. PB-041 / SRS §3.8 FR-043 s.d. FR-045)*
 
 | No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
 | :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-039** | Chatbot Interaktif Film & Jadwal | **Given** pengguna mengetik pertanyaan pada input chat, **When** pesan dikirim, **Then** asisten AI merespons dengan konteks film, studio, dan jadwal bioskop yang relevan. | ⏳ Siap Dikerjakan |
-| 2 | **PB-040** | Riwayat Percakapan Chatbot | **Given** percakapan berlangsung, **When** pengguna menutup dan membuka kembali chatbot, **Then** riwayat chat tersimpan di Hive box `chat_history` (dapat dibaca offline) dan dapat dihapus. | ⏳ Siap Dikerjakan |
-| 3 | **PB-041** | Penanganan Error Cerdas & Rate Limiting | **Given** koneksi terputus atau batas kuota tercapai, **When** pesan dikirim, **Then** muncul bubble pesan error ramah, countdown waktu tunggu, dan tombol *"Coba Lagi"*. | ⏳ Siap Dikerjakan |
+| 1 | **PB-039** | Chatbot Interaktif Film & Jadwal | **Given** pengguna mengetik pertanyaan pada input chat, **When** pesan dikirim, **Then** asisten AI merespons dengan konteks film, studio, dan jadwal bioskop yang relevan. | ✅ SELESAI |
+| 2 | **PB-040** | Riwayat Percakapan Chatbot | **Given** percakapan berlangsung, **When** pengguna menutup dan membuka kembali chatbot, **Then** riwayat chat tersimpan di Hive box `chat_history` (dapat dibaca offline) dan dapat dihapus. | ✅ SELESAI |
+| 3 | **PB-041** | Penanganan Error Cerdas & Rate Limiting | **Given** koneksi terputus atau batas kuota tercapai, **When** pesan dikirim, **Then** muncul bubble pesan error ramah, countdown waktu tunggu, dan tombol *"Coba Lagi"*. | ✅ SELESAI |
 
 - **Target File yang Dikerjakan:**
   - `lib/services/chatbot_service.dart` (Service API LLM Gemini / heuristic responder dengan context injection jadwal & film)
@@ -197,8 +216,8 @@ Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil d
 
 | No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
 | :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-009** | Login Biometrik (Fingerprint & Face ID) | **Given** opsi biometrik aktif di preferensi, **When** pengguna membuka login atau verifikasi pembayaran tiket, **Then** sistem memanggil sensor biometrik perangkat (`local_auth`); jika gagal 3x atau dibatalkan, otomatis fallback ke password/PIN. | ⏳ Siap Dikerjakan |
-| 2 | **PB-010** | Layar Ubah Password Pengguna | **Given** pengguna sedang login di `ProfileTab`, **When** memasukkan password lama dan password baru (minimal 8 karakter kombinasi), **Then** sistem memverifikasi hash lama, memperbarui password baru di storage/Supabase, dan mencabut sesi lain. | ⏳ Siap Dikerjakan |
+| 1 | **PB-009** | Login Biometrik (Fingerprint & Face ID) | **Given** opsi biometrik aktif di preferensi, **When** pengguna membuka login atau verifikasi pembayaran tiket, **Then** sistem memanggil sensor biometrik perangkat (`local_auth`); jika gagal 3x atau dibatalkan, otomatis fallback ke password/PIN. | ✅ SELESAI |
+| 2 | **PB-010** | Layar Ubah Password Pengguna | **Given** pengguna sedang login di `ProfileTab`, **When** memasukkan password lama dan password baru (minimal 8 karakter kombinasi), **Then** sistem memverifikasi hash lama, memperbarui password baru di storage/Supabase, dan mencabut sesi lain. | ✅ SELESAI |
 
 - **Target File yang Dikerjakan:**
   - `lib/services/biometric_service.dart` (Integrasi plugin `local_auth`, pemeriksaan ketersediaan hardware, dan autentikasi biometrik)
@@ -213,8 +232,8 @@ Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil d
 
 | No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
 | :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-016** | Widget Rekomendasi AI di Dashboard | **Given** pengguna pernah melakukan mood profiling, **When** Dashboard dibuka, **Then** kartu rekomendasi film terakhir tampil di `HomeTab`; **Given** belum pernah, **Then** tampil kartu ajakan personal interaktif. | ⏳ Siap Dikerjakan |
-| 2 | **PB-017** | Akses Cepat Tombol Chatbot (Floating FAB) | **Given** pengguna berada di Dashboard atau Detail Film, **When** menekan tombol chatbot melayang (*Floating Action Button*), **Then** halaman chatbot langsung terbuka dalam 1 ketukan. | ⏳ Siap Dikerjakan |
+| 1 | **PB-016** | Widget Rekomendasi AI di Dashboard | **Given** pengguna pernah melakukan mood profiling, **When** Dashboard dibuka, **Then** kartu rekomendasi film terakhir tampil di `HomeTab`; **Given** belum pernah, **Then** tampil kartu ajakan personal interaktif. | ✅ SELESAI |
+| 2 | **PB-017** | Akses Cepat Tombol Chatbot (Floating FAB) | **Given** pengguna berada di Dashboard atau Detail Film, **When** menekan tombol chatbot melayang (*Floating Action Button*), **Then** halaman chatbot langsung terbuka dalam 1 ketukan. | ✅ SELESAI |
 
 - **Target File yang Dikerjakan:**
   - `lib/views/dashboard/tabs/home_tab.dart` (Penambahan widget kartu rekomendasi AI personal dan Floating Action Button chatbot)
@@ -227,10 +246,10 @@ Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil d
 *Menuntaskan formulir profiling penonton multi-kriteria dan integrasi prompt engine LLM terstruktur (PB-036 s.d. PB-038 / SRS §3.8 FR-039 s.d. FR-041)*
 
 | No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-036** | Layanan LLM Terabstraksi & JSON Validation | **Given** prompt dan format schema JSON terdefinisi, **When** LLM merespons, **Then** output divalidasi ke data film nyata; jika API gagal, otomatis fallback ke rule-based curated engine. | ⏳ Siap Dikerjakan |
-| 2 | **PB-037** | Formulir Profiling Multi-Kriteria | **Given** layar profiling dibuka, **When** pengguna mengisi mood, teman nonton (Sendiri/Pasangan/Keluarga), durasi film, dan batas budget, **Then** input divalidasi dan tombol Cari Film aktif. | ⏳ Siap Dikerjakan |
-| 3 | **PB-038** | Kartu Hasil Rekomendasi & Alasan AI | **Given** profiling selesai, **When** hasil ditampilkan, **Then** muncul kartu rekomendasi dengan analisis alasan AI Cinemate serta tombol direct booking tiket bioskop. | ⏳ Siap Dikerjakan |
+| :---: | :---: | :--- | :--- | :--- | :---: |
+| 1 | **PB-036** | Layanan LLM Terabstraksi & JSON Validation | **Given** prompt dan format schema JSON terdefinisi, **When** LLM merespons, **Then** output divalidasi ke data film nyata; jika API gagal, otomatis fallback ke rule-based curated engine. | ✅ SELESAI |
+| 2 | **PB-037** | Formulir Profiling Multi-Kriteria | **Given** layar profiling dibuka, **When** pengguna mengisi mood, teman nonton (Sendiri/Pasangan/Keluarga), durasi film, dan batas budget, **Then** input divalidasi dan tombol Cari Film aktif. | ✅ SELESAI |
+| 3 | **PB-038** | Kartu Hasil Rekomendasi & Alasan AI | **Given** profiling selesai, **When** hasil ditampilkan, **Then** muncul kartu rekomendasi dengan analisis alasan AI Cinemate serta tombol direct booking tiket bioskop. | ✅ SELESAI |
 
 - **Target File yang Dikerjakan:**
   - `lib/services/llm_service.dart` (Abstraksi pemanggilan model LLM, schema prompt JSON, dan fallback rule engine)

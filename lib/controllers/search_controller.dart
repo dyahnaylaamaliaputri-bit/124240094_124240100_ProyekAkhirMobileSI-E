@@ -259,16 +259,16 @@ class AppSearchController extends GetxController {
           if (hasQuery) {
             final matchTitle = m.title.toLowerCase().contains(query);
             final matchOverview = m.overview.toLowerCase().contains(query);
-            final matchGenre = m.genreNames
-                .any((g) => g.toLowerCase().contains(query));
+            final matchGenre =
+                m.genreNames.any((g) => g.toLowerCase().contains(query));
             if (!matchTitle && !matchOverview && !matchGenre) return false;
           }
 
           // Filter Genre spesifik (PB-052)
           if (selectedGenre.value != null && selectedGenre.value!.isNotEmpty) {
             final target = selectedGenre.value!.toLowerCase();
-            final hasTargetGenre = m.genreNames
-                .any((g) => g.toLowerCase() == target);
+            final hasTargetGenre =
+                m.genreNames.any((g) => g.toLowerCase() == target);
             if (!hasTargetGenre) return false;
           }
 

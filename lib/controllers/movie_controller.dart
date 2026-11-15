@@ -16,6 +16,8 @@ class MovieController extends GetxController {
   final nowPlayingMovies = <MovieModel>[].obs;
   final upcomingMovies = <MovieModel>[].obs;
 
+  List<MovieModel> get allMovies => [...nowPlayingMovies, ...upcomingMovies];
+
   final isLoadingBanner = true.obs;
   final isLoadingNowPlaying = true.obs;
   final isLoadingUpcoming = true.obs;

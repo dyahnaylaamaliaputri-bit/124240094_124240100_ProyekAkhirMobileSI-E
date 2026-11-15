@@ -27,4 +27,7 @@ abstract class Routes {
   static const search = '/search';
   static const myCinemate = '/my-cinemate';
   static const settings = '/settings';
+  static const chatbot = '/chatbot';
+  static const changePassword = '/change-password';
+  static const advancedProfiling = '/advanced-profiling';
 }

@@ -86,9 +86,11 @@ class NotificationService {
 
       await requestPermissions();
       _isInitialized = true;
-      debugPrint('[NotificationService] Notifikasi lokal berhasil diinisialisasi.');
+      debugPrint(
+          '[NotificationService] Notifikasi lokal berhasil diinisialisasi.');
     } catch (e) {
-      debugPrint('[NotificationService] Inisialisasi plugin error (graceful fallback): $e');
+      debugPrint(
+          '[NotificationService] Inisialisasi plugin error (graceful fallback): $e');
       _isInitialized = true;
     }
   }
@@ -122,7 +124,8 @@ class NotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse response) {
-    debugPrint('[NotificationService] Notifikasi ditekan dengan payload: ${response.payload}');
+    debugPrint(
+        '[NotificationService] Notifikasi ditekan dengan payload: ${response.payload}');
   }
 
   // =========================================================================
@@ -133,7 +136,8 @@ class NotificationService {
   Future<bool> showTicketConfirmation(TicketModel ticket) async {
     // Periksa preferensi pengguna (PB-058)
     if (!_storage.notifBooking) {
-      debugPrint('[NotificationService] Notifikasi booking dinonaktifkan oleh pengguna.');
+      debugPrint(
+          '[NotificationService] Notifikasi booking dinonaktifkan oleh pengguna.');
       return false;
     }
 
@@ -160,7 +164,8 @@ class NotificationService {
         const androidDetails = AndroidNotificationDetails(
           channelBookings,
           'Konfirmasi Pemesanan Tiket',
-          channelDescription: 'Notifikasi konfirmasi berhasil pesan tiket bioskop',
+          channelDescription:
+              'Notifikasi konfirmasi berhasil pesan tiket bioskop',
           importance: Importance.max,
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
@@ -178,7 +183,8 @@ class NotificationService {
           payload: payload,
         );
       } catch (e) {
-        debugPrint('[NotificationService] Gagal menampilkan notifikasi tiket: $e');
+        debugPrint(
+            '[NotificationService] Gagal menampilkan notifikasi tiket: $e');
       }
     }
 
@@ -189,7 +195,8 @@ class NotificationService {
   Future<bool> showFnbConfirmation(FnbOrderModel order) async {
     // Periksa preferensi pengguna (PB-058)
     if (!_storage.notifBooking) {
-      debugPrint('[NotificationService] Notifikasi booking dinonaktifkan oleh pengguna.');
+      debugPrint(
+          '[NotificationService] Notifikasi booking dinonaktifkan oleh pengguna.');
       return false;
     }
 
@@ -236,7 +243,8 @@ class NotificationService {
           payload: payload,
         );
       } catch (e) {
-        debugPrint('[NotificationService] Gagal menampilkan notifikasi F&B: $e');
+        debugPrint(
+            '[NotificationService] Gagal menampilkan notifikasi F&B: $e');
       }
     }
 
@@ -253,7 +261,8 @@ class NotificationService {
   Future<List<int>> scheduleTicketReminders(TicketModel ticket) async {
     // Periksa preferensi pengguna (PB-058)
     if (!_storage.notifReminder) {
-      debugPrint('[NotificationService] Pengingat jadwal dinonaktifkan oleh pengguna.');
+      debugPrint(
+          '[NotificationService] Pengingat jadwal dinonaktifkan oleh pengguna.');
       return [];
     }
 
@@ -301,9 +310,9 @@ class NotificationService {
     }
 
     // 2. Pengingat H-30 Menit (30 Menit Sebelum Film)
-    final time30MinsBefore =
-        showDateTime.subtract(const Duration(minutes: 30));
-    final title30Mins = 'Pengingat Film (30 Menit Lagi): ${ticket.movieTitle} 🎬';
+    final time30MinsBefore = showDateTime.subtract(const Duration(minutes: 30));
+    final title30Mins =
+        'Pengingat Film (30 Menit Lagi): ${ticket.movieTitle} 🎬';
     final body30Mins =
         'Film ${ticket.movieTitle} dimulai 30 menit lagi (${ticket.hallName}, Kursi: ${ticket.seats.join(', ')}). Tunjukkan tiket ${ticket.bookingCode} di pintu studio!';
 
@@ -340,9 +349,8 @@ class NotificationService {
 
   /// Membatalkan alarm pengingat jika tiket dibatalkan atau kadaluwarsa (PB-057)
   Future<void> cancelTicketReminders(String ticketId) async {
-    final targets = scheduledReminders
-        .where((r) => r['ticketId'] == ticketId)
-        .toList();
+    final targets =
+        scheduledReminders.where((r) => r['ticketId'] == ticketId).toList();
 
     for (final reminder in targets) {
       final notifId = reminder['id'] as int;
@@ -354,7 +362,8 @@ class NotificationService {
     }
 
     scheduledReminders.removeWhere((r) => r['ticketId'] == ticketId);
-    debugPrint('[NotificationService] Berhasil membatalkan pengingat tiket $ticketId.');
+    debugPrint(
+        '[NotificationService] Berhasil membatalkan pengingat tiket $ticketId.');
   }
 
   // =========================================================================
@@ -365,7 +374,8 @@ class NotificationService {
   Future<bool> showFnbOrderReady(FnbOrderModel order) async {
     // Periksa preferensi pengguna (PB-058)
     if (!_storage.notifFnb) {
-      debugPrint('[NotificationService] Notifikasi F&B dinonaktifkan oleh pengguna.');
+      debugPrint(
+          '[NotificationService] Notifikasi F&B dinonaktifkan oleh pengguna.');
       return false;
     }
 
@@ -413,7 +423,8 @@ class NotificationService {
           payload: payload,
         );
       } catch (e) {
-        debugPrint('[NotificationService] Gagal menampilkan notifikasi F&B Ready: $e');
+        debugPrint(
+            '[NotificationService] Gagal menampilkan notifikasi F&B Ready: $e');
       }
     }
 

@@ -31,7 +31,8 @@ void main() {
   });
 
   group('PB-056: Notifikasi Konfirmasi Pemesanan (Tiket & F&B)', () {
-    test('Mengirim notifikasi instan saat booking tiket bioskop berhasil', () async {
+    test('Mengirim notifikasi instan saat booking tiket bioskop berhasil',
+        () async {
       final ticket = TicketModel(
         id: 'tkt-test-001',
         bookingCode: 'CNM-88991',
@@ -67,7 +68,8 @@ void main() {
       expect(dispatched['payload'], contains('ticket_confirmation'));
     });
 
-    test('Mengirim notifikasi instan saat checkout pesanan F&B berhasil', () async {
+    test('Mengirim notifikasi instan saat checkout pesanan F&B berhasil',
+        () async {
       final fnbOrder = FnbOrderModel(
         id: 'fnb-test-001',
         userId: 'usr-123',
@@ -113,8 +115,12 @@ void main() {
     });
   });
 
-  group('PB-057: Notifikasi Pengingat Jadwal Film Terjadwal (H-2 Jam & H-30 Menit)', () {
-    test('Menjadwalkan alarm notifikasi H-2 jam dan H-30 menit untuk film di masa depan', () async {
+  group(
+      'PB-057: Notifikasi Pengingat Jadwal Film Terjadwal (H-2 Jam & H-30 Menit)',
+      () {
+    test(
+        'Menjadwalkan alarm notifikasi H-2 jam dan H-30 menit untuk film di masa depan',
+        () async {
       // Buat jadwal 5 jam dari sekarang
       final futureDate = DateTime.now().add(const Duration(hours: 5));
       final dateStr =
@@ -163,7 +169,9 @@ void main() {
       expect(date2h.isBefore(date30m), isTrue);
     });
 
-    test('Hanya menjadwalkan H-30 menit jika film tayang kurang dari 2 jam lagi', () async {
+    test(
+        'Hanya menjadwalkan H-30 menit jika film tayang kurang dari 2 jam lagi',
+        () async {
       // Buat jadwal 1 jam dari sekarang
       final futureDate = DateTime.now().add(const Duration(minutes: 60));
       final dateStr =
@@ -198,7 +206,9 @@ void main() {
       expect(notifService.scheduledReminders.first['type'], 'reminder_30m');
     });
 
-    test('Tidak menjadwalkan notifikasi jika jadwal film sudah lewat di masa lalu', () async {
+    test(
+        'Tidak menjadwalkan notifikasi jika jadwal film sudah lewat di masa lalu',
+        () async {
       final pastDate = DateTime.now().subtract(const Duration(hours: 3));
       final dateStr =
           '${pastDate.year.toString().padLeft(4, '0')}-${pastDate.month.toString().padLeft(2, '0')}-${pastDate.day.toString().padLeft(2, '0')}';
@@ -230,7 +240,8 @@ void main() {
       expect(notifService.scheduledReminders, isEmpty);
     });
 
-    test('Membatalkan pengingat film yang terjadwal berdasarkan ticketId', () async {
+    test('Membatalkan pengingat film yang terjadwal berdasarkan ticketId',
+        () async {
       final futureDate = DateTime.now().add(const Duration(hours: 4));
       final dateStr =
           '${futureDate.year.toString().padLeft(4, '0')}-${futureDate.month.toString().padLeft(2, '0')}-${futureDate.day.toString().padLeft(2, '0')}';
@@ -267,7 +278,8 @@ void main() {
   });
 
   group('PB-058: Pengaturan Izin & Preferensi Notifikasi di Profil', () {
-    test('Menonaktifkan notifBooking mencegah pengiriman notifikasi pemesanan', () async {
+    test('Menonaktifkan notifBooking mencegah pengiriman notifikasi pemesanan',
+        () async {
       await storageService.setNotifBooking(false);
 
       final ticket = TicketModel(
@@ -295,7 +307,8 @@ void main() {
       expect(notifService.dispatchedNotifications, isEmpty);
     });
 
-    test('Menonaktifkan notifReminder mencegah penjadwalan alarm tayang', () async {
+    test('Menonaktifkan notifReminder mencegah penjadwalan alarm tayang',
+        () async {
       await storageService.setNotifReminder(false);
 
       final futureDate = DateTime.now().add(const Duration(hours: 4));
@@ -329,7 +342,8 @@ void main() {
       expect(notifService.scheduledReminders, isEmpty);
     });
 
-    test('PreferenceController bereaksi terhadap toggle switch notifikasi', () async {
+    test('PreferenceController bereaksi terhadap toggle switch notifikasi',
+        () async {
       final prefController = Get.put(PreferenceController());
 
       expect(prefController.notifBooking.value, isTrue);
@@ -355,7 +369,8 @@ void main() {
   });
 
   group('PB-059: Notifikasi Pengingat Pesanan F&B Siap Diambil', () {
-    test('Mengirim notifikasi saat pesanan siap diambil di counter concession', () async {
+    test('Mengirim notifikasi saat pesanan siap diambil di counter concession',
+        () async {
       final fnbOrder = FnbOrderModel(
         id: 'fnb-ready-01',
         userId: 'usr-123',
@@ -393,7 +408,9 @@ void main() {
       expect(dispatched['payload'], contains('ready'));
     });
 
-    test('Mengirim notifikasi saat pesanan delivery sedang diantar ke kursi studio', () async {
+    test(
+        'Mengirim notifikasi saat pesanan delivery sedang diantar ke kursi studio',
+        () async {
       final fnbOrder = FnbOrderModel(
         id: 'fnb-ready-02',
         userId: 'usr-123',
@@ -428,7 +445,8 @@ void main() {
       expect(dispatched['body'], contains('D4'));
     });
 
-    test('Menolak pengiriman notifikasi F&B jika notifFnb dinonaktifkan', () async {
+    test('Menolak pengiriman notifikasi F&B jika notifFnb dinonaktifkan',
+        () async {
       await storageService.setNotifFnb(false);
 
       final fnbOrder = FnbOrderModel(
@@ -453,7 +471,8 @@ void main() {
   });
 
   group('PB-060: Notifikasi Penawaran Promo F&B Mingguan', () {
-    test('Mengirim simulasi notifikasi promosi mingguan penonton bioskop', () async {
+    test('Mengirim simulasi notifikasi promosi mingguan penonton bioskop',
+        () async {
       final result = await notifService.showWeeklyPromo(
         title: 'Diskon Spesial 25% Popcorn!',
         message: 'Gunakan kode promo POPCORN25 untuk nonton seru hari ini.',
@@ -469,7 +488,8 @@ void main() {
       expect(dispatched['payload'], contains('weekly_promo'));
     });
 
-    test('Menolak pengiriman promo jika preferensi notifPromo dinonaktifkan', () async {
+    test('Menolak pengiriman promo jika preferensi notifPromo dinonaktifkan',
+        () async {
       await storageService.setNotifPromo(false);
 
       final result = await notifService.showWeeklyPromo();

@@ -393,6 +393,14 @@ class ProfileTab extends StatelessWidget {
               }),
               const Divider(color: AppColors.divider, height: 1),
               _buildInteractiveSettingTile(
+                icon: Icons.lock_reset_rounded,
+                title: 'Ubah Kata Sandi',
+                subtitle:
+                    'Perbarui kata sandi akun dengan enkripsi SHA-256 (PB-010)',
+                onTap: () => Get.toNamed(Routes.changePassword),
+              ),
+              const Divider(color: AppColors.divider, height: 1),
+              _buildInteractiveSettingTile(
                 icon: Icons.tune_rounded,
                 title: 'Pengaturan Aplikasi Lanjutan',
                 subtitle: 'Tema aplikasi, biometrik & manajemen data (PB-063)',
@@ -418,8 +426,7 @@ class ProfileTab extends StatelessWidget {
               Obx(() => _buildSwitchTile(
                     icon: Icons.alarm_rounded,
                     title: 'Pengingat Jadwal Tayang',
-                    subtitle:
-                        'Alarm otomatis H-2 jam & H-30 menit (PB-057)',
+                    subtitle: 'Alarm otomatis H-2 jam & H-30 menit (PB-057)',
                     value: prefCtrl.notifReminder.value,
                     onChanged: (val) => prefCtrl.setNotifReminder(val),
                   )),

@@ -151,7 +151,8 @@ class MyCinemateView extends StatelessWidget {
                           color: AppColors.primary, size: 16),
                       label: const Text(
                         'Hapus Semua',
-                        style: TextStyle(color: AppColors.primary, fontSize: 12),
+                        style:
+                            TextStyle(color: AppColors.primary, fontSize: 12),
                       ),
                     );
                   }),
@@ -247,8 +248,8 @@ class MyCinemateView extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: tier.color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                          color: tier.color.withValues(alpha: 0.5)),
+                      border:
+                          Border.all(color: tier.color.withValues(alpha: 0.5)),
                     ),
                     child: Text(
                       '${tier.icon} ${tier.title}',
@@ -406,8 +407,10 @@ class MyCinemateView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildTierPill('Bronze', '🥉', 0, profileCtrl.watchedCount.value),
-                _buildTierPill('Silver', '🥈', 3, profileCtrl.watchedCount.value),
+                _buildTierPill(
+                    'Bronze', '🥉', 0, profileCtrl.watchedCount.value),
+                _buildTierPill(
+                    'Silver', '🥈', 3, profileCtrl.watchedCount.value),
                 _buildTierPill('Gold', '🥇', 6, profileCtrl.watchedCount.value),
                 _buildTierPill(
                     'Platinum', '👑', 10, profileCtrl.watchedCount.value),

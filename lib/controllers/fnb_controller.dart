@@ -476,7 +476,8 @@ class FnbController extends GetxController {
         try {
           await NotificationService.instance.showFnbOrderReady(updated);
         } catch (e) {
-          debugPrint('[FnbController] Error sending F&B ready notification: $e');
+          debugPrint(
+              '[FnbController] Error sending F&B ready notification: $e');
         }
       }
     }

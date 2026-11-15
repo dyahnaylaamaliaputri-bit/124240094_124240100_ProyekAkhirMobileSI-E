@@ -67,7 +67,8 @@ class SearchView extends StatelessWidget {
       elevation: 0,
       titleSpacing: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+        icon:
+            const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
         onPressed: () => Get.back(),
       ),
       title: Container(
@@ -112,7 +113,8 @@ class SearchView extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.tune_rounded, color: AppColors.textPrimary),
+                icon: const Icon(Icons.tune_rounded,
+                    color: AppColors.textPrimary),
                 tooltip: 'Filter Pencarian',
                 onPressed: () => _showFilterBottomSheet(context, controller),
               ),
@@ -312,7 +314,8 @@ class SearchView extends StatelessWidget {
               // Chip Max Price
               if (controller.maxPrice.value != null) ...[
                 _buildActiveChip(
-                  label: '≤ ${CurrencyHelper.format(controller.maxPrice.value!)}',
+                  label:
+                      '≤ ${CurrencyHelper.format(controller.maxPrice.value!)}',
                   onDelete: () => controller.setMaxPrice(null),
                 ),
                 const SizedBox(width: 6),
@@ -328,7 +331,8 @@ class SearchView extends StatelessWidget {
               ],
 
               // Chip Sorting
-              if (controller.selectedSort.value != SearchSortOption.relevance) ...[
+              if (controller.selectedSort.value !=
+                  SearchSortOption.relevance) ...[
                 _buildActiveChip(
                   label: _getSortLabel(controller.selectedSort.value),
                   onDelete: () =>
@@ -522,7 +526,8 @@ class SearchView extends StatelessWidget {
             icon: Icons.movie_rounded,
           ),
           const SizedBox(height: 8),
-          ...controller.filteredMovies.map((movie) => _buildMovieCard(movie, controller)),
+          ...controller.filteredMovies
+              .map((movie) => _buildMovieCard(movie, controller)),
           const SizedBox(height: 16),
         ],
 
@@ -1066,7 +1071,8 @@ class SearchView extends StatelessWidget {
                       },
                       child: const Text(
                         'Reset Semua',
-                        style: TextStyle(color: AppColors.primary, fontSize: 13),
+                        style:
+                            TextStyle(color: AppColors.primary, fontSize: 13),
                       ),
                     ),
                   ],
@@ -1224,9 +1230,10 @@ class SearchView extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: controller.availableCities.map((city) {
-                        final isSelected = controller.selectedCity.value == city ||
-                            (city == 'Semua Kota' &&
-                                controller.selectedCity.value == null);
+                        final isSelected =
+                            controller.selectedCity.value == city ||
+                                (city == 'Semua Kota' &&
+                                    controller.selectedCity.value == null);
                         return ChoiceChip(
                           label: Text(city),
                           selected: isSelected,

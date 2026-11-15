@@ -52,7 +52,8 @@ void main() {
     Get.reset();
   });
 
-  group('PB-066: Sinkronisasi Otomatis Data Lokal & Cloud (Hive -> Supabase)', () {
+  group('PB-066: Sinkronisasi Otomatis Data Lokal & Cloud (Hive -> Supabase)',
+      () {
     test('Mendeteksi status konektivitas perangkat secara reaktif', () async {
       syncService.isOnline.value = true;
       expect(syncService.isOnline.value, isTrue);
@@ -61,7 +62,8 @@ void main() {
       expect(syncService.isOnline.value, isFalse);
     });
 
-    test('Menolak sinkronisasi ketika perangkat dalam kondisi offline', () async {
+    test('Menolak sinkronisasi ketika perangkat dalam kondisi offline',
+        () async {
       syncService.isOnline.value = false;
 
       final result = await syncService.syncOfflineData(forceOnline: false);
@@ -71,7 +73,8 @@ void main() {
       expect(syncService.isSyncing.value, isFalse);
     });
 
-    test('Menghitung data offline yang belum tersinkronkan dengan akurat', () async {
+    test('Menghitung data offline yang belum tersinkronkan dengan akurat',
+        () async {
       // Simpan 2 tiket offline ke Hive
       final ticket1 = {
         'id': 'tkt-sync-001',
@@ -119,7 +122,8 @@ void main() {
       expect(syncService.totalUnsynced, 1);
     });
 
-    test('Menyinkronkan data tiket offline dan menandai status is_synced: true', () async {
+    test('Menyinkronkan data tiket offline dan menandai status is_synced: true',
+        () async {
       final ticket = {
         'id': 'tkt-to-sync',
         'booking_code': 'CNM-SYNC-01',
@@ -158,7 +162,9 @@ void main() {
       expect(syncService.unsyncedTicketsCount.value, 0);
     });
 
-    test('Pencegahan Duplikasi (Idempotency): Tidak menduplikasi data yang sudah tersinkronkan', () async {
+    test(
+        'Pencegahan Duplikasi (Idempotency): Tidak menduplikasi data yang sudah tersinkronkan',
+        () async {
       final ticket = {
         'id': 'tkt-idempotent-01',
         'booking_code': 'CNM-IDEM-01',
@@ -194,7 +200,9 @@ void main() {
   });
 
   group('PB-067: Optimasi Cold Start & Hardening Kualitas', () {
-    test('Verifikasi performa cold start inisialisasi aplikasi di bawah 4.0 detik (< 4000 ms)', () async {
+    test(
+        'Verifikasi performa cold start inisialisasi aplikasi di bawah 4.0 detik (< 4000 ms)',
+        () async {
       final duration = await syncService.measureStartupTime(() async {
         // Simulasi inisialisasi startup: Storage, Hive boxes, User Session & Sync check
         final storage = StorageService();
@@ -208,11 +216,14 @@ void main() {
       expect(duration.inMilliseconds, lessThan(4000));
     });
 
-    test('Crash Resistance Guard: Menangkap exception tak terduga dan mengembalikan nilai fallback', () async {
+    test(
+        'Crash Resistance Guard: Menangkap exception tak terduga dan mengembalikan nilai fallback',
+        () async {
       // Operasi yang sengaja melempar error tak terduga
       final result = await syncService.executeProtected<String>(
         action: () async {
-          throw Exception('Simulasi kegagalan parsing jaringan atau format korup');
+          throw Exception(
+              'Simulasi kegagalan parsing jaringan atau format korup');
         },
         fallback: 'FALLBACK_AMAN',
         operationName: 'NetworkFetchTest',
@@ -222,7 +233,9 @@ void main() {
       expect(result, 'FALLBACK_AMAN');
     });
 
-    test('Crash Resistance Guard: Mengembalikan hasil asli jika operasi sukses tanpa error', () async {
+    test(
+        'Crash Resistance Guard: Mengembalikan hasil asli jika operasi sukses tanpa error',
+        () async {
       final result = await syncService.executeProtected<int>(
         action: () async => 42,
         fallback: 0,
@@ -232,7 +245,9 @@ void main() {
       expect(result, 42);
     });
 
-    test('Ketahanan terhadap data cache lokal yang korup (Corrupted JSON Cache Resilience)', () async {
+    test(
+        'Ketahanan terhadap data cache lokal yang korup (Corrupted JSON Cache Resilience)',
+        () async {
       // Simpan data korup / format aneh ke cache tiket
       await storage.cacheTickets([
         {'id': null, 'corrupted_field': 'invalid_data'},

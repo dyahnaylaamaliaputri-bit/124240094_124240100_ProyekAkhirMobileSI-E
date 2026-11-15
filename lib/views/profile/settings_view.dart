@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/preference_controller.dart';
 import '../../controllers/profile_controller.dart';
+import '../../routes/app_routes.dart';
 import '../../services/sync_service.dart';
 import '../../utils/app_colors.dart';
 
@@ -57,7 +58,8 @@ class SettingsView extends StatelessWidget {
                   children: [
                     _buildThemeOptionTile(
                       title: 'Mode Gelap (Cinematic Dark)',
-                      subtitle: 'Tema gelap hemat baterai dengan nuansa bioskop',
+                      subtitle:
+                          'Tema gelap hemat baterai dengan nuansa bioskop',
                       icon: Icons.dark_mode_rounded,
                       value: 'dark',
                       groupValue: currentMode,
@@ -97,7 +99,9 @@ class SettingsView extends StatelessWidget {
                     onChanged: (val) {
                       profileCtrl.setBiometricEnabled(val);
                       Get.snackbar(
-                        val ? 'Biometrik Diaktifkan' : 'Biometrik Dinonaktifkan',
+                        val
+                            ? 'Biometrik Diaktifkan'
+                            : 'Biometrik Dinonaktifkan',
                         val
                             ? 'Login dengan sidik jari / Face ID kini aktif.'
                             : 'Login biometrik telah dinonaktifkan.',
@@ -132,6 +136,35 @@ class SettingsView extends StatelessWidget {
                     inactiveThumbColor: AppColors.textSecondary,
                     inactiveTrackColor: AppColors.surface,
                   )),
+              const Divider(color: AppColors.divider, height: 1),
+              ListTile(
+                leading: const Icon(
+                  Icons.lock_reset_rounded,
+                  color: AppColors.gold,
+                  size: 24,
+                ),
+                title: const Text(
+                  'Ubah Kata Sandi (PB-010)',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Perbarui kata sandi akun dengan enkripsi SHA-256 + Salt',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: AppColors.textSecondary,
+                  size: 14,
+                ),
+                onTap: () => Get.toNamed(Routes.changePassword),
+              ),
             ]),
 
             const SizedBox(height: 24),

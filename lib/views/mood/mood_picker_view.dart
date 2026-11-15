@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/mood_controller.dart';
 import '../../models/mood_model.dart';
+import '../../routes/app_routes.dart';
 import '../../utils/app_colors.dart';
 import '../widgets/shimmer_loading.dart';
 
@@ -108,11 +109,11 @@ class _MoodPickerViewState extends State<MoodPickerView> {
             child: const Text('✨', style: TextStyle(fontSize: 26)),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Sedang ingin nonton apa hari ini?',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -120,13 +121,44 @@ class _MoodPickerViewState extends State<MoodPickerView> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
+                const SizedBox(height: 4),
+                const Text(
                   'Pilih emosi atau suasana hatimu, dan AI Cinemate akan merekomendasikan film bioskop yang paling cocok!',
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                     height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                InkWell(
+                  onTap: () => Get.toNamed(Routes.advancedProfiling),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.psychology_rounded,
+                            color: Colors.white, size: 16),
+                        SizedBox(width: 6),
+                        Text(
+                          'Coba Profiling Multi-Kriteria (PB-037) →',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

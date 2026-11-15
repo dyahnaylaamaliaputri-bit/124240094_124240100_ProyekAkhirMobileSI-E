@@ -20,11 +20,14 @@ import '../views/movie_detail/movie_detail_view.dart';
 import '../views/fnb/fnb_checkout_view.dart';
 import '../views/fnb/fnb_order_detail_view.dart';
 import '../views/mood/mood_picker_view.dart';
+import '../views/mood/advanced_profiling_view.dart';
 import '../views/cinema/cinema_map_view.dart';
 import '../views/profile/edit_profile_view.dart';
 import '../views/profile/my_cinemate_view.dart';
 import '../views/profile/settings_view.dart';
 import '../views/search/search_view.dart';
+import '../views/chatbot/chatbot_view.dart';
+import '../views/auth/change_password_view.dart';
 import '../bindings/profile_binding.dart';
 import '../bindings/search_binding.dart';
 import '../controllers/mood_controller.dart';
@@ -129,6 +132,23 @@ class AppPages {
       name: Routes.settings,
       page: () => const SettingsView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: Routes.chatbot,
+      page: () => const ChatbotView(),
+    ),
+    GetPage(
+      name: Routes.changePassword,
+      page: () => const ChangePasswordView(),
+    ),
+    GetPage(
+      name: Routes.advancedProfiling,
+      page: () => const AdvancedProfilingView(),
+      binding: BindingsBuilder(() {
+        if (!Get.isRegistered<MoodController>()) {
+          Get.lazyPut<MoodController>(() => MoodController());
+        }
+      }),
     ),
   ];
 }

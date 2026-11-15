@@ -147,6 +147,41 @@ class AuthService {
   }
 
   // ================================================================
+  // UBAH PASSWORD (PB-010)
+  // ================================================================
+
+  /// Mengubah password pengguna (PB-010).
+  /// Melempar Exception jika password lama salah atau user tidak ditemukan.
+  Future<bool> changePassword({
+    required String email,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final row = await _db
+        .from('users')
+        .select()
+        .eq('email', email.toLowerCase().trim())
+        .maybeSingle();
+
+    if (row == null) {
+      throw Exception('Pengguna tidak ditemukan.');
+    }
+
+    final storedHash = row['password_hash'] as String;
+    if (!_verifyPassword(oldPassword, storedHash)) {
+      throw Exception('Password lama yang Anda masukkan tidak sesuai.');
+    }
+
+    final newSalt = _uuid.v4();
+    final newPasswordHash = '$newSalt:${_hashPassword(newPassword, newSalt)}';
+
+    await _db.from('users').update({'password_hash': newPasswordHash}).eq(
+        'email', email.toLowerCase().trim());
+
+    return true;
+  }
+
+  // ================================================================
   // CHECK SESSION (PB-007)
   // ================================================================
 
