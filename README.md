@@ -259,9 +259,81 @@ Berikut adalah status pencapaian 4 Product Backlog (PB) yang telah diselesaikan:
 
 ---
 
+## 📋 Catatan Tugas untuk Rekan Tim (4 PB Lanjutan: PB 19 s.d. PB 22)
+
+Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil dan terstruktur untuk dikerjakan oleh rekan tim:
+
+### 📦 Tugas Rekan 1: Epic Pemilihan Kursi Interaktif & Concurrency Locking (SET — PB 19)
+*Menuntaskan visualisasi denah kursi bioskop, batas maksimal pemesanan, dan mekanisme penguncian kursi real-time (PB-027 s.d. PB-029 / SRS §3.4 FR-024 s.d. FR-027, NFR-010, NFR-017)*
+
+| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| 1 | **PB-027** | Seat Map Interaktif Multi-Studio | **Given** jadwal bioskop dan studio dipilih (Regular, IMAX, Premiere), **When** seat map dibuka, **Then** denah kursi interaktif (hingga 200 kursi) menampilkan status *Available*, *Booked*, dan *Selected*; membatasi maksimal 6 kursi per transaksi dan subtotal harga terhitung instan. | ⏳ Siap Dikerjakan |
+| 2 | **PB-028** | Pencegahan Pemesanan Ganda (Concurrency Collision) | **Given** dua pengguna memilih kursi yang sama dalam rentang waktu bersamaan, **When** keduanya menekan konfirmasi, **Then** hanya satu pengguna yang berhasil mengunci kursi dan pengguna lain menerima pemberitahuan ramah serta seat map dimuat ulang otomatis. | ⏳ Siap Dikerjakan |
+| 3 | **PB-029** | Temporary Seat Hold Timer (10 Menit) | **Given** pengguna telah memilih kursi dan melanjutkan ke ringkasan pesanan, **When** proses checkout dimulai, **Then** kursi dikunci sementara selama 10 menit dengan countdown timer visual, dan otomatis dilepas kembali ke status *Available* jika waktu habis atau pesanan dibatalkan. | ⏳ Siap Dikerjakan |
+
+- **Target File yang Dikerjakan:**
+  - `lib/controllers/booking_seat_controller.dart` (Pengelolaan state kursi reaktif, validasi batas 6 kursi, dan logika timer hold)
+  - `lib/views/booking/select_seat_view.dart` (Visualisasi denah kursi Dark Cinema, baris A-J, nomor kursi, dan layar bioskop melengkung)
+  - `lib/services/seat_service.dart` (Integrasi pengecekan status kursi di Supabase `seat_locks` & cache lokal)
+  - `test/seat_selection_concurrency_test.dart` (Unit test pengujian interaktivitas seat map, validasi batas kursi, dan auto-release timer)
+
+---
+
+### 📦 Tugas Rekan 2: Epic Validasi E-Ticket, QR Scanner & Siklus Tiket Kedaluwarsa (TKT — PB 20)
+*Menuntaskan siklus penutupan tiket otomatis, scanner kamera petugas bioskop, dan fitur berbagi tiket (PB-026 / SRS §3.4 FR-023, FR-031 s.d. FR-033)*
+
+| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| 1 | **PB-026** | Penandaan Tiket Kedaluwarsa Otomatis | **Given** jadwal film telah lewat dari tanggal dan jam tayang saat ini, **When** aplikasi dibuka atau tab Tiket dimuat, **Then** status tiket otomatis berubah menjadi *Expired* dan dipindahkan dari tab Tiket Aktif ke Riwayat Tontonan secara otomatis di Hive & Supabase. | ⏳ Siap Dikerjakan |
+| 2 | **PB-026B** | QR Scanner Check-in Petugas Bioskop | **Given** petugas bioskop membuka menu Scanner Check-in (`CheckInScannerView`), **When** kamera memindai QR Code e-ticket penonton (`CNM-XXXXX`), **Then** sistem memvalidasi keaslian kode booking, menampilkan data tiket penonton, dan mengubah status menjadi *Checked-in* / *Used* secara offline & online. | ⏳ Siap Dikerjakan |
+| 3 | **PB-026C** | Fitur Bagikan Tiket & Undangan Nonton | **Given** tiket bioskop aktif terbuka di `TicketDetailView`, **When** pengguna menekan tombol *"Bagikan Tiket"*, **Then** aplikasi membuka dialog share sistem untuk membagikan kartu ringkasan tiket (judul film, bioskop, jam, studio, nomor kursi) ke WhatsApp / media sosial. | ⏳ Siap Dikerjakan |
+
+- **Target File yang Dikerjakan:**
+  - `lib/views/ticket/check_in_scanner_view.dart` (Layar pemindai QR Code menggunakan kamera atau simulasi scanner staf bioskop)
+  - `lib/controllers/tickets_controller.dart` (Logika otomatis filter tiket kedaluwarsa & pembaruan status check-in)
+  - `lib/views/ticket/ticket_detail_view.dart` (Penambahan tombol aksi bagikan tiket & status lencana)
+  - `test/ticket_lifecycle_scanner_test.dart` (Unit test validasi siklus kedaluwarsa tiket dan pemindaian QR code)
+
+---
+
+### 📦 Tugas Rekan 3: Epic Integrasi F&B Terpadu & Multi-Bioskop Concession (FNB — PB 21)
+*Menuntaskan alur pemesanan makanan bundling tiket bioskop, pemesanan mandiri, dan pelacakan pesanan (PB-032, PB-033, PB-035 / SRS §3.5 FR-028, FR-036 s.d. FR-038)*
+
+| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| 1 | **PB-032** | Langkah Opsional Tambah Makanan Sebelum Checkout | **Given** pengguna telah memilih kursi dan berada di alur booking tiket, **When** sebelum masuk ringkasan pesanan akhir, **Then** muncul langkah opsional penawaran snack combo F&B diskon Rp 10.000 yang langsung terintegrasi menyatu dengan total pembayaran tiket. | ⏳ Siap Dikerjakan |
+| 2 | **PB-033** | Pemesanan F&B Mandiri Tanpa Tiket Nonton | **Given** pengguna membuka tab Pesan Makanan, **When** pengguna memilih menu dan bioskop concession terdekat tanpa tiket bioskop aktif, **Then** alur checkout mandiri berjalan lancar dengan opsi ambil di counter concession dan penerbitan kode pickup `FNB-XXXXX`. | ⏳ Siap Dikerjakan |
+| 3 | **PB-035** | Stepper Pelacakan Status & Estimasi Penyiapan | **Given** pesanan F&B telah dibayar, **When** pengguna membuka layar `FnbOrderDetailView`, **Then** tampil stepper status dinamis (*Sedang Disiapkan* 🍳 $\rightarrow$ *Siap Diambil* 🍿 $\rightarrow$ *Selesai Diambil* ✅), estimasi menit penyiapan, dan tombol simulasi staf concession. | ⏳ Siap Dikerjakan |
+
+- **Target File yang Dikerjakan:**
+  - `lib/views/booking/order_summary_view.dart` (Integrasi bundling menu F&B ke dalam invoice tiket bioskop)
+  - `lib/views/fnb/fnb_checkout_view.dart` & `lib/views/fnb/fnb_order_detail_view.dart` (Penyempurnaan alur pickup mandiri dan stepper)
+  - `lib/controllers/fnb_controller.dart` (State management pesanan mandiri, bundling diskon, dan pelacakan stepper)
+  - `test/fnb_integration_lifecycle_test.dart` (Unit test alur bundling F&B, pemesanan mandiri, dan stepper status)
+
+---
+
+### 📦 Tugas Rekan 4: Epic Loyalitas Pengguna, Gamifikasi & Rekomendasi Sosial (PRF / DSH — PB 22)
+*Menuntaskan sistem penghargaan badge loyalitas penonton, analisis statistik tontonan, dan riwayat AI (PB-064, PB-065 / SRS §3.8 FR-070, FR-071)*
+
+| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| 1 | **PB-064** | Gamifikasi Badge Loyalitas & Statistik Penonton | **Given** pengguna telah menonton film di Cinemate, **When** membuka menu *My Cinemate*, **Then** tampil statistik total film, jam tontonan, pengeluaran, progress bar kenaikan level (*Bronze* $\rightarrow$ *Silver* $\rightarrow$ *Gold* $\rightarrow$ *Platinum Cinema Maestro*), dan grafik donat genre favorit. | ⏳ Siap Dikerjakan |
+| 2 | **PB-064B** | Kartu Undangan Nonton Bareng (Watch Party Card) | **Given** pengguna melihat detail film atau jadwal yang diminati, **When** menekan tombol *"Ajak Teman Nobar"*, **Then** aplikasi menghasilkan kartu ajakan estetik berisi judul film, poster, bioskop, dan link deep link untuk dibagikan ke teman. | ⏳ Siap Dikerjakan |
+| 3 | **PB-065** | Linimasa Riwayat Profiling AI & Komparasi Mood | **Given** pengguna sering melakukan profiling mood AI, **When** membuka riwayat profiling di Profil, **Then** tampil linimasa riwayat emosi pengguna dari waktu ke waktu (*mood tracker timeline*), perbandingan film yang disarankan, dan filter riwayat berdasarkan tanggal. | ⏳ Siap Dikerjakan |
+
+- **Target File yang Dikerjakan:**
+  - `lib/views/profile/my_cinemate_view.dart` (Visualisasi statistik tontonan, progress bar level loyalitas, dan grafik genre)
+  - `lib/views/profile/mood_history_view.dart` (Layar linimasa riwayat mood dan perbandingan rekomendasi film)
+  - `lib/controllers/profile_controller.dart` (Kalkulasi otomatis poin loyalitas dari tiket aktif & riwayat)
+  - `test/loyalty_gamification_test.dart` (Unit test perhitungan badge loyalitas penonton, riwayat AI, dan data statistik)
+
+---
+
 ### 🌿 Panduan Branching Git untuk Rekan Tim
 
-Rekan tim dapat langsung menarik kode terbaru dari branch `main` dan membuat branch baru untuk mengerjakan tugas:
+Rekan tim dapat langsung menarik kode terbaru dari branch `main` dan membuat branch baru untuk mengerjakan tugas PB 19 s.d. PB 22:
 
 ```bash
 # 1. Pastikan branch main lokal up-to-date:
@@ -269,13 +341,13 @@ git checkout main
 git pull origin main
 
 # 2. Buat branch fitur baru untuk pengerjaan 4 PB:
-git checkout -b feat/tugas-rekan-4pb
+git checkout -b feat/tugas-rekan-pb19-pb22
 
 # Atau jika ingin dikerjakan per modul PB:
-git checkout -b feat/pb-039-041-chatbot-ai
-git checkout -b feat/pb-009-010-biometric-security
-git checkout -b feat/pb-016-017-dashboard-ai-widget
-git checkout -b feat/pb-036-038-llm-advanced-profiling
+git checkout -b feat/pb-027-029-seat-concurrency-locking
+git checkout -b feat/pb-026-ticket-scanner-expiry
+git checkout -b feat/pb-032-035-fnb-bundling-stepper
+git checkout -b feat/pb-064-065-loyalty-watchparty-timeline
 ```
 
 ---
