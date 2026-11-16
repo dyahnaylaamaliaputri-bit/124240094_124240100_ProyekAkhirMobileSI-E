@@ -42,6 +42,7 @@ class AppConstants {
   static const String boxTickets = 'tickets_cache';
   static const String boxUserPrefs = 'user_prefs';
   static const String boxChatHistory = 'chat_history';
+  static const String boxSeatLocks = 'seat_locks_cache';
 
   // ── Auth Rules ────────────────────────────────────────────────────
   static const int maxLoginAttempts = 5;

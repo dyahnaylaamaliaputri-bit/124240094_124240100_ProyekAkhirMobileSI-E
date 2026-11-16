@@ -1,15 +1,17 @@
 // lib/models/seat_model.dart
-// Model untuk kursi bioskop dan status keterisian (PB-020)
+// Model untuk kursi bioskop dan status keterisian (PB-020, PB-027, PB-028)
 
 enum SeatStatus {
   available, // Tersedia untuk dipilih
   selected, // Sedang dipilih pengguna
-  reserved, // Sudah dipesan pengguna lain
+  reserved, // Sudah dipesan pengguna lain (permanen)
+  locked, // Dikunci sementara pengguna lain (concurrency lock / 10 menit hold)
 }
 
 enum SeatType {
   regular,
   sweetbox,
+  recliner,
 }
 
 class SeatModel {
@@ -32,6 +34,8 @@ class SeatModel {
   bool get isAvailable => status == SeatStatus.available;
   bool get isSelected => status == SeatStatus.selected;
   bool get isReserved => status == SeatStatus.reserved;
+  bool get isLocked => status == SeatStatus.locked;
+  bool get isSelectable => status == SeatStatus.available;
 
   SeatModel copyWith({
     String? id,

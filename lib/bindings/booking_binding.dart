@@ -9,6 +9,8 @@ import '../controllers/order_summary_controller.dart';
 import '../controllers/payment_controller.dart';
 import '../controllers/ticket_detail_controller.dart';
 
+import '../services/seat_service.dart';
+
 class BookByCinemaBinding extends Bindings {
   @override
   void dependencies() {
@@ -26,6 +28,9 @@ class BookByMovieBinding extends Bindings {
 class BookingSeatBinding extends Bindings {
   @override
   void dependencies() {
+    if (!Get.isRegistered<SeatService>()) {
+      Get.lazyPut<SeatService>(() => SeatService.instance);
+    }
     Get.lazyPut<BookingSeatController>(() => BookingSeatController());
   }
 }

@@ -151,7 +151,7 @@ docs/
    ```bash
    flutter pub get
    ```
-5. **Jalankan pengujian unit (Semua 160 Unit Test Wajib Passed):**
+5. **Jalankan pengujian unit (Semua 176 Unit Test Wajib Passed):**
    ```bash
    flutter test
    ```
@@ -181,12 +181,17 @@ docs/
 - [x] **PB-037 (Formulir Profiling Multi-Kriteria):** Layar `AdvancedProfilingView` dengan 4 kriteria terpadu: suasana hati (Mood), teman menonton (Sendiri, Pasangan, Keluarga, Teman), durasi film ideal, dan batas anggaran tiket (Budget limit).
 - [x] **PB-038 (Kartu Hasil Rekomendasi & Alasan AI):** Kartu rekomendasi film terbaik dengan skor kecocokan tinggi (88% - 99%), tag kesesuaian teman menonton, kartu alasan AI mendalam, dan tombol pemesanan langsung tiket bioskop (`Routes.bookByMovie`).
 
+### 19. Epic Pemilihan Kursi Interaktif & Concurrency Locking (SET — PB 19 / PB-027 s.d. PB-029) [SELESAI ✅]
+- [x] **PB-027 (Seat Map Interaktif Multi-Studio):** Visualisasi denah kursi dinamis adaptif untuk Regular 2D (56 kursi), IMAX with Laser (120 kursi dengan baris Sweetbox sofa premium), dan The Premiere (24 kursi plush recliner). Pembatasan maksimal 6 kursi per pemesanan anti-calo dan kalkulasi subtotal harga instan.
+- [x] **PB-028 (Pencegahan Pemesanan Ganda / Concurrency Collision):** Mekanisme penguncian kursi real-time via `SeatService` (`seat_locks` Supabase & Hive box `seat_locks_cache`). Mendeteksi bentrok saat dua pengguna memilih kursi sama dalam waktu bersamaan dan memuat ulang status kursi terkunci secara otomatis.
+- [x] **PB-029 (Temporary Seat Hold Timer 10 Menit):** Penahanan kursi otomatis 10 menit (600 detik) dengan countdown timer visual di layar denah kursi dan auto-release kunci kursi kembali ke status *Available* saat waktu habis atau saat pesanan dibatalkan.
+
 ---
 
 ## 🎯 Rekapitulasi Milestone & Pembagian Tugas Tim
 
 > **📊 Status Pengerjaan Terkini:**  
-> Seluruh modul **PB 1 s/d PB 18 (total 85+ user stories)** telah tuntas 100% dikerjakan dengan **160 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
+> Seluruh modul **PB 1 s/d PB 19 (total 88+ user stories)** telah tuntas 100% dikerjakan dengan **176 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
 
 ---
 
@@ -263,20 +268,22 @@ Berikut adalah status pencapaian 4 Product Backlog (PB) yang telah diselesaikan:
 
 Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil dan terstruktur untuk dikerjakan oleh rekan tim:
 
-### 📦 Tugas Rekan 1: Epic Pemilihan Kursi Interaktif & Concurrency Locking (SET — PB 19)
+### 📦 Tugas Rekan 1: Epic Pemilihan Kursi Interaktif & Concurrency Locking (SET — PB 19) [SELESAI ✅]
 *Menuntaskan visualisasi denah kursi bioskop, batas maksimal pemesanan, dan mekanisme penguncian kursi real-time (PB-027 s.d. PB-029 / SRS §3.4 FR-024 s.d. FR-027, NFR-010, NFR-017)*
 
 | No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
 | :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-027** | Seat Map Interaktif Multi-Studio | **Given** jadwal bioskop dan studio dipilih (Regular, IMAX, Premiere), **When** seat map dibuka, **Then** denah kursi interaktif (hingga 200 kursi) menampilkan status *Available*, *Booked*, dan *Selected*; membatasi maksimal 6 kursi per transaksi dan subtotal harga terhitung instan. | ⏳ Siap Dikerjakan |
-| 2 | **PB-028** | Pencegahan Pemesanan Ganda (Concurrency Collision) | **Given** dua pengguna memilih kursi yang sama dalam rentang waktu bersamaan, **When** keduanya menekan konfirmasi, **Then** hanya satu pengguna yang berhasil mengunci kursi dan pengguna lain menerima pemberitahuan ramah serta seat map dimuat ulang otomatis. | ⏳ Siap Dikerjakan |
-| 3 | **PB-029** | Temporary Seat Hold Timer (10 Menit) | **Given** pengguna telah memilih kursi dan melanjutkan ke ringkasan pesanan, **When** proses checkout dimulai, **Then** kursi dikunci sementara selama 10 menit dengan countdown timer visual, dan otomatis dilepas kembali ke status *Available* jika waktu habis atau pesanan dibatalkan. | ⏳ Siap Dikerjakan |
+| 1 | **PB-027** | Seat Map Interaktif Multi-Studio | **Given** jadwal bioskop dan studio dipilih (Regular, IMAX, Premiere), **When** seat map dibuka, **Then** denah kursi interaktif (hingga 200 kursi) menampilkan status *Available*, *Booked*, *Selected*, dan *Locked*; membatasi maksimal 6 kursi per transaksi dan subtotal harga terhitung instan. | ✅ SELESAI |
+| 2 | **PB-028** | Pencegahan Pemesanan Ganda (Concurrency Collision) | **Given** dua pengguna memilih kursi yang sama dalam rentang waktu bersamaan, **When** keduanya menekan konfirmasi, **Then** hanya satu pengguna yang berhasil mengunci kursi dan pengguna lain menerima pemberitahuan ramah serta status kursi terkunci dimuat ulang otomatis. | ✅ SELESAI |
+| 3 | **PB-029** | Temporary Seat Hold Timer (10 Menit) | **Given** pengguna telah memilih kursi dan melanjutkan ke ringkasan pesanan, **When** proses checkout dimulai, **Then** kursi dikunci sementara selama 10 menit dengan countdown timer visual, dan otomatis dilepas kembali ke status *Available* jika waktu habis atau pesanan dibatalkan. | ✅ SELESAI |
 
-- **Target File yang Dikerjakan:**
-  - `lib/controllers/booking_seat_controller.dart` (Pengelolaan state kursi reaktif, validasi batas 6 kursi, dan logika timer hold)
-  - `lib/views/booking/select_seat_view.dart` (Visualisasi denah kursi Dark Cinema, baris A-J, nomor kursi, dan layar bioskop melengkung)
-  - `lib/services/seat_service.dart` (Integrasi pengecekan status kursi di Supabase `seat_locks` & cache lokal)
-  - `test/seat_selection_concurrency_test.dart` (Unit test pengujian interaktivitas seat map, validasi batas kursi, dan auto-release timer)
+- **File yang Telah Dibuat & Teruji:**
+  - `lib/models/seat_lock_model.dart` (Model temporary hold & concurrency lock kursi bioskop)
+  - `lib/models/seat_model.dart` (Status locked, seat types sweetbox & recliner)
+  - `lib/services/seat_service.dart` (Service manajemen lock kursi, collision detection, auto-release Hive & Supabase)
+  - `lib/controllers/booking_seat_controller.dart` (Multi-studio layout, batas 6 kursi, hold timer 10 menit & collision handling)
+  - `lib/views/booking/select_seat_view.dart` (Antarmuka seating plan adaptif, banner timer 10 menit, 4 status kursi & legend)
+  - `test/seat_selection_concurrency_test.dart` (16 Unit tests lengkap lolos 100%)
 
 ---
 

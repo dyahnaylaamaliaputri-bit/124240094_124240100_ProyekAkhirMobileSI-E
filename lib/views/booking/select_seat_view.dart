@@ -52,8 +52,37 @@ class SelectSeatView extends GetView<BookingSeatController> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header Info Jadwal
+            // Header Info Jadwal & Studio
             _buildShowtimeInfoBar(),
+
+            // Banner Hitung Mundur Temporary Hold (PB-029: 10 Menit)
+            Obx(() {
+              if (!controller.isHoldingSeats.value) {
+                return const SizedBox.shrink();
+              }
+              return Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: AppColors.gold.withValues(alpha: 0.15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.timer_rounded,
+                        size: 16, color: AppColors.gold),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Sisa Waktu Pemesanan Kursi: ${controller.formattedHoldTimer}',
+                      style: const TextStyle(
+                        color: AppColors.gold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
 
             // Seating Plan & Legend
             Expanded(
@@ -68,12 +97,12 @@ class SelectSeatView extends GetView<BookingSeatController> {
 
                     const SizedBox(height: 36),
 
-                    // Grid Kursi
+                    // Grid Kursi Multi-Studio
                     _buildSeatsGrid(),
 
                     const SizedBox(height: 36),
 
-                    // Keterangan / Legend
+                    // Keterangan / Legend (4 Status Kursi)
                     _buildLegend(),
                   ],
                 ),
@@ -156,9 +185,10 @@ class SelectSeatView extends GetView<BookingSeatController> {
     );
   }
 
-  /// Grid baris kursi bioskop (A-G) dengan walkway di tengah
+  /// Grid baris kursi bioskop Multi-Studio (PB-027) dengan walkway
   Widget _buildSeatsGrid() {
     return Obx(() {
+      final perRow = controller.seatsPerRow.value;
       return Column(
         children: controller.rows.map((rowLetter) {
           return Padding(
@@ -168,7 +198,7 @@ class SelectSeatView extends GetView<BookingSeatController> {
               children: [
                 // Label Baris Kiri
                 SizedBox(
-                  width: 16,
+                  width: 18,
                   child: Text(
                     rowLetter,
                     style: const TextStyle(
@@ -182,30 +212,31 @@ class SelectSeatView extends GetView<BookingSeatController> {
 
                 const SizedBox(width: 4),
 
-                // Kursi Sisi Kiri (1-4)
-                ...List.generate(4, (index) {
-                  final col = index + 1;
-                  final seatId = '$rowLetter$col';
-                  final seat = controller.seatsMap[seatId];
-                  return _buildSeatItem(seatId, seat);
-                }),
-
-                // Lorong Jalan (Walkway) di tengah
-                const SizedBox(width: 14),
-
-                // Kursi Sisi Kanan (5-8)
-                ...List.generate(4, (index) {
-                  final col = index + 5;
-                  final seatId = '$rowLetter$col';
-                  final seat = controller.seatsMap[seatId];
-                  return _buildSeatItem(seatId, seat);
-                }),
+                // Layout Kursi Dinamis berdasarkan Studio
+                if (perRow == 12) ...[
+                  // IMAX 12 Kursi (4 - 4 - 4)
+                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 1}', controller.seatsMap['$rowLetter${i + 1}'])),
+                  const SizedBox(width: 8),
+                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 5}', controller.seatsMap['$rowLetter${i + 5}'])),
+                  const SizedBox(width: 8),
+                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 9}', controller.seatsMap['$rowLetter${i + 9}'])),
+                ] else if (perRow == 6) ...[
+                  // Premiere 6 Kursi Recliner (3 - 3)
+                  ...List.generate(3, (i) => _buildSeatItem('$rowLetter${i + 1}', controller.seatsMap['$rowLetter${i + 1}'], isWide: true)),
+                  const SizedBox(width: 18),
+                  ...List.generate(3, (i) => _buildSeatItem('$rowLetter${i + 4}', controller.seatsMap['$rowLetter${i + 4}'], isWide: true)),
+                ] else ...[
+                  // Regular 8 Kursi (4 - 4)
+                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 1}', controller.seatsMap['$rowLetter${i + 1}'])),
+                  const SizedBox(width: 14),
+                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 5}', controller.seatsMap['$rowLetter${i + 5}'])),
+                ],
 
                 const SizedBox(width: 4),
 
                 // Label Baris Kanan
                 SizedBox(
-                  width: 16,
+                  width: 18,
                   child: Text(
                     rowLetter,
                     style: const TextStyle(
@@ -224,14 +255,15 @@ class SelectSeatView extends GetView<BookingSeatController> {
     });
   }
 
-  /// Widget satu kursi interaktif
-  Widget _buildSeatItem(String seatId, SeatModel? seat) {
+  /// Widget satu kursi interaktif (PB-027, PB-028: status Available, Selected, Reserved, Locked)
+  Widget _buildSeatItem(String seatId, SeatModel? seat, {bool isWide = false}) {
     if (seat == null) {
-      return const SizedBox(width: 30, height: 30);
+      return SizedBox(width: isWide ? 38 : 30, height: 30);
     }
 
     final isSelected = seat.isSelected;
     final isReserved = seat.isReserved;
+    final isLocked = seat.isLocked;
 
     Color bgColor;
     Color borderColor;
@@ -241,6 +273,10 @@ class SelectSeatView extends GetView<BookingSeatController> {
       bgColor = const Color(0xFF1F1F2E);
       borderColor = Colors.transparent;
       textColor = AppColors.textDisabled;
+    } else if (isLocked) {
+      bgColor = const Color(0xFF2A2000);
+      borderColor = AppColors.gold.withValues(alpha: 0.8);
+      textColor = AppColors.gold;
     } else if (isSelected) {
       bgColor = AppColors.primary;
       borderColor = AppColors.primaryLight;
@@ -254,13 +290,16 @@ class SelectSeatView extends GetView<BookingSeatController> {
     return GestureDetector(
       onTap: () => controller.toggleSeat(seatId),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 2.5),
-        width: 30,
-        height: 30,
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        width: isWide ? 38 : 28,
+        height: 28,
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: borderColor, width: isSelected ? 1.5 : 1),
+          border: Border.all(
+            color: borderColor,
+            width: isSelected || isLocked ? 1.5 : 1,
+          ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
@@ -269,69 +308,90 @@ class SelectSeatView extends GetView<BookingSeatController> {
                     offset: const Offset(0, 2),
                   ),
                 ]
-              : null,
+              : isLocked
+                  ? [
+                      BoxShadow(
+                        color: AppColors.gold.withValues(alpha: 0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 1),
+                      ),
+                    ]
+                  : null,
         ),
         child: Center(
           child: isReserved
               ? const Icon(Icons.close_rounded,
                   size: 13, color: AppColors.textDisabled)
-              : Text(
-                  '${seat.column}',
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  ),
-                ),
+              : isLocked
+                  ? const Icon(Icons.lock_rounded,
+                      size: 12, color: AppColors.gold)
+                  : Text(
+                      '${seat.column}',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 10,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.w500,
+                      ),
+                    ),
         ),
       ),
     );
   }
 
-  /// Legend / Panduan Warna Kursi
+  /// Legend / Panduan 4 Status Kursi (PB-027 & PB-028)
   Widget _buildLegend() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
         color: AppColors.card.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 8,
         children: [
           _buildLegendItem('Tersedia', AppColors.card, AppColors.border),
-          _buildLegendItem(
-              'Dipilih', AppColors.primary, AppColors.primaryLight),
-          _buildLegendItem(
-              'Terisi', const Color(0xFF1F1F2E), Colors.transparent,
-              hasIcon: true),
+          _buildLegendItem('Dipilih', AppColors.primary, AppColors.primaryLight),
+          _buildLegendItem('Terisi', const Color(0xFF1F1F2E), Colors.transparent, hasCloseIcon: true),
+          _buildLegendItem('Terkunci', const Color(0xFF2A2000), AppColors.gold, hasLockIcon: true),
         ],
       ),
     );
   }
 
-  Widget _buildLegendItem(String label, Color color, Color border,
-      {bool hasIcon = false}) {
+  Widget _buildLegendItem(
+    String label,
+    Color color,
+    Color border, {
+    bool hasCloseIcon = false,
+    bool hasLockIcon = false,
+  }) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 20,
-          height: 20,
+          width: 18,
+          height: 18,
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(4),
             border: Border.all(color: border),
           ),
-          child: hasIcon
+          child: hasCloseIcon
               ? const Icon(Icons.close_rounded,
-                  size: 12, color: AppColors.textDisabled)
-              : null,
+                  size: 11, color: AppColors.textDisabled)
+              : hasLockIcon
+                  ? const Icon(Icons.lock_rounded,
+                      size: 11, color: AppColors.gold)
+                  : null,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
         ),
       ],
     );
