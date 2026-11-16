@@ -353,23 +353,87 @@ Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil d
 
 ---
 
+## 👥 Penugasan Terbuka Anggota Tim: Fase Finalisasi & Kesiapan Rilis (Sprint 5)
+
+> **⚖️ Prinsip Pembagian Tugas yang Adil & Proporsional:**  
+> Seluruh fitur fungsional inti (**PB 1 s/d PB 22 / 67 User Stories**) telah berhasil diselesaikan dan lolos **208 unit tests (100% passed)**.  
+> Fase akhir Sprint 5 difokuskan pada **Final Hardening, Pengujian Komprehensif, Pemolesan UI/UX, Keamanan, dan Kesiapan Rilis**.  
+> Beban kerja dibagi secara berimbang ke dalam **4 peran spesifik** dengan bobot masing-masing **12 Story Points (SP)**:
+
+| Anggota Tim | Peran Spesifik | Fokus Modul | Estimasi Bobot | Target Branch Git |
+| :--- | :--- | :--- | :---: | :--- |
+| **Rekan 1** | **Quality Assurance & End-to-End Testing** | Pengujian alur transaksi menyeluruh, skenario pemulihan offline, & pengujian multi-resolusi layar Android. | **12 SP** | `feat/sprint5-qa-e2e-testing` |
+| **Rekan 2** | **UI/UX Polish, Mikro-Animasi & Haptic** | Transisi hero animasi sinematik, sensasi getar haptic feedback, & standarisasi visual Dark Cinema. | **12 SP** | `feat/sprint5-uiux-micro-animations` |
+| **Rekan 3** | **Security Hardening & Optimasi Performa** | Validasi sanitasi form anti-injeksi, audit keamanan login biometrik, & optimasi disk caching gambar TMDB. | **12 SP** | `feat/sprint5-security-performance` |
+| **Rekan 4** | **Release APK, Dokumentasi & Skenario Demo** | Kompilasi build APK release, buku panduan pengguna (*User Manual*), slide presentasi arsitektur, & video demo. | **12 SP** | `feat/sprint5-release-documentation` |
+
+---
+
+### 📦 Tugas Rekan 1: Quality Assurance & Pengujian Skenario End-to-End (QA & E2E — 12 SP)
+*Fokus: Memastikan keandalan aplikasi bebas crash dan alur transaksi berjalan mulus di berbagai kondisi jaringan.*
+
+| No | Backlog ID | Nama Tugas / User Story | Cakupan Teknis & Kriteria Penerimaan (Given-When-Then) | Target Deliverable |
+| :---: | :---: | :--- | :--- | :--- |
+| 1 | **TSK-QA-01** | Pengujian End-to-End Transaksi Lengkap | **Given** pengguna membuka aplikasi dari awal, **When** melakukan alur Login $\rightarrow$ Pilih Film $\rightarrow$ Pilih Kursi $\rightarrow$ Tambah F&B Combo $\rightarrow$ Simulasi Bayar $\rightarrow$ E-Ticket $\rightarrow$ Scan QR Check-in, **Then** seluruh alur selesai tanpa glitch atau status tersendat. | `test/e2e_integration_flow_test.dart` |
+| 2 | **TSK-QA-02** | Pengujian Pemulihan Jaringan Ekstrem (*Offline Resilience*) | **Given** koneksi internet terputus saat berada di tengah alur booking atau pemesanan F&B, **When** transaksi diselesaikan secara offline lalu internet terhubung kembali, **Then** Hive cache lokal tetap utuh dan data otomatis tersinkronisasi ke cloud tanpa duplikasi. | Laporan Uji Offline Resilience |
+| 3 | **TSK-QA-03** | Pengujian Multi-Resolusi Layar Android | **Given** aplikasi dijalankan pada 3 jenis form-factor (Layar HP 5.0" 720p, Layar HP 6.5" 1080p, dan Tablet 8.0"+), **When** seluruh layar dibuka, **Then** tidak ada visual overflow (*A RenderFlex overflowed*) dan layout responsif proporsional. | Matriks Uji Resolusi & Screenshot |
+
+---
+
+### 📦 Tugas Rekan 2: UI/UX Polish, Mikro-Animasi & Haptic Delight (UI/UX — 12 SP)
+*Fokus: Memberikan pengalaman pengguna yang memikat, sinematik, interaktif, dan berstandar komersial.*
+
+| No | Backlog ID | Nama Tugas / User Story | Cakupan Teknis & Kriteria Penerimaan (Given-When-Then) | Target Deliverable |
+| :---: | :---: | :--- | :--- | :--- |
+| 1 | **TSK-UI-01** | Transisi Sinematik Hero Animation | **Given** pengguna menekan kartu poster film di `HomeTab` atau `SearchView`, **When** berpindah ke `MovieDetailView` dan alur `BookByMovieView`, **Then** poster film bertransisi mulus menggunakan widget `Hero` tanpa jeda visual. | `lib/views/movie_detail/movie_detail_view.dart` |
+| 2 | **TSK-UI-02** | Sensasi Getar Haptic Feedback Interaktif | **Given** pengguna berinteraksi dengan kontrol sentuh kritis, **When** memilih kursi di denah (`HapticFeedback.selectionClick()`), scan QR berhasil (`mediumImpact()`), dan toggle switch di profil (`lightImpact()`), **Then** perangkat memberikan feedback fisik getar yang halus. | `select_seat_view.dart`, `check_in_scanner_view.dart` |
+| 3 | **TSK-UI-03** | Standarisasi Dark Cinema Palette & Empty State | **Given** pencarian tidak ditemukan, keranjang kosong, atau riwayat kosong, **When** layar dibuka, **Then** tampil ilustrasi vektor ramah dan palet warna kontras konsisten berstandar WCAG AA (`#0A0A0A`, `#E50914`, `#FFD700`). | Komponen Empty State & Theme Audit |
+
+---
+
+### 📦 Tugas Rekan 3: Keamanan, Validasi Input & Optimasi Performa (SEC & PERF — 12 SP)
+*Fokus: Mencegah celah kerentanan aplikasi, sanitasi data input pengguna, serta efisiensi penggunaan memori & kuota.*
+
+| No | Backlog ID | Nama Tugas / User Story | Cakupan Teknis & Kriteria Penerimaan (Given-When-Then) | Target Deliverable |
+| :---: | :---: | :--- | :--- | :--- |
+| 1 | **TSK-SEC-01** | Sanitasi Form Input & Pencegahan Injeksi Teks | **Given** pengguna memasukkan karakter berbahaya (kutip, tag HTML, skrip) pada input pencarian, chat box CineBot, form profil, atau catatan F&B, **When** input dikirim, **Then** sistem membersihkan input tanpa memicu crash atau SQL/NoSQL injection. | `lib/utils/validators.dart`, `chatbot_controller.dart` |
+| 2 | **TSK-SEC-02** | Audit Keamanan Biometrik & Proteksi Brute-Force | **Given** percobaan login gagal berturut-turut, **When** mencapai 5x kesalahan, **Then** sistem mengunci akses (*lockout*) selama 5 menit; **Given** biometrik dibatalkan, **Then** fallback autentikasi kata sandi bekerja tanpa membocorkan sesi. | Laporan Audit Keamanan Akun |
+| 3 | **TSK-PERF-01** | Optimasi Disk Caching Gambar TMDB & Memori | **Given** pengguna menggulir katalog film dan F&B yang panjang, **When** thumbnail gambar dimuat, **Then** pemuatan memanfaatkan cache memori/disk yang dibatasi agar tidak terjadi memory spike atau lag saat scrolling. | `image_helper.dart` / Caching Audit |
+
+---
+
+### 📦 Tugas Rekan 4: Rilis APK Produksi, Dokumentasi Pengguna & Materi Demo (REL & DOC — 12 SP)
+*Fokus: Menghasilkan build APK rilis yang siap dipasang, buku panduan pengguna, serta materi presentasi sidang.*
+
+| No | Backlog ID | Nama Tugas / User Story | Cakupan Teknis & Kriteria Penerimaan (Given-When-Then) | Target Deliverable |
+| :---: | :---: | :--- | :--- | :--- |
+| 1 | **TSK-REL-01** | Kompilasi Build APK Rilis Android | **Given** kode di branch `main` telah siap, **When** perintah `flutter build apk --release --split-per-abi` dijalankan, **Then** dihasilkan file APK release berukuran hemat (< 30 MB) yang sukses diinstal dan diuji di HP Android fisik nyata (API 26+). | Berkas APK di `build/app/outputs/flutter-apk/` |
+| 2 | **TSK-DOC-01** | Penyusunan Buku Panduan Pengguna (*User Manual*) | **Given** pengguna baru memasang aplikasi, **When** membaca panduan, **Then** tersedia dokumen terstruktur dengan tangkapan layar alur utama: Rekomendasi Mood AI, Booking Tiket & Kursi, F&B Concession, E-Ticket Offline, dan Scanner Check-in. | `docs/USER_MANUAL.md` (PDF/Markdown) |
+| 3 | **TSK-DOC-02** | Penyusunan Slide Presentasi & Skenario Demo Sidang | **Given** tim akan mempresentasikan tugas akhir praktikum di hadapan dosen/asisten, **When** demo disiapkan, **Then** tersedia slide presentasi (diagram arsitektur GetX OOP, skema relasi database Supabase, dan bukti 208 unit tests passed). | `docs/PRESENTATION_SLIDES.pdf` |
+
+---
+
 ### 🌿 Panduan Branching Git untuk Rekan Tim
 
-Rekan tim dapat langsung menarik kode terbaru dari branch `main` dan membuat branch baru untuk mengerjakan tugas PB 19 s.d. PB 22:
+Rekan tim dapat langsung menarik kode terbaru dari branch `main` dan membuat branch fitur baru sesuai penugasan masing-masing:
 
 ```bash
 # 1. Pastikan branch main lokal up-to-date:
 git checkout main
 git pull origin main
 
-# 2. Buat branch fitur baru untuk pengerjaan 4 PB:
-git checkout -b feat/tugas-rekan-pb19-pb22
+# 2. Buat branch fitur sesuai penugasan Anda:
+# Rekan 1:
+git checkout -b feat/sprint5-qa-e2e-testing
 
-# Atau jika ingin dikerjakan per modul PB:
-git checkout -b feat/pb-027-029-seat-concurrency-locking
-git checkout -b feat/pb-026-ticket-scanner-expiry
-git checkout -b feat/pb-032-035-fnb-bundling-stepper
-git checkout -b feat/pb-064-065-loyalty-watchparty-timeline
+# Rekan 2:
+git checkout -b feat/sprint5-uiux-micro-animations
+
+# Rekan 3:
+git checkout -b feat/sprint5-security-performance
+
+# Rekan 4:
+git checkout -b feat/sprint5-release-documentation
 ```
 
 ---
