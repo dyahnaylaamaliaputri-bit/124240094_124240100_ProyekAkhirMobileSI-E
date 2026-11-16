@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/order_summary_controller.dart';
+import '../../models/booking_order_model.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/app_colors.dart';
 
@@ -56,6 +57,11 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                   children: [
                     // Kartu Tiket Sinema
                     _buildCinemaTicketCard(),
+
+                    const SizedBox(height: 16),
+
+                    // Penawaran Bundling Snack Hemat Diskon Rp 10.000 (PB-032)
+                    _buildSnackBundlingSection(),
 
                     const SizedBox(height: 16),
 
@@ -534,6 +540,165 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Bagian Penawaran Bundling Snack Hemat Diskon Rp 10.000 (PB-032 / FR-028)
+  Widget _buildSnackBundlingSection() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.fastfood_rounded, color: AppColors.gold, size: 18),
+                  SizedBox(width: 8),
+                  Text(
+                    'Tambah Camilan Bioskop (PB-032)',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: AppColors.success),
+                ),
+                child: const Text(
+                  'HEMAT 10RB',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Langkah opsional: Bundling snack hemat langsung menyatu dalam 1 pembayaran tiket!',
+            style: TextStyle(color: AppColors.textDisabled, fontSize: 11),
+          ),
+          const SizedBox(height: 12),
+
+          // Daftar Kartu Combo Bundling
+          ...OrderSummaryController.snackBundleOptions.map((bundle) {
+            return Obx(() {
+              final isSelected =
+                  controller.isBundleSelected(bundle['id'] as String);
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primaryDark.withValues(alpha: 0.25)
+                      : AppColors.card,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? AppColors.gold : AppColors.border,
+                    width: isSelected ? 1.5 : 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      bundle['emoji'] as String,
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            bundle['name'] as String,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            bundle['desc'] as String,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 11,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Text(
+                                BookingOrderModel.formatRupiah(
+                                    bundle['originalPrice'] as int),
+                                style: const TextStyle(
+                                  color: AppColors.textDisabled,
+                                  fontSize: 11,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                BookingOrderModel.formatRupiah(
+                                    bundle['bundlePrice'] as int),
+                                style: const TextStyle(
+                                  color: AppColors.gold,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            isSelected ? AppColors.gold : AppColors.cardLight,
+                        foregroundColor:
+                            isSelected ? Colors.black : Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () => controller.toggleSnackBundle(bundle),
+                      child: Text(
+                        isSelected ? 'Dipilih ✓' : '+ Tambah',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            });
+          }),
+        ],
+      ),
     );
   }
 

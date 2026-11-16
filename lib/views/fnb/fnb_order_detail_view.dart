@@ -181,8 +181,8 @@ class FnbOrderDetailView extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // ── Status Tracking Stepper ─────────────────────────────────────
-              _buildStatusTracker(order.status),
+              // ── Status Tracking Stepper & Estimasi Waktu (PB-035) ──────────────
+              _buildStatusTracker(order),
 
               const SizedBox(height: 20),
 
@@ -275,15 +275,15 @@ class FnbOrderDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusTracker(String currentStatus) {
+  Widget _buildStatusTracker(FnbOrderModel order) {
     int currentStep = 0;
-    if (currentStatus == 'ready') currentStep = 1;
-    if (currentStatus == 'completed') currentStep = 2;
+    if (order.status == 'ready') currentStep = 1;
+    if (order.status == 'completed') currentStep = 2;
 
     final steps = [
-      {'title': 'Disiapkan', 'desc': 'Koki menyiapkan pesanan'},
-      {'title': 'Siap Diambil', 'desc': 'Di counter atau siap diantar'},
-      {'title': 'Selesai', 'desc': 'Pesanan telah diterima'},
+      {'title': '🍳 Disiapkan', 'desc': 'Koki meracik pesanan'},
+      {'title': '🍿 Siap Diambil', 'desc': 'Di counter concession'},
+      {'title': '✅ Selesai', 'desc': 'Pesanan diserahkan'},
     ];
 
     return Container(
@@ -296,13 +296,91 @@ class FnbOrderDetailView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('STATUS PESANAN',
-              style: TextStyle(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'STATUS & ESTIMASI PESANAN (PB-035)',
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
-                  letterSpacing: 0.8)),
+                  letterSpacing: 0.8,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: (order.status == 'ready'
+                          ? AppColors.primary
+                          : order.status == 'completed'
+                              ? Colors.green
+                              : AppColors.gold)
+                      .withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  order.estimatedTimeRemainingLabel,
+                  style: TextStyle(
+                    color: order.status == 'ready'
+                        ? AppColors.primaryLight
+                        : order.status == 'completed'
+                            ? Colors.greenAccent
+                            : AppColors.gold,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Banner Info Estimasi Penyiapan
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  order.status == 'completed'
+                      ? Icons.check_circle_rounded
+                      : order.status == 'ready'
+                          ? Icons.notifications_active_rounded
+                          : Icons.timer_outlined,
+                  color: order.status == 'ready'
+                      ? AppColors.primaryLight
+                      : order.status == 'completed'
+                          ? Colors.green
+                          : AppColors.gold,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    order.status == 'processing'
+                        ? 'Koki concession sedang menyiapkan pesanan segar. Estimasi siap dalam ± ${order.estimatedPrepMinutes} menit.'
+                        : order.status == 'ready'
+                            ? 'Pesanan sudah siap di counter! Tunjukkan kode ${order.pickupCode} ke staf concession.'
+                            : 'Pesanan telah selesai diambil. Selamat menikmati camilan Anda!',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           const SizedBox(height: 16),
+
+          // Stepper bar horizontal
           Row(
             children: List.generate(steps.length, (idx) {
               final isDone = idx <= currentStep;
@@ -338,12 +416,22 @@ class FnbOrderDetailView extends StatelessWidget {
                               fontSize: 11,
                             ),
                           ),
+                          const SizedBox(height: 2),
+                          Text(
+                            steps[idx]['desc']!,
+                            style: const TextStyle(
+                              color: AppColors.textDisabled,
+                              fontSize: 9,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
                     if (idx < steps.length - 1)
                       Container(
-                        width: 16,
+                        width: 12,
                         height: 2,
                         color: idx < currentStep
                             ? AppColors.primary

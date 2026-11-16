@@ -182,6 +182,22 @@ class FnbOrderModel {
     }
   }
 
+  /// Estimasi waktu penyiapan pesanan dalam menit (PB-035)
+  int get estimatedPrepMinutes {
+    final count = items.fold<int>(0, (sum, it) => sum + it.quantity);
+    return 10 + (count * 2);
+  }
+
+  /// Label estimasi penyiapan pesanan untuk UI (PB-035)
+  String get estimatedTimeRemainingLabel {
+    if (status == 'ready') {
+      return 'Pesanan Siap Diambil Sekarang!';
+    } else if (status == 'completed') {
+      return 'Pesanan Telah Selesai Diterima';
+    }
+    return 'Estimasi siap dalam ± $estimatedPrepMinutes menit';
+  }
+
   String get pickupMethodLabel {
     if (pickupMethod == 'delivery') {
       return 'Antar ke Studio ${studioNumber ?? ''} (Kursi ${seatNumber ?? ''})';

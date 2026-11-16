@@ -1,11 +1,12 @@
 // lib/controllers/order_summary_controller.dart
-// Controller Ringkasan Pesanan (PB-020)
+// Controller Ringkasan Pesanan & Bundling F&B Tiket Bioskop (PB-020, PB-032)
 
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/booking_order_model.dart';
 import '../models/cinema_model.dart';
+import '../models/fnb_order_model.dart';
 import '../models/movie_model.dart';
 import '../models/showtime_model.dart';
 import '../routes/app_routes.dart';
@@ -15,7 +16,14 @@ import 'auth_controller.dart';
 class OrderSummaryController extends GetxController {
   final StorageService _storage = StorageService();
 
-  late final Rx<BookingOrderModel> order;
+  Rx<BookingOrderModel>? _order;
+  Rx<BookingOrderModel> get order {
+    if (_order == null) {
+      _initOrder();
+    }
+    return _order!;
+  }
+  set order(Rx<BookingOrderModel> val) => _order = val;
 
   /// Informasi pengguna pemesan
   final userName = 'Pengguna Cinemate'.obs;
@@ -30,6 +38,42 @@ class OrderSummaryController extends GetxController {
   final discountAmount = 0.obs;
   final isVoucherApplied = false.obs;
   final voucherError = ''.obs;
+
+  /// Opsi Snack Combo Bundling Hemat (PB-032 / FR-028: Diskon Rp 10.000)
+  static final List<Map<String, dynamic>> snackBundleOptions = [
+    {
+      'id': 'bundle-combo-1',
+      'name': 'Combo Nonton Hemat',
+      'desc': 'Popcorn Caramel Reguler + Coca-Cola Dingin',
+      'emoji': '🍿🥤',
+      'originalPrice': 45000,
+      'discount': 10000,
+      'bundlePrice': 35000,
+      'fnbItemId': 'fnb-combo-hemat',
+    },
+    {
+      'id': 'bundle-combo-2',
+      'name': 'Combo Popcorn Duo',
+      'desc': 'Popcorn Large (Caramel/Salty) + 2 Minuman Dingin',
+      'emoji': '🍿🥤🥤',
+      'originalPrice': 65000,
+      'discount': 10000,
+      'bundlePrice': 55000,
+      'fnbItemId': 'fnb-combo-duo',
+    },
+    {
+      'id': 'bundle-combo-3',
+      'name': 'Combo Nachos Party',
+      'desc': 'Crispy Nachos with Melted Cheese + Iced Lemon Tea',
+      'emoji': '🧀🥤',
+      'originalPrice': 50000,
+      'discount': 10000,
+      'bundlePrice': 40000,
+      'fnbItemId': 'fnb-combo-nachos',
+    },
+  ];
+
+  final selectedBundle = Rxn<Map<String, dynamic>>();
 
   @override
   void onInit() {
@@ -47,12 +91,13 @@ class OrderSummaryController extends GetxController {
   }
 
   void _initOrder() {
+    if (_order != null) return;
     final args = Get.arguments;
     if (args is BookingOrderModel) {
-      order = Rx<BookingOrderModel>(args);
+      _order = Rx<BookingOrderModel>(args);
     } else {
       // Fallback draft pesanan jika dibuka tanpa arguments
-      order = Rx<BookingOrderModel>(
+      _order = Rx<BookingOrderModel>(
         BookingOrderModel(
           id: 'ORD-DEMO',
           movie: MovieModel(
@@ -140,14 +185,16 @@ class OrderSummaryController extends GetxController {
     if (code == 'CINEMATEHEMAT' || code == 'DISKON10') {
       discountAmount.value = 10000;
       isVoucherApplied.value = true;
-      Get.snackbar(
-        'Promo Diterapkan!',
-        'Potongan sebesar Rp 10.000 berhasil digunakan.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF16213E),
-        colorText: Colors.white,
-        icon: const Icon(Icons.check_circle_rounded, color: Color(0xFF4CAF50)),
-      );
+      if (Get.context != null) {
+        Get.snackbar(
+          'Promo Diterapkan!',
+          'Potongan sebesar Rp 10.000 berhasil digunakan.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF16213E),
+          colorText: Colors.white,
+          icon: const Icon(Icons.check_circle_rounded, color: Color(0xFF4CAF50)),
+        );
+      }
     } else {
       voucherError.value = 'Kode voucher tidak valid';
       discountAmount.value = 0;
@@ -163,9 +210,66 @@ class OrderSummaryController extends GetxController {
     voucherError.value = '';
   }
 
-  /// Total akhir setelah diskon
+  /// Memeriksa apakah opsi bundling snack tertentu sedang dipilih (PB-032)
+  bool isBundleSelected(String bundleId) =>
+      selectedBundle.value?['id'] == bundleId;
+
+  /// Memilih atau membatalkan pilihan paket snack bundling (PB-032)
+  void toggleSnackBundle(Map<String, dynamic> bundle) {
+    if (selectedBundle.value?['id'] == bundle['id']) {
+      // Hapus bundle
+      selectedBundle.value = null;
+      order.value = order.value.copyWith(fnbItems: []);
+      order.refresh();
+      if (Get.context != null) {
+        Get.snackbar(
+          'Paket Snack Dihapus',
+          'Bundling snack berhasil dihapus dari pesanan.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF1E293B),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } else {
+      // Terapkan bundle
+      selectedBundle.value = bundle;
+      final fnbItem = FnbOrderItemModel(
+        fnbItemId: bundle['fnbItemId'] as String,
+        name: '${bundle['name']} (Bundling Hemat)',
+        price: bundle['bundlePrice'] as int,
+        quantity: 1,
+        subtotal: bundle['bundlePrice'] as int,
+        note: 'Diskon bundling Rp 10.000',
+      );
+      order.value = order.value.copyWith(fnbItems: [fnbItem]);
+      order.refresh();
+      if (Get.context != null) {
+        Get.snackbar(
+          'Paket Snack Ditambahkan! 🎉',
+          '${bundle['name']} berhasil digabungkan dengan tiket. Diskon Rp 10.000 bundling diterapkan!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF1E293B),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      }
+    }
+  }
+
+  /// Menghapus paket bundling camilan
+  void removeSnackBundle() {
+    selectedBundle.value = null;
+    order.value = order.value.copyWith(fnbItems: []);
+    order.refresh();
+  }
+
+  /// Total akhir setelah diskon & fnb bundling
   int get finalTotalAmount {
-    final total = order.value.totalAmount - discountAmount.value;
+    final total = order.value.subtotal +
+        order.value.totalServiceFee +
+        order.value.fnbTotal -
+        discountAmount.value;
     return total > 0 ? total : 0;
   }
 
@@ -174,7 +278,7 @@ class OrderSummaryController extends GetxController {
   String get formattedDiscount =>
       BookingOrderModel.formatRupiah(discountAmount.value);
 
-  /// Aksi lanjut ke pembayaran (PB-021)
+  /// Aksi lanjut ke pembayaran (PB-021, PB-032)
   void proceedToPayment() {
     final updatedOrder =
         order.value.copyWith(discountAmount: discountAmount.value);

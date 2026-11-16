@@ -327,6 +327,47 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
               ],
             ),
           ),
+        ] else ...[
+          // Banner Pemesanan F&B Mandiri Tanpa Tiket Nonton (PB-033)
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.gold.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
+            ),
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.fastfood_rounded, color: AppColors.gold, size: 22),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Pemesanan F&B Mandiri (PB-033)',
+                        style: TextStyle(
+                          color: AppColors.gold,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Pemesanan camilan & minuman tanpa tiket nonton bioskop. Pesanan dapat diambil langsung di counter concession bioskop kapan saja dengan kode pickup FNB.',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
         Container(
           decoration: BoxDecoration(

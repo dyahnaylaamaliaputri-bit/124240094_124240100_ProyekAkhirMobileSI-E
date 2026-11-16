@@ -151,7 +151,7 @@ docs/
    ```bash
    flutter pub get
    ```
-5. **Jalankan pengujian unit (Semua 187 Unit Test Wajib Passed):**
+5. **Jalankan pengujian unit (Semua 195 Unit Test Wajib Passed):**
    ```bash
    flutter test
    ```
@@ -191,12 +191,17 @@ docs/
 - [x] **PB-026B (QR Scanner Check-in Petugas Bioskop):** Layar pemindai staf bioskop `CheckInScannerView` (`/check-in-scanner`) dengan animasi garis laser viewfinder, senter, pemindaian QR Code tiket penonton (`CNM-XXXXX`), validasi keaslian kode booking, pencegahan duplikasi check-in, dan fallback formulir input kode booking manual.
 - [x] **PB-026C (Fitur Bagikan Tiket & Undangan Nonton):** Fitur bagikan ringkasan tiket dan undangan nonton bareng terstruktur (film, bioskop, studio, tanggal, jam tayang, nomor kursi, kode booking) di `TicketDetailView` via dialog sistem (`share_plus`) dengan fallback aman ke clipboard.
 
+### 21. Epic Integrasi F&B Terpadu & Multi-Bioskop Concession (FNB — PB 21 / PB-032, PB-033, PB-035) [SELESAI ✅]
+- [x] **PB-032 (Langkah Opsional Tambah Makanan Sebelum Checkout):** Integrasi penawaran camilan bioskop bundling hemat diskon Rp 10.000 (Combo Nonton Hemat, Combo Popcorn Duo, Combo Nachos Party) di layar `OrderSummaryView`. Bundling otomatis menyatu ke invoice tiket bioskop, memperbarui total tagihan secara instan, dan menerbitkan pesanan concession saat checkout berhasil.
+- [x] **PB-033 (Pemesanan F&B Mandiri Tanpa Tiket Nonton):** Alur pemesanan makanan & minuman langsung dari katalog tanpa kewajiban memiliki tiket bioskop aktif. Pengambilan mandiri di counter concession terdekat dengan penerbitan kode pickup 5 digit `FNB-XXXXX` dan status awal `processing`.
+- [x] **PB-035 (Stepper Pelacakan Status & Estimasi Penyiapan):** Stepper pelacakan pesanan dinamis (*Sedang Disiapkan 🍳* $\rightarrow$ *Siap Diambil 🍿* $\rightarrow$ *Selesai Diambil ✅*) di `FnbOrderDetailView` lengkap dengan estimasi menit penyiapan dinamis berdasarkan jumlah item dan tombol simulasi status staf concession.
+
 ---
 
 ## 🎯 Rekapitulasi Milestone & Pembagian Tugas Tim
 
 > **📊 Status Pengerjaan Terkini:**  
-> Seluruh modul **PB 1 s/d PB 20 (total 91+ user stories)** telah tuntas 100% dikerjakan dengan **187 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
+> Seluruh modul **PB 1 s/d PB 21 (total 94+ user stories)** telah tuntas 100% dikerjakan dengan **195 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
 
 ---
 
@@ -309,14 +314,14 @@ Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil d
 
 ---
 
-### 📦 Tugas Rekan 3: Epic Integrasi F&B Terpadu & Multi-Bioskop Concession (FNB — PB 21)
+### 📦 Tugas Rekan 3: Epic Integrasi F&B Terpadu & Multi-Bioskop Concession (FNB — PB 21) [SELESAI ✅]
 *Menuntaskan alur pemesanan makanan bundling tiket bioskop, pemesanan mandiri, dan pelacakan pesanan (PB-032, PB-033, PB-035 / SRS §3.5 FR-028, FR-036 s.d. FR-038)*
 
 | No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
 | :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-032** | Langkah Opsional Tambah Makanan Sebelum Checkout | **Given** pengguna telah memilih kursi dan berada di alur booking tiket, **When** sebelum masuk ringkasan pesanan akhir, **Then** muncul langkah opsional penawaran snack combo F&B diskon Rp 10.000 yang langsung terintegrasi menyatu dengan total pembayaran tiket. | ⏳ Siap Dikerjakan |
-| 2 | **PB-033** | Pemesanan F&B Mandiri Tanpa Tiket Nonton | **Given** pengguna membuka tab Pesan Makanan, **When** pengguna memilih menu dan bioskop concession terdekat tanpa tiket bioskop aktif, **Then** alur checkout mandiri berjalan lancar dengan opsi ambil di counter concession dan penerbitan kode pickup `FNB-XXXXX`. | ⏳ Siap Dikerjakan |
-| 3 | **PB-035** | Stepper Pelacakan Status & Estimasi Penyiapan | **Given** pesanan F&B telah dibayar, **When** pengguna membuka layar `FnbOrderDetailView`, **Then** tampil stepper status dinamis (*Sedang Disiapkan* 🍳 $\rightarrow$ *Siap Diambil* 🍿 $\rightarrow$ *Selesai Diambil* ✅), estimasi menit penyiapan, dan tombol simulasi staf concession. | ⏳ Siap Dikerjakan |
+| 1 | **PB-032** | Langkah Opsional Tambah Makanan Sebelum Checkout | **Given** pengguna telah memilih kursi dan berada di alur booking tiket, **When** sebelum masuk ringkasan pesanan akhir, **Then** muncul langkah opsional penawaran snack combo F&B diskon Rp 10.000 yang langsung terintegrasi menyatu dengan total pembayaran tiket. | Selesai ✅ |
+| 2 | **PB-033** | Pemesanan F&B Mandiri Tanpa Tiket Nonton | **Given** pengguna membuka tab Pesan Makanan, **When** pengguna memilih menu dan bioskop concession terdekat tanpa tiket bioskop aktif, **Then** alur checkout mandiri berjalan lancar dengan opsi ambil di counter concession dan penerbitan kode pickup `FNB-XXXXX`. | Selesai ✅ |
+| 3 | **PB-035** | Stepper Pelacakan Status & Estimasi Penyiapan | **Given** pesanan F&B telah dibayar, **When** pengguna membuka layar `FnbOrderDetailView`, **Then** tampil stepper status dinamis (*Sedang Disiapkan* 🍳 $\rightarrow$ *Siap Diambil* 🍿 $\rightarrow$ *Selesai Diambil* ✅), estimasi menit penyiapan, dan tombol simulasi staf concession. | Selesai ✅ |
 
 - **Target File yang Dikerjakan:**
   - `lib/views/booking/order_summary_view.dart` (Integrasi bundling menu F&B ke dalam invoice tiket bioskop)

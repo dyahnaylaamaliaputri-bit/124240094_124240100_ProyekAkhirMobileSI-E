@@ -15,6 +15,8 @@ import '../routes/app_routes.dart';
 import '../services/storage_service.dart';
 import '../services/ticket_service.dart';
 import '../services/notification_service.dart';
+import '../services/fnb_service.dart';
+import 'fnb_controller.dart';
 import 'tickets_controller.dart';
 
 class PaymentController extends GetxController {
@@ -226,6 +228,28 @@ class PaymentController extends GetxController {
         Get.find<TicketsController>().loadTickets(forceRefresh: true);
       }
     } catch (_) {}
+
+    // Jika pesanan memuat camilan F&B bundling (PB-032), otomatis buat pesanan F&B di Concession
+    if (updated.fnbItems.isNotEmpty) {
+      try {
+        final fnbOrder = await FnbService().createOrder(
+          userId: userId,
+          cinemaId: updated.cinema.id,
+          cinemaName: updated.cinema.name,
+          items: updated.fnbItems,
+          pickupMethod: 'counter',
+          paymentMethod: selectedMethod.value.name,
+        );
+        debugPrint(
+            '[PaymentController] Berhasil membuat pesanan bundling F&B: ${fnbOrder.pickupCode}');
+        if (Get.isRegistered<FnbController>()) {
+          Get.find<FnbController>().fetchUserOrders();
+        }
+      } catch (e) {
+        debugPrint(
+            '[PaymentController] Error auto-creating bundling F&B order: $e');
+      }
+    }
 
     // PB-056: Notifikasi Konfirmasi Pemesanan Tiket Bioskop
     // PB-057: Notifikasi Pengingat Jadwal Film Terjadwal (H-2 jam & H-30 menit)
