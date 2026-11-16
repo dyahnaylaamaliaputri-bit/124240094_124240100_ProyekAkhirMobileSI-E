@@ -151,7 +151,7 @@ docs/
    ```bash
    flutter pub get
    ```
-5. **Jalankan pengujian unit (Semua 195 Unit Test Wajib Passed):**
+5. **Jalankan pengujian unit (Semua 208 Unit Test Wajib Passed):**
    ```bash
    flutter test
    ```
@@ -196,12 +196,17 @@ docs/
 - [x] **PB-033 (Pemesanan F&B Mandiri Tanpa Tiket Nonton):** Alur pemesanan makanan & minuman langsung dari katalog tanpa kewajiban memiliki tiket bioskop aktif. Pengambilan mandiri di counter concession terdekat dengan penerbitan kode pickup 5 digit `FNB-XXXXX` dan status awal `processing`.
 - [x] **PB-035 (Stepper Pelacakan Status & Estimasi Penyiapan):** Stepper pelacakan pesanan dinamis (*Sedang Disiapkan 🍳* $\rightarrow$ *Siap Diambil 🍿* $\rightarrow$ *Selesai Diambil ✅*) di `FnbOrderDetailView` lengkap dengan estimasi menit penyiapan dinamis berdasarkan jumlah item dan tombol simulasi status staf concession.
 
+### 22. Epic Loyalitas Pengguna, Gamifikasi & Rekomendasi Sosial (PRF / DSH — PB 22 / PB-064, PB-064B, PB-065) [SELESAI ✅]
+- [x] **PB-064 (Gamifikasi Badge Loyalitas & Statistik Penonton):** Dashboard personal di `MyCinemateView` menampilkan total film/tiket ditonton, estimasi jam tontonan, total pengeluaran belanja tiket & F&B, progress bar kenaikan level (*Bronze* $\rightarrow$ *Silver* $\rightarrow$ *Gold* $\rightarrow$ *Platinum Cinema Maestro*), visualisasi koleksi badge pencapaian (*Tiket Perdana*, *Silver Cinephile*, *Gold VIP*, *Cinema Maestro VIP*, *Penyelam Genre*, *Master Mood AI*, *Snack Connoisseur*), dan visualisasi distribusi persentase genre film favorit.
+- [x] **PB-064B (Kartu Undangan Nonton Bareng / Watch Party Card):** Fitur ajakan nobar di `MyCinemateView` dan `MovieDetailView` yang menghasilkan kartu undangan terstruktur berisi judul film, bioskop pilihan, jam tayang, dan catatan ajakan, dibagikan via sistem share dialog (`share_plus`) atau fallback clipboard.
+- [x] **PB-065 (Linimasa Riwayat Profiling AI & Komparasi Mood):** Layar linimasa terdedikasi `MoodHistoryView` (`/mood-history`) menampilkan riwayat profiling suasana hati dari waktu ke waktu, metrik komparasi mood dominan, filter chip per kategori emosi, kartu film rekomendasi dengan skor kecocokan, tombol pintasan cari/pesan tiket, serta penghapusan riwayat satu per satu atau sekaligus.
+
 ---
 
 ## 🎯 Rekapitulasi Milestone & Pembagian Tugas Tim
 
 > **📊 Status Pengerjaan Terkini:**  
-> Seluruh modul **PB 1 s/d PB 21 (total 94+ user stories)** telah tuntas 100% dikerjakan dengan **195 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
+> Seluruh modul **PB 1 s/d PB 22 (total 97+ user stories)** telah tuntas 100% dikerjakan dengan **208 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
 
 ---
 
@@ -331,14 +336,14 @@ Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil d
 
 ---
 
-### 📦 Tugas Rekan 4: Epic Loyalitas Pengguna, Gamifikasi & Rekomendasi Sosial (PRF / DSH — PB 22)
+### 📦 Tugas Rekan 4: Epic Loyalitas Pengguna, Gamifikasi & Rekomendasi Sosial (PRF / DSH — PB 22) [SELESAI ✅]
 *Menuntaskan sistem penghargaan badge loyalitas penonton, analisis statistik tontonan, dan riwayat AI (PB-064, PB-065 / SRS §3.8 FR-070, FR-071)*
 
 | No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
 | :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-064** | Gamifikasi Badge Loyalitas & Statistik Penonton | **Given** pengguna telah menonton film di Cinemate, **When** membuka menu *My Cinemate*, **Then** tampil statistik total film, jam tontonan, pengeluaran, progress bar kenaikan level (*Bronze* $\rightarrow$ *Silver* $\rightarrow$ *Gold* $\rightarrow$ *Platinum Cinema Maestro*), dan grafik donat genre favorit. | ⏳ Siap Dikerjakan |
-| 2 | **PB-064B** | Kartu Undangan Nonton Bareng (Watch Party Card) | **Given** pengguna melihat detail film atau jadwal yang diminati, **When** menekan tombol *"Ajak Teman Nobar"*, **Then** aplikasi menghasilkan kartu ajakan estetik berisi judul film, poster, bioskop, dan link deep link untuk dibagikan ke teman. | ⏳ Siap Dikerjakan |
-| 3 | **PB-065** | Linimasa Riwayat Profiling AI & Komparasi Mood | **Given** pengguna sering melakukan profiling mood AI, **When** membuka riwayat profiling di Profil, **Then** tampil linimasa riwayat emosi pengguna dari waktu ke waktu (*mood tracker timeline*), perbandingan film yang disarankan, dan filter riwayat berdasarkan tanggal. | ⏳ Siap Dikerjakan |
+| 1 | **PB-064** | Gamifikasi Badge Loyalitas & Statistik Penonton | **Given** pengguna telah menonton film di Cinemate, **When** membuka menu *My Cinemate*, **Then** tampil statistik total film, jam tontonan, pengeluaran, progress bar kenaikan level (*Bronze* $\rightarrow$ *Silver* $\rightarrow$ *Gold* $\rightarrow$ *Platinum Cinema Maestro*), dan grafik donat genre favorit. | Selesai ✅ |
+| 2 | **PB-064B** | Kartu Undangan Nonton Bareng (Watch Party Card) | **Given** pengguna melihat detail film atau jadwal yang diminati, **When** menekan tombol *"Ajak Teman Nobar"*, **Then** aplikasi menghasilkan kartu ajakan estetik berisi judul film, poster, bioskop, dan link deep link untuk dibagikan ke teman. | Selesai ✅ |
+| 3 | **PB-065** | Linimasa Riwayat Profiling AI & Komparasi Mood | **Given** pengguna sering melakukan profiling mood AI, **When** membuka riwayat profiling di Profil, **Then** tampil linimasa riwayat emosi pengguna dari waktu ke waktu (*mood tracker timeline*), perbandingan film yang disarankan, dan filter riwayat berdasarkan tanggal. | Selesai ✅ |
 
 - **Target File yang Dikerjakan:**
   - `lib/views/profile/my_cinemate_view.dart` (Visualisasi statistik tontonan, progress bar level loyalitas, dan grafik genre)

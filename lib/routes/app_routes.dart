@@ -31,4 +31,5 @@ abstract class Routes {
   static const changePassword = '/change-password';
   static const advancedProfiling = '/advanced-profiling';
   static const checkInScanner = '/check-in-scanner';
+  static const moodHistory = '/mood-history';
 }

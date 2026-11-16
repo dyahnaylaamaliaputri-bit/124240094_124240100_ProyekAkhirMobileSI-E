@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../controllers/profile_controller.dart';
 import '../../models/movie_model.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/app_colors.dart';
@@ -64,6 +65,27 @@ class MovieDetailView extends StatelessWidget {
               ),
             ),
             actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 6.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.black.withValues(alpha: 0.6),
+                  child: IconButton(
+                    icon: const Icon(Icons.share_rounded,
+                        color: Colors.white, size: 18),
+                    tooltip: 'Ajak Nobar (Watch Party)',
+                    onPressed: () {
+                      final profileCtrl = Get.isRegistered<ProfileController>()
+                          ? Get.find<ProfileController>()
+                          : Get.put(ProfileController());
+                      profileCtrl.shareWatchPartyInvite(
+                        movieTitle: movie.title,
+                        inviteNote:
+                            'Yuk nonton bareng film "${movie.title}" di bioskop!',
+                      );
+                    },
+                  ),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: CircleAvatar(
@@ -501,7 +523,33 @@ class MovieDetailView extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(width: 20),
+              const SizedBox(width: 16),
+
+              // Tombol Ajak Nobar (PB-064B)
+              IconButton(
+                onPressed: () {
+                  final profileCtrl = Get.isRegistered<ProfileController>()
+                      ? Get.find<ProfileController>()
+                      : Get.put(ProfileController());
+                  profileCtrl.shareWatchPartyInvite(
+                    movieTitle: movie.title,
+                    inviteNote:
+                        'Yuk nonton bareng film "${movie.title}" di bioskop!',
+                  );
+                },
+                icon: const Icon(Icons.share_rounded, color: AppColors.gold),
+                tooltip: 'Ajak Nobar',
+                style: IconButton.styleFrom(
+                  backgroundColor: AppColors.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: AppColors.border),
+                  ),
+                  minimumSize: const Size(48, 48),
+                ),
+              ),
+
+              const SizedBox(width: 10),
 
               // Tombol Beli Tiket (PB-019: Booked by Movie)
               Expanded(

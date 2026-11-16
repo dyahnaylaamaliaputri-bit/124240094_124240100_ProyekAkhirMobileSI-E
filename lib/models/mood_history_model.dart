@@ -16,6 +16,12 @@ class MoodHistoryItemModel {
     this.aiReason,
   });
 
+  String get posterUrl {
+    if (posterPath == null || posterPath!.isEmpty) return '';
+    if (posterPath!.startsWith('http')) return posterPath!;
+    return 'https://image.tmdb.org/t/p/w500$posterPath';
+  }
+
   Map<String, dynamic> toJson() => {
         'movie_id': movieId,
         'title': title,

@@ -25,6 +25,7 @@ import '../views/mood/advanced_profiling_view.dart';
 import '../views/cinema/cinema_map_view.dart';
 import '../views/profile/edit_profile_view.dart';
 import '../views/profile/my_cinemate_view.dart';
+import '../views/profile/mood_history_view.dart';
 import '../views/profile/settings_view.dart';
 import '../views/search/search_view.dart';
 import '../views/chatbot/chatbot_view.dart';
@@ -154,6 +155,11 @@ class AppPages {
     GetPage(
       name: Routes.checkInScanner,
       page: () => const CheckInScannerView(),
+    ),
+    GetPage(
+      name: Routes.moodHistory,
+      page: () => const MoodHistoryView(),
+      binding: ProfileBinding(),
     ),
   ];
 }

@@ -84,6 +84,11 @@ class MyCinemateView extends StatelessWidget {
               const SizedBox(height: 10),
               _buildLoyaltyProgressCard(profileCtrl),
 
+              const SizedBox(height: 14),
+              _buildSectionHeader('Koleksi Badge Pencapaian (Gamifikasi)'),
+              const SizedBox(height: 10),
+              _buildLoyaltyBadgesGrid(profileCtrl),
+
               const SizedBox(height: 24),
 
               // 4. PREFERENSI GENRE FILM FAVORIT (PB-064)
@@ -108,54 +113,36 @@ class MyCinemateView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               _buildGenreChips(profileCtrl),
+              const SizedBox(height: 12),
+              _buildGenreDistribution(profileCtrl),
+
+              const SizedBox(height: 24),
+
+              // 5. AJAK TEMAN NONTON BARENG (WATCH PARTY - PB-064B)
+              _buildSectionHeader('Ajak Teman Nonton Bareng (Watch Party)'),
+              const SizedBox(height: 10),
+              _buildWatchPartyInviteCard(profileCtrl),
 
               const SizedBox(height: 28),
 
-              // 5. RIWAYAT HASIL PROFILING AI MOOD (PB-065)
+              // 6. RIWAYAT HASIL PROFILING AI MOOD (PB-065)
               Row(
                 children: [
                   _buildSectionHeader('Riwayat Rekomendasi AI Mood'),
                   const Spacer(),
-                  Obx(() {
-                    if (profileCtrl.moodHistory.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return TextButton.icon(
-                      onPressed: () {
-                        Get.defaultDialog(
-                          title: 'Hapus Semua Riwayat',
-                          titleStyle: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          middleText:
-                              'Apakah Anda yakin ingin menghapus seluruh riwayat rekomendasi AI Mood?',
-                          middleTextStyle: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 13,
-                          ),
-                          backgroundColor: AppColors.card,
-                          textConfirm: 'Hapus Semua',
-                          textCancel: 'Batal',
-                          confirmTextColor: Colors.white,
-                          buttonColor: AppColors.primary,
-                          cancelTextColor: AppColors.textSecondary,
-                          onConfirm: () async {
-                            await profileCtrl.clearAllMoodHistory();
-                            Get.back();
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.delete_sweep_rounded,
-                          color: AppColors.primary, size: 16),
-                      label: const Text(
-                        'Hapus Semua',
-                        style:
-                            TextStyle(color: AppColors.primary, fontSize: 12),
+                  TextButton.icon(
+                    onPressed: () => Get.toNamed(Routes.moodHistory),
+                    icon: const Icon(Icons.timeline_rounded,
+                        color: AppColors.gold, size: 16),
+                    label: const Text(
+                      'Buka Linimasa',
+                      style: TextStyle(
+                        color: AppColors.gold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  }),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -447,6 +434,120 @@ class MyCinemateView extends StatelessWidget {
     );
   }
 
+  Widget _buildLoyaltyBadgesGrid(ProfileController profileCtrl) {
+    return Obx(() {
+      final badges = profileCtrl.loyaltyBadges;
+      return Column(
+        children: badges.map((badge) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: badge.isUnlocked
+                    ? AppColors.gold.withValues(alpha: 0.5)
+                    : AppColors.border,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: badge.isUnlocked
+                        ? AppColors.gold.withValues(alpha: 0.15)
+                        : AppColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    badge.icon,
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: badge.isUnlocked ? null : Colors.grey,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            badge.title,
+                            style: TextStyle(
+                              color: badge.isUnlocked
+                                  ? AppColors.textPrimary
+                                  : AppColors.textSecondary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const Spacer(),
+                          if (badge.isUnlocked)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.gold.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'Unlocked 🎖️',
+                                style: TextStyle(
+                                  color: AppColors.gold,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                          else
+                            Text(
+                              badge.progressLabel,
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 10,
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        badge.description,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                        ),
+                      ),
+                      if (!badge.isUnlocked) ...[
+                        const SizedBox(height: 6),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: badge.progress,
+                            minHeight: 4,
+                            backgroundColor: AppColors.surface,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.gold),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      );
+    });
+  }
+
   Widget _buildGenreChips(ProfileController profileCtrl) {
     return Obx(() {
       final selected = profileCtrl.favoriteGenres;
@@ -479,6 +580,141 @@ class MyCinemateView extends StatelessWidget {
         }).toList(),
       );
     });
+  }
+
+  Widget _buildGenreDistribution(ProfileController profileCtrl) {
+    return Obx(() {
+      final dist = profileCtrl.genreDistribution;
+      if (dist.isEmpty) return const SizedBox.shrink();
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Distribusi Minat Genre Penonton',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 10),
+            ...dist.entries.map((entry) {
+              final percent = entry.value;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          entry.key,
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 11,
+                          ),
+                        ),
+                        Text(
+                          '${percent.toStringAsFixed(0)}%',
+                          style: const TextStyle(
+                            color: AppColors.gold,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: (percent / 100.0).clamp(0.0, 1.0),
+                        minHeight: 6,
+                        backgroundColor: AppColors.surface,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.gold),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildWatchPartyInviteCard(ProfileController profileCtrl) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.card,
+            AppColors.primary.withValues(alpha: 0.15),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.groups_rounded, color: AppColors.gold, size: 22),
+              SizedBox(width: 8),
+              Text(
+                'Ajak Teman Nobar (Watch Party)',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Bagikan undangan nonton bareng ke teman atau grup chat dengan satu klik.',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => profileCtrl.shareWatchPartyInvite(
+                inviteNote: 'Yuk kita nobar film seru minggu ini bareng-bareng!',
+              ),
+              icon: const Icon(Icons.share_rounded, size: 16),
+              label: const Text('Bagikan Undangan Nobar 🍿'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMoodHistorySection(ProfileController profileCtrl) {
