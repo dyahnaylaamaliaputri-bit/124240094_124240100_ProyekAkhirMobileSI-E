@@ -12,6 +12,7 @@ import '../views/booking/order_summary_view.dart';
 import '../views/booking/payment_view.dart';
 import '../views/booking/select_seat_view.dart';
 import '../views/ticket/ticket_detail_view.dart';
+import '../views/ticket/check_in_scanner_view.dart';
 import '../views/splash/splash_view.dart';
 import '../views/auth/login_view.dart';
 import '../views/auth/register_view.dart';
@@ -149,6 +150,10 @@ class AppPages {
           Get.lazyPut<MoodController>(() => MoodController());
         }
       }),
+    ),
+    GetPage(
+      name: Routes.checkInScanner,
+      page: () => const CheckInScannerView(),
     ),
   ];
 }

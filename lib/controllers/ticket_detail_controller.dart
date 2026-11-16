@@ -1,9 +1,10 @@
 // lib/controllers/ticket_detail_controller.dart
-// Controller untuk melihat detail E-Ticket dan QR Code (PB-022, PB-024, PB-025)
+// Controller untuk melihat detail E-Ticket, QR Code, & Bagikan Tiket (PB-022, PB-024, PB-025, PB-026C)
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/ticket_model.dart';
 import '../services/ticket_service.dart';
 import '../utils/app_colors.dart';
@@ -52,6 +53,57 @@ class TicketDetailController extends GetxController {
     }
   }
 
+  /// Format teks undangan nonton & rincian e-ticket (PB-026C)
+  static String formatShareMessage(TicketModel ticket) {
+    return '🎬 *Undangan Nonton Bareng - CINEMATE*\n\n'
+        'Hai! Aku mengundangmu untuk menonton:\n'
+        '🍿 Film: *${ticket.movieTitle}*\n'
+        '📍 Bioskop: ${ticket.cinemaName} (${ticket.hallName} - ${ticket.experience})\n'
+        '📅 Jadwal: ${ticket.formattedShowDate} • ${ticket.showTime} WIB\n'
+        '💺 Kursi: ${ticket.seatsLabel} (${ticket.seatCount} Tiket)\n'
+        '🎟️ Kode Booking: *${ticket.bookingCode}*\n\n'
+        'Tunjukkan e-ticket atau sebutkan kode booking ini saat tiba di bioskop.\n'
+        'Pesan tiket bioskop mudah & cepat hanya di Cinemate! 🎟️✨';
+  }
+
+  /// Ringkasan pesan bagikan untuk tiket saat ini
+  String get shareMessage => formatShareMessage(ticket.value);
+
+  /// Bagikan e-ticket / undangan nonton via Share dialog sistem atau Clipboard fallback (PB-026C)
+  Future<void> shareTicket() async {
+    final text = shareMessage;
+    try {
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          text: text,
+          subject: 'Undangan Nonton: ${ticket.value.movieTitle} di ${ticket.value.cinemaName}',
+        ),
+      );
+      if (result.status == ShareResultStatus.success) {
+        Get.snackbar(
+          'Tiket Dibagikan 🎉',
+          'Undangan tiket bioskop berhasil dibagikan!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.card,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (_) {
+      // Fallback ke Clipboard jika share intent sistem tidak tersedia
+      await Clipboard.setData(ClipboardData(text: text));
+      Get.snackbar(
+        'Tersalin ke Clipboard 📋',
+        'Format undangan tiket ${ticket.value.bookingCode} berhasil disalin ke papan klip.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.card,
+        colorText: Colors.white,
+        icon: const Icon(Icons.copy_rounded, color: AppColors.gold),
+        duration: const Duration(seconds: 3),
+      );
+    }
+  }
+
   /// Salin kode booking tiket
   void copyBookingCode() {
     Clipboard.setData(ClipboardData(text: ticket.value.bookingCode));
@@ -65,7 +117,7 @@ class TicketDetailController extends GetxController {
     );
   }
 
-  /// Simulasi Check-in / Scan QR untuk menandai tiket telah digunakan (PB-025)
+  /// Simulasi Check-in / Scan QR untuk menandai tiket telah digunakan (PB-025, PB-026B)
   Future<void> simulateCheckIn() async {
     final updated = await TicketService().updateTicketStatus(
       ticketId: ticket.value.id,

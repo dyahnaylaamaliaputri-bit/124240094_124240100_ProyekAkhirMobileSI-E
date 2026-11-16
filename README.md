@@ -151,7 +151,7 @@ docs/
    ```bash
    flutter pub get
    ```
-5. **Jalankan pengujian unit (Semua 176 Unit Test Wajib Passed):**
+5. **Jalankan pengujian unit (Semua 187 Unit Test Wajib Passed):**
    ```bash
    flutter test
    ```
@@ -186,12 +186,17 @@ docs/
 - [x] **PB-028 (Pencegahan Pemesanan Ganda / Concurrency Collision):** Mekanisme penguncian kursi real-time via `SeatService` (`seat_locks` Supabase & Hive box `seat_locks_cache`). Mendeteksi bentrok saat dua pengguna memilih kursi sama dalam waktu bersamaan dan memuat ulang status kursi terkunci secara otomatis.
 - [x] **PB-029 (Temporary Seat Hold Timer 10 Menit):** Penahanan kursi otomatis 10 menit (600 detik) dengan countdown timer visual di layar denah kursi dan auto-release kunci kursi kembali ke status *Available* saat waktu habis atau saat pesanan dibatalkan.
 
+### 20. Epic Validasi E-Ticket, QR Scanner & Siklus Tiket Kedaluwarsa (TKT — PB 20 / PB-026 s.d. PB-026C) [SELESAI ✅]
+- [x] **PB-026 (Penandaan Tiket Kedaluwarsa Otomatis):** Deteksi otomatis tiket yang waktu tayangnya telah terlewat (`showDateTime` / `isShowPassed`). Tiket secara otomatis diubah statusnya menjadi `expired` dan dipindahkan dari tab Tiket Aktif ke Riwayat Tontonan di Hive cache & Supabase saat aplikasi dibuka atau tiket dimuat.
+- [x] **PB-026B (QR Scanner Check-in Petugas Bioskop):** Layar pemindai staf bioskop `CheckInScannerView` (`/check-in-scanner`) dengan animasi garis laser viewfinder, senter, pemindaian QR Code tiket penonton (`CNM-XXXXX`), validasi keaslian kode booking, pencegahan duplikasi check-in, dan fallback formulir input kode booking manual.
+- [x] **PB-026C (Fitur Bagikan Tiket & Undangan Nonton):** Fitur bagikan ringkasan tiket dan undangan nonton bareng terstruktur (film, bioskop, studio, tanggal, jam tayang, nomor kursi, kode booking) di `TicketDetailView` via dialog sistem (`share_plus`) dengan fallback aman ke clipboard.
+
 ---
 
 ## 🎯 Rekapitulasi Milestone & Pembagian Tugas Tim
 
 > **📊 Status Pengerjaan Terkini:**  
-> Seluruh modul **PB 1 s/d PB 19 (total 88+ user stories)** telah tuntas 100% dikerjakan dengan **176 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
+> Seluruh modul **PB 1 s/d PB 20 (total 91+ user stories)** telah tuntas 100% dikerjakan dengan **187 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
 
 ---
 
@@ -287,14 +292,14 @@ Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil d
 
 ---
 
-### 📦 Tugas Rekan 2: Epic Validasi E-Ticket, QR Scanner & Siklus Tiket Kedaluwarsa (TKT — PB 20)
+### 📦 Tugas Rekan 2: Epic Validasi E-Ticket, QR Scanner & Siklus Tiket Kedaluwarsa (TKT — PB 20) [SELESAI ✅]
 *Menuntaskan siklus penutupan tiket otomatis, scanner kamera petugas bioskop, dan fitur berbagi tiket (PB-026 / SRS §3.4 FR-023, FR-031 s.d. FR-033)*
 
 | No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
 | :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-026** | Penandaan Tiket Kedaluwarsa Otomatis | **Given** jadwal film telah lewat dari tanggal dan jam tayang saat ini, **When** aplikasi dibuka atau tab Tiket dimuat, **Then** status tiket otomatis berubah menjadi *Expired* dan dipindahkan dari tab Tiket Aktif ke Riwayat Tontonan secara otomatis di Hive & Supabase. | ⏳ Siap Dikerjakan |
-| 2 | **PB-026B** | QR Scanner Check-in Petugas Bioskop | **Given** petugas bioskop membuka menu Scanner Check-in (`CheckInScannerView`), **When** kamera memindai QR Code e-ticket penonton (`CNM-XXXXX`), **Then** sistem memvalidasi keaslian kode booking, menampilkan data tiket penonton, dan mengubah status menjadi *Checked-in* / *Used* secara offline & online. | ⏳ Siap Dikerjakan |
-| 3 | **PB-026C** | Fitur Bagikan Tiket & Undangan Nonton | **Given** tiket bioskop aktif terbuka di `TicketDetailView`, **When** pengguna menekan tombol *"Bagikan Tiket"*, **Then** aplikasi membuka dialog share sistem untuk membagikan kartu ringkasan tiket (judul film, bioskop, jam, studio, nomor kursi) ke WhatsApp / media sosial. | ⏳ Siap Dikerjakan |
+| 1 | **PB-026** | Penandaan Tiket Kedaluwarsa Otomatis | **Given** jadwal film telah lewat dari tanggal dan jam tayang saat ini, **When** aplikasi dibuka atau tab Tiket dimuat, **Then** status tiket otomatis berubah menjadi *Expired* dan dipindahkan dari tab Tiket Aktif ke Riwayat Tontonan secara otomatis di Hive & Supabase. | Selesai ✅ |
+| 2 | **PB-026B** | QR Scanner Check-in Petugas Bioskop | **Given** petugas bioskop membuka menu Scanner Check-in (`CheckInScannerView`), **When** kamera memindai QR Code e-ticket penonton (`CNM-XXXXX`), **Then** sistem memvalidasi keaslian kode booking, menampilkan data tiket penonton, dan mengubah status menjadi *Checked-in* / *Used* secara offline & online. | Selesai ✅ |
+| 3 | **PB-026C** | Fitur Bagikan Tiket & Undangan Nonton | **Given** tiket bioskop aktif terbuka di `TicketDetailView`, **When** pengguna menekan tombol *"Bagikan Tiket"*, **Then** aplikasi membuka dialog share sistem untuk membagikan kartu ringkasan tiket (judul film, bioskop, jam, studio, nomor kursi) ke WhatsApp / media sosial. | Selesai ✅ |
 
 - **Target File yang Dikerjakan:**
   - `lib/views/ticket/check_in_scanner_view.dart` (Layar pemindai QR Code menggunakan kamera atau simulasi scanner staf bioskop)

@@ -30,4 +30,5 @@ abstract class Routes {
   static const chatbot = '/chatbot';
   static const changePassword = '/change-password';
   static const advancedProfiling = '/advanced-profiling';
+  static const checkInScanner = '/check-in-scanner';
 }

@@ -56,15 +56,8 @@ class TicketDetailView extends GetView<TicketDetailController> {
           }),
           IconButton(
             icon: const Icon(Icons.share_rounded, color: Colors.white70),
-            onPressed: () {
-              Get.snackbar(
-                'Bagikan Tiket',
-                'Tautan tiket digital ${controller.ticket.value.bookingCode} siap dibagikan!',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: AppColors.card,
-                colorText: Colors.white,
-              );
-            },
+            tooltip: 'Bagikan Tiket (PB-026C)',
+            onPressed: controller.shareTicket,
           ),
         ],
       ),
@@ -109,7 +102,37 @@ class TicketDetailView extends GetView<TicketDetailController> {
               // Kartu E-Ticket Utama
               _buildETicketCard(),
 
-              const SizedBox(height: 24),
+              // Tombol Bagikan E-Ticket / Ajak Teman Nonton (PB-026C)
+              Padding(
+                padding: const EdgeInsets.only(top: 14, bottom: 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E293B),
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: AppColors.primary, width: 1.2),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.share_rounded,
+                        color: AppColors.primaryLight, size: 18),
+                    label: const Text(
+                      'Bagikan E-Ticket / Ajak Nonton (PB-026C)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onPressed: controller.shareTicket,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 8),
 
               // Pintasan Pesan Makanan & Minuman di Bioskop Ini (PB-034)
               Obx(() {
@@ -635,33 +658,41 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       const Text('Status Tiket',
                           style: TextStyle(
                               color: AppColors.textSecondary, fontSize: 12)),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: (isHistory
-                                  ? AppColors.textDisabled
-                                  : AppColors.success)
-                              .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                              color: isHistory
-                                  ? AppColors.textDisabled
-                                  : AppColors.success),
-                        ),
-                        child: Text(
-                          isHistory
-                              ? ticket.historyStatusLabel.toUpperCase()
-                              : ticket.status.toUpperCase(),
-                          style: TextStyle(
-                            color: isHistory
-                                ? AppColors.textDisabled
-                                : AppColors.success,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                      Builder(builder: (_) {
+                        final Color badgeColor;
+                        final String badgeText;
+                        if (ticket.status == 'used') {
+                          badgeColor = const Color(0xFF38BDF8);
+                          badgeText = 'SUDAH CHECK-IN';
+                        } else if (ticket.status == 'expired' || ticket.isShowPassed) {
+                          badgeColor = Colors.orangeAccent;
+                          badgeText = 'KEDALUWARSA';
+                        } else if (ticket.status == 'cancelled') {
+                          badgeColor = AppColors.error;
+                          badgeText = 'DIBATALKAN';
+                        } else {
+                          badgeColor = AppColors.success;
+                          badgeText = 'AKTIF (SIAP PAKAI)';
+                        }
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: badgeColor.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: badgeColor),
                           ),
-                        ),
-                      ),
+                          child: Text(
+                            badgeText,
+                            style: TextStyle(
+                              color: badgeColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ],
