@@ -296,8 +296,8 @@ class _CheckInScannerViewState extends State<CheckInScannerView>
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color: AppColors.error.withValues(alpha: 0.4)),
+                  border:
+                      Border.all(color: AppColors.error.withValues(alpha: 0.4)),
                 ),
                 child: Column(
                   children: [

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 import '../models/chat_message_model.dart';
 import '../services/chatbot_service.dart';
+import '../utils/validators.dart';
 
 class ChatbotController extends GetxController {
   final ChatbotService _service = ChatbotService();
@@ -70,9 +71,13 @@ class ChatbotController extends GetxController {
     _scrollToBottom();
   }
 
-  /// Mengirim pesan dari pengguna ke asisten AI (PB-039)
+  /// Mengirim pesan dari pengguna ke asisten AI (PB-039, PB-074)
   Future<void> sendMessage([String? customText]) async {
-    final text = (customText ?? textController.text).trim();
+    final rawText = (customText ?? textController.text).trim();
+    if (rawText.isEmpty) return;
+
+    // Sanitasi input teks pengguna mencegah injeksi skrip/payload berbahaya (PB-074)
+    final text = Validators.sanitizeInput(rawText);
     if (text.isEmpty) return;
 
     if (customText == null) {

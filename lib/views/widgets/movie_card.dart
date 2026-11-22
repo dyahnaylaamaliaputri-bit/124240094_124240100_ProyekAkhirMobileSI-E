@@ -1,7 +1,10 @@
 // lib/views/widgets/movie_card.dart
 // Komponen kartu poster film untuk horizontal list (PB-012)
+// PB-071: Hero animation transisi sinematik poster film
+// PB-076: Optimasi memory cache gambar TMDB (cacheWidth/cacheHeight)
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../models/movie_model.dart';
 import '../../utils/app_colors.dart';
 
@@ -21,44 +24,55 @@ class MovieCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(14),
-      onTap: onTap,
+      onTap: () {
+        // PB-072: Haptic feedback selectionClick saat kartu film ditekan
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       child: SizedBox(
         width: 140,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Poster Image dengan Badge
+            // Poster Image dengan Badge & Hero Animation (PB-071)
             Stack(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    height: 195,
-                    width: 140,
-                    color: AppColors.card,
-                    child: movie.posterUrl.isNotEmpty
-                        ? Image.network(
-                            movie.posterUrl,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, progress) {
-                              if (progress == null) return child;
-                              return Container(
-                                color: AppColors.card,
-                                child: const Center(
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColors.primary,
+                // PB-071: Hero widget agar poster bertransisi mulus ke MovieDetailView
+                Hero(
+                  tag: 'movie_poster_${movie.id}',
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      height: 195,
+                      width: 140,
+                      color: AppColors.card,
+                      child: movie.posterUrl.isNotEmpty
+                          ? Image.network(
+                              movie.posterUrl,
+                              fit: BoxFit.cover,
+                              // PB-076: Batasi resolusi decode gambar agar hemat memori (60 FPS target)
+                              cacheWidth: 280,
+                              cacheHeight: 390,
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return Container(
+                                  color: AppColors.card,
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.primary,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
-                            errorBuilder: (_, __, ___) => _buildPlaceholder(),
-                          )
-                        : _buildPlaceholder(),
+                                );
+                              },
+                              errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                            )
+                          : _buildPlaceholder(),
+                    ),
                   ),
                 ),
 

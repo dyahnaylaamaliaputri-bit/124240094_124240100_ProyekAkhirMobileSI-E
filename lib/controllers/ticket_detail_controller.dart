@@ -76,7 +76,8 @@ class TicketDetailController extends GetxController {
       final result = await SharePlus.instance.share(
         ShareParams(
           text: text,
-          subject: 'Undangan Nonton: ${ticket.value.movieTitle} di ${ticket.value.cinemaName}',
+          subject:
+              'Undangan Nonton: ${ticket.value.movieTitle} di ${ticket.value.cinemaName}',
         ),
       );
       if (result.status == ShareResultStatus.success) {

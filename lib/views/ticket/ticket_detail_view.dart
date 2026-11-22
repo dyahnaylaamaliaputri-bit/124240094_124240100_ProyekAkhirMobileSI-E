@@ -111,7 +111,8 @@ class TicketDetailView extends GetView<TicketDetailController> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1E293B),
                       foregroundColor: Colors.white,
-                      side: const BorderSide(color: AppColors.primary, width: 1.2),
+                      side: const BorderSide(
+                          color: AppColors.primary, width: 1.2),
                       padding: const EdgeInsets.symmetric(vertical: 13),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -664,7 +665,8 @@ class TicketDetailView extends GetView<TicketDetailController> {
                         if (ticket.status == 'used') {
                           badgeColor = const Color(0xFF38BDF8);
                           badgeText = 'SUDAH CHECK-IN';
-                        } else if (ticket.status == 'expired' || ticket.isShowPassed) {
+                        } else if (ticket.status == 'expired' ||
+                            ticket.isShowPassed) {
                           badgeColor = Colors.orangeAccent;
                           badgeText = 'KEDALUWARSA';
                         } else if (ticket.status == 'cancelled') {

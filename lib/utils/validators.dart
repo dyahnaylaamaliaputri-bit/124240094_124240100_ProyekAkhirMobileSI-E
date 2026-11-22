@@ -91,4 +91,58 @@ class Validators {
 
   static String? required(String? value, {String fieldName = 'Field'}) =>
       validateRequired(value, fieldName: fieldName);
+
+  // ── Sanitasi Input & Pencegahan Injeksi (PB-074 / SEC) ─────────────────────
+  /// Membersihkan input teks dari null bytes, karakter kontrol, dan tag script berbahaya
+  static String sanitizeInput(String? value) {
+    if (value == null) return '';
+    var sanitized = value.trim();
+    // Hilangkan karakter kontrol / null bytes
+    sanitized =
+        sanitized.replaceAll(RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]'), '');
+    // Hapus tag script berbahaya beserta isinya
+    sanitized = sanitized.replaceAll(
+        RegExp(r'<script[^>]*>([\s\S]*?)<\/script>', caseSensitive: false), '');
+    // Hapus seluruh tag HTML tersisa
+    sanitized = sanitized.replaceAll(RegExp(r'<[^>]*>'), '');
+    return sanitized.trim();
+  }
+
+  /// Memeriksa apakah teks memuat indikasi serangan SQL Injection atau XSS
+  static bool hasDangerousPayload(String? value) {
+    if (value == null || value.isEmpty) return false;
+    final lower = value.toLowerCase();
+    final suspiciousPatterns = [
+      '<script',
+      'javascript:',
+      'onerror=',
+      'onload=',
+      'select * from',
+      'drop table',
+      'union select',
+      "' or '1'='1",
+      '" or "1"="1',
+      '--',
+      ';--',
+    ];
+    for (final pattern in suspiciousPatterns) {
+      if (lower.contains(pattern)) return true;
+    }
+    return false;
+  }
+
+  /// Menghapus tag HTML / XSS dari string input
+  static String stripHtml(String? value) {
+    if (value == null) return '';
+    return value.replaceAll(RegExp(r'<[^>]*>'), '').trim();
+  }
+
+  /// Sanitasi query pencarian atau pesan chat
+  static String sanitizeSearchQuery(String? value) {
+    if (value == null) return '';
+    var sanitized = sanitizeInput(value);
+    // Hapus karakter injection umum tanpa merusak kata pencarian
+    sanitized = sanitized.replaceAll(RegExp(r"[';]+"), '');
+    return sanitized.trim();
+  }
 }

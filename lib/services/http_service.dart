@@ -32,7 +32,12 @@ class HttpService {
       connectTimeout: const Duration(seconds: _defaultTimeout),
       receiveTimeout: const Duration(seconds: _defaultTimeout),
       sendTimeout: const Duration(seconds: _defaultTimeout),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        // PB-075: Security header untuk mencegah clickjacking & sniffing
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+      },
     ));
 
     _dio.interceptors.add(_AuthInterceptor(_storage));

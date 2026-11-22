@@ -44,6 +44,8 @@ class AuthController extends GetxController {
     final lockoutStr = _storage.lockoutUntil;
     if (lockoutStr != null) {
       lockoutUntil.value = DateTime.tryParse(lockoutStr);
+    } else {
+      lockoutUntil.value = null;
     }
   }
 

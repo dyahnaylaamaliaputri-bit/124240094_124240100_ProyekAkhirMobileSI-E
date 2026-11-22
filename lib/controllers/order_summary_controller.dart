@@ -23,6 +23,7 @@ class OrderSummaryController extends GetxController {
     }
     return _order!;
   }
+
   set order(Rx<BookingOrderModel> val) => _order = val;
 
   /// Informasi pengguna pemesan
@@ -192,7 +193,8 @@ class OrderSummaryController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF16213E),
           colorText: Colors.white,
-          icon: const Icon(Icons.check_circle_rounded, color: Color(0xFF4CAF50)),
+          icon:
+              const Icon(Icons.check_circle_rounded, color: Color(0xFF4CAF50)),
         );
       }
     } else {

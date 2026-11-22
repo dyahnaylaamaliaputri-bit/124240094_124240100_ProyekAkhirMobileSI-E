@@ -70,7 +70,8 @@ void main() {
   }
 
   group('PB-026: Penandaan Tiket Kedaluwarsa Otomatis (Auto Expiry)', () {
-    test('autoExpirePastTickets detects past tickets and updates status to expired',
+    test(
+        'autoExpirePastTickets detects past tickets and updates status to expired',
         () async {
       final pastTicket = createSampleTicket(
         id: 'tkt-past-1',
@@ -105,7 +106,8 @@ void main() {
       expect(controller.historyTickets.first.status, 'expired');
     });
 
-    test('autoExpirePastTickets does not expire tickets that are already used or future',
+    test(
+        'autoExpirePastTickets does not expire tickets that are already used or future',
         () async {
       final futureTicket = createSampleTicket(
         id: 'tkt-future-2',
@@ -149,7 +151,8 @@ void main() {
   });
 
   group('PB-026B: QR Scanner Check-in Petugas Bioskop', () {
-    test('validateAndCheckInBookingCode successfully checks in an active ticket',
+    test(
+        'validateAndCheckInBookingCode successfully checks in an active ticket',
         () async {
       final validTicket = createSampleTicket(
         id: 'tkt-valid-1',
@@ -203,7 +206,8 @@ void main() {
       expect(result.ticket!.status, 'used');
     });
 
-    test('validateAndCheckInBookingCode rejects duplicate scan for already used ticket',
+    test(
+        'validateAndCheckInBookingCode rejects duplicate scan for already used ticket',
         () async {
       final usedTicket = createSampleTicket(
         id: 'tkt-used-1',

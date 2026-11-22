@@ -52,7 +52,8 @@ class _TicketsTabState extends State<TicketsTab>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.qr_code_scanner_rounded, color: AppColors.gold),
+            icon: const Icon(Icons.qr_code_scanner_rounded,
+                color: AppColors.gold),
             tooltip: 'Petugas: Scan QR Check-in (PB-026B)',
             onPressed: () => Get.toNamed(Routes.checkInScanner),
           ),

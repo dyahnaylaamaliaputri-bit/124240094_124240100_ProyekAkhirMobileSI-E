@@ -137,7 +137,9 @@ class BookingSeatController extends GetxController {
   /// Menyesuaikan denah tata letak kursi berdasarkan kelas studio (PB-027 Multi-Studio)
   void _configureStudioLayout() {
     final exp = showtime.experience.toLowerCase();
-    if (exp.contains('imax') || exp.contains('laser') || exp.contains('ultra')) {
+    if (exp.contains('imax') ||
+        exp.contains('laser') ||
+        exp.contains('ultra')) {
       // IMAX with Laser: 10 baris (A s/d J) x 12 kursi = 120 kursi
       rows.assignAll(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']);
       seatsPerRow.value = 12;
@@ -276,7 +278,8 @@ class BookingSeatController extends GetxController {
     _holdTimer?.cancel();
     holdRemainingSeconds.value = initialSeconds;
     isHoldingSeats.value = true;
-    holdExpiryTime.value = DateTime.now().add(Duration(seconds: initialSeconds));
+    holdExpiryTime.value =
+        DateTime.now().add(Duration(seconds: initialSeconds));
 
     _holdTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (holdRemainingSeconds.value > 0) {
@@ -298,10 +301,8 @@ class BookingSeatController extends GetxController {
 
   /// Format hitung mundur mm:ss untuk UI (misal: "09:45")
   String get formattedHoldTimer {
-    final mins =
-        (holdRemainingSeconds.value ~/ 60).toString().padLeft(2, '0');
-    final secs =
-        (holdRemainingSeconds.value % 60).toString().padLeft(2, '0');
+    final mins = (holdRemainingSeconds.value ~/ 60).toString().padLeft(2, '0');
+    final secs = (holdRemainingSeconds.value % 60).toString().padLeft(2, '0');
     return '$mins:$secs';
   }
 
@@ -399,7 +400,8 @@ class BookingSeatController extends GetxController {
       BookingOrderModel.formatRupiah(fnbAddonTotal);
 
   /// Melanjutkan ke halaman Ringkasan Pesanan dengan concurrency locking (PB-028 & PB-029)
-  Future<void> proceedToOrderSummary({List<FnbOrderItemModel>? directFnbItems}) async {
+  Future<void> proceedToOrderSummary(
+      {List<FnbOrderItemModel>? directFnbItems}) async {
     if (selectedSeats.isEmpty) {
       _showSnackbar(
         title: 'Pilih Kursi',

@@ -1,7 +1,9 @@
 // lib/views/booking/select_seat_view.dart
 // Tampilan pemilihan kursi bioskop interaktif (PB-020)
+// PB-072: Haptic feedback selectionClick saat memilih kursi
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/booking_seat_controller.dart';
 import '../../models/fnb_item_model.dart';
@@ -215,21 +217,44 @@ class SelectSeatView extends GetView<BookingSeatController> {
                 // Layout Kursi Dinamis berdasarkan Studio
                 if (perRow == 12) ...[
                   // IMAX 12 Kursi (4 - 4 - 4)
-                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 1}', controller.seatsMap['$rowLetter${i + 1}'])),
+                  ...List.generate(
+                      4,
+                      (i) => _buildSeatItem('$rowLetter${i + 1}',
+                          controller.seatsMap['$rowLetter${i + 1}'])),
                   const SizedBox(width: 8),
-                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 5}', controller.seatsMap['$rowLetter${i + 5}'])),
+                  ...List.generate(
+                      4,
+                      (i) => _buildSeatItem('$rowLetter${i + 5}',
+                          controller.seatsMap['$rowLetter${i + 5}'])),
                   const SizedBox(width: 8),
-                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 9}', controller.seatsMap['$rowLetter${i + 9}'])),
+                  ...List.generate(
+                      4,
+                      (i) => _buildSeatItem('$rowLetter${i + 9}',
+                          controller.seatsMap['$rowLetter${i + 9}'])),
                 ] else if (perRow == 6) ...[
                   // Premiere 6 Kursi Recliner (3 - 3)
-                  ...List.generate(3, (i) => _buildSeatItem('$rowLetter${i + 1}', controller.seatsMap['$rowLetter${i + 1}'], isWide: true)),
+                  ...List.generate(
+                      3,
+                      (i) => _buildSeatItem('$rowLetter${i + 1}',
+                          controller.seatsMap['$rowLetter${i + 1}'],
+                          isWide: true)),
                   const SizedBox(width: 18),
-                  ...List.generate(3, (i) => _buildSeatItem('$rowLetter${i + 4}', controller.seatsMap['$rowLetter${i + 4}'], isWide: true)),
+                  ...List.generate(
+                      3,
+                      (i) => _buildSeatItem('$rowLetter${i + 4}',
+                          controller.seatsMap['$rowLetter${i + 4}'],
+                          isWide: true)),
                 ] else ...[
                   // Regular 8 Kursi (4 - 4)
-                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 1}', controller.seatsMap['$rowLetter${i + 1}'])),
+                  ...List.generate(
+                      4,
+                      (i) => _buildSeatItem('$rowLetter${i + 1}',
+                          controller.seatsMap['$rowLetter${i + 1}'])),
                   const SizedBox(width: 14),
-                  ...List.generate(4, (i) => _buildSeatItem('$rowLetter${i + 5}', controller.seatsMap['$rowLetter${i + 5}'])),
+                  ...List.generate(
+                      4,
+                      (i) => _buildSeatItem('$rowLetter${i + 5}',
+                          controller.seatsMap['$rowLetter${i + 5}'])),
                 ],
 
                 const SizedBox(width: 4),
@@ -288,7 +313,11 @@ class SelectSeatView extends GetView<BookingSeatController> {
     }
 
     return GestureDetector(
-      onTap: () => controller.toggleSeat(seatId),
+      onTap: () {
+        // PB-072: Haptic feedback selectionClick saat memilih kursi di denah
+        HapticFeedback.selectionClick();
+        controller.toggleSeat(seatId);
+      },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 2),
         width: isWide ? 38 : 28,
@@ -354,9 +383,13 @@ class SelectSeatView extends GetView<BookingSeatController> {
         runSpacing: 8,
         children: [
           _buildLegendItem('Tersedia', AppColors.card, AppColors.border),
-          _buildLegendItem('Dipilih', AppColors.primary, AppColors.primaryLight),
-          _buildLegendItem('Terisi', const Color(0xFF1F1F2E), Colors.transparent, hasCloseIcon: true),
-          _buildLegendItem('Terkunci', const Color(0xFF2A2000), AppColors.gold, hasLockIcon: true),
+          _buildLegendItem(
+              'Dipilih', AppColors.primary, AppColors.primaryLight),
+          _buildLegendItem(
+              'Terisi', const Color(0xFF1F1F2E), Colors.transparent,
+              hasCloseIcon: true),
+          _buildLegendItem('Terkunci', const Color(0xFF2A2000), AppColors.gold,
+              hasLockIcon: true),
         ],
       ),
     );

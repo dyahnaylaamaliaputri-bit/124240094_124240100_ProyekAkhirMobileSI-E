@@ -40,7 +40,8 @@ void main() {
     await boxOrders.clear();
   });
 
-  BookingOrderModel createSampleOrder({List<FnbOrderItemModel> fnbItems = const []}) {
+  BookingOrderModel createSampleOrder(
+      {List<FnbOrderItemModel> fnbItems = const []}) {
     return BookingOrderModel(
       id: 'ORD-TEST-001',
       movie: MovieModel(
@@ -80,8 +81,11 @@ void main() {
     );
   }
 
-  group('PB-032: Langkah Opsional Tambah Makanan Sebelum Checkout (Bundling F&B)', () {
-    test('snackBundleOptions has valid combo items with Rp 10.000 discount', () {
+  group(
+      'PB-032: Langkah Opsional Tambah Makanan Sebelum Checkout (Bundling F&B)',
+      () {
+    test('snackBundleOptions has valid combo items with Rp 10.000 discount',
+        () {
       final bundles = OrderSummaryController.snackBundleOptions;
       expect(bundles.isNotEmpty, isTrue);
 
@@ -95,7 +99,8 @@ void main() {
       }
     });
 
-    test('toggleSnackBundle successfully adds combo to order and updates total', () {
+    test('toggleSnackBundle successfully adds combo to order and updates total',
+        () {
       final baseOrder = createSampleOrder();
       final controller = OrderSummaryController();
       controller.order.value = baseOrder;
@@ -114,7 +119,8 @@ void main() {
       expect(controller.order.value.fnbTotal, 35000);
       // Total akhir: 156.000 + 35.000 = 191.000
       expect(controller.finalTotalAmount, 191000);
-      expect(controller.order.value.fnbItems.first.note, contains('Diskon bundling Rp 10.000'));
+      expect(controller.order.value.fnbItems.first.note,
+          contains('Diskon bundling Rp 10.000'));
     });
 
     test('toggleSnackBundle removes combo when tapped again', () {
@@ -134,7 +140,8 @@ void main() {
       expect(controller.finalTotalAmount, 156000);
     });
 
-    test('BookingOrderModel calculates fnbTotal and totalAmount accurately', () {
+    test('BookingOrderModel calculates fnbTotal and totalAmount accurately',
+        () {
       final items = [
         const FnbOrderItemModel(
           fnbItemId: 'it-1',
@@ -161,7 +168,8 @@ void main() {
   });
 
   group('PB-033: Pemesanan F&B Mandiri Tanpa Tiket Nonton', () {
-    test('createOrder without ticket produces valid FNB-XXXXX pickup code and counter pickup',
+    test(
+        'createOrder without ticket produces valid FNB-XXXXX pickup code and counter pickup',
         () async {
       final items = [
         const FnbOrderItemModel(
@@ -195,12 +203,14 @@ void main() {
       expect(order.qrPayload, contains('CINEMATE_FNB:${order.pickupCode}'));
 
       // Verifikasi tersimpan di Hive orders
-      final savedOrders = await fnbService.getUserOrders(userId: 'usr-standalone');
+      final savedOrders =
+          await fnbService.getUserOrders(userId: 'usr-standalone');
       expect(savedOrders.length, 1);
       expect(savedOrders.first.pickupCode, order.pickupCode);
     });
 
-    test('submitOrder in FnbController with counter pickup succeeds without studio/seat',
+    test(
+        'submitOrder in FnbController with counter pickup succeeds without studio/seat',
         () async {
       final controller = FnbController(service: fnbService);
       await controller.fetchFnbCatalog();
@@ -219,14 +229,17 @@ void main() {
       expect(submitted, isNotNull);
       expect(submitted!.pickupCode, startsWith('FNB-'));
       expect(submitted.status, 'processing');
-      expect(controller.cart.isEmpty, isTrue); // Keranjang direset setelah checkout
+      expect(controller.cart.isEmpty,
+          isTrue); // Keranjang direset setelah checkout
       expect(controller.userOrders.isNotEmpty, isTrue);
       expect(controller.userOrders.first.pickupCode, submitted.pickupCode);
     });
   });
 
   group('PB-035: Stepper Pelacakan Status & Estimasi Penyiapan', () {
-    test('FnbOrderModel calculates estimatedPrepMinutes and label based on item quantity', () {
+    test(
+        'FnbOrderModel calculates estimatedPrepMinutes and label based on item quantity',
+        () {
       final items = [
         const FnbOrderItemModel(
           fnbItemId: 'it-1',
@@ -261,19 +274,23 @@ void main() {
       // total item quantity = 2 + 1 = 3
       // prep minutes = 10 + (3 * 2) = 16
       expect(orderProcessing.estimatedPrepMinutes, 16);
-      expect(orderProcessing.estimatedTimeRemainingLabel, contains('± 16 menit'));
+      expect(
+          orderProcessing.estimatedTimeRemainingLabel, contains('± 16 menit'));
       expect(orderProcessing.statusLabel, contains('Sedang Disiapkan'));
 
       final orderReady = orderProcessing.copyWith(status: 'ready');
-      expect(orderReady.estimatedTimeRemainingLabel, contains('Siap Diambil Sekarang'));
+      expect(orderReady.estimatedTimeRemainingLabel,
+          contains('Siap Diambil Sekarang'));
       expect(orderReady.statusLabel, contains('Siap Diambil'));
 
       final orderCompleted = orderProcessing.copyWith(status: 'completed');
-      expect(orderCompleted.estimatedTimeRemainingLabel, contains('Telah Selesai Diterima'));
+      expect(orderCompleted.estimatedTimeRemainingLabel,
+          contains('Telah Selesai Diterima'));
       expect(orderCompleted.statusLabel, contains('Selesai Diambil'));
     });
 
-    test('advanceOrderStatus transitions through status lifecycle: processing -> ready -> completed',
+    test(
+        'advanceOrderStatus transitions through status lifecycle: processing -> ready -> completed',
         () async {
       final items = [
         const FnbOrderItemModel(

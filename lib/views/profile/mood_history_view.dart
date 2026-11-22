@@ -181,7 +181,8 @@ class _MoodHistoryViewState extends State<MoodHistoryView> {
               Expanded(
                 child: _buildSummaryMetric(
                   label: 'Rekomendasi',
-                  value: '${history.fold(0, (sum, h) => sum + h.movies.length)} Film',
+                  value:
+                      '${history.fold(0, (sum, h) => sum + h.movies.length)} Film',
                   color: Colors.greenAccent,
                 ),
               ),
@@ -300,7 +301,8 @@ class _MoodHistoryViewState extends State<MoodHistoryView> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.surface.withValues(alpha: 0.5),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(14)),
             ),
             child: Row(
               children: [
@@ -356,8 +358,8 @@ class _MoodHistoryViewState extends State<MoodHistoryView> {
                 if (item.movies.isEmpty)
                   const Text(
                     'Tidak ada film yang disimpan.',
-                    style: TextStyle(
-                        color: AppColors.textSecondary, fontSize: 12),
+                    style:
+                        TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   )
                 else
                   ...item.movies.map((movie) => _buildMovieRow(movie)),

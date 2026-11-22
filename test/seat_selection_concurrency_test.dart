@@ -99,8 +99,11 @@ void main() {
   // =========================================================================
   // PB-027: Seat Map Interaktif Multi-Studio & Subtotal
   // =========================================================================
-  group('PB-027: Seat Map Interaktif Multi-Studio & Subtotal (SET — PB 19)', () {
-    test('Regular 2D menghasilkan 7 baris (A-G) dan 8 kursi per baris (56 kursi)', () {
+  group('PB-027: Seat Map Interaktif Multi-Studio & Subtotal (SET — PB 19)',
+      () {
+    test(
+        'Regular 2D menghasilkan 7 baris (A-G) dan 8 kursi per baris (56 kursi)',
+        () {
       final showtime = createShowtime(experience: 'Regular 2D');
       final controller = BookingSeatController(seatService: seatService);
       controller.showtime = showtime;
@@ -117,8 +120,11 @@ void main() {
       expect(controller.seatsMap['A1']!.price, 50000);
     });
 
-    test('IMAX with Laser menghasilkan 10 baris (A-J) dan baris J Sweetbox premium', () {
-      final showtime = createShowtime(experience: 'IMAX with Laser', price: 80000);
+    test(
+        'IMAX with Laser menghasilkan 10 baris (A-J) dan baris J Sweetbox premium',
+        () {
+      final showtime =
+          createShowtime(experience: 'IMAX with Laser', price: 80000);
       final controller = BookingSeatController(seatService: seatService);
       controller.showtime = showtime;
       controller.movie = createMovie();
@@ -139,8 +145,10 @@ void main() {
       expect(controller.seatsMap['J1']!.price, 100000);
     });
 
-    test('The Premiere menghasilkan 4 baris (A-D) dan 6 kursi tipe Recliner', () {
-      final showtime = createShowtime(experience: 'The Premiere', price: 150000);
+    test('The Premiere menghasilkan 4 baris (A-D) dan 6 kursi tipe Recliner',
+        () {
+      final showtime =
+          createShowtime(experience: 'The Premiere', price: 150000);
       final controller = BookingSeatController(seatService: seatService);
       controller.showtime = showtime;
       controller.movie = createMovie();
@@ -165,14 +173,16 @@ void main() {
       // Pastikan kursi tersedia
       for (int i = 1; i <= 6; i++) {
         final id = 'A$i';
-        controller.seatsMap[id] = controller.seatsMap[id]!.copyWith(status: SeatStatus.available);
+        controller.seatsMap[id] =
+            controller.seatsMap[id]!.copyWith(status: SeatStatus.available);
         controller.toggleSeat(id);
       }
       expect(controller.selectedSeats.length, 6);
 
       // Mencoba memilih kursi ke-7
       final id7 = 'A7';
-      controller.seatsMap[id7] = controller.seatsMap[id7]!.copyWith(status: SeatStatus.available);
+      controller.seatsMap[id7] =
+          controller.seatsMap[id7]!.copyWith(status: SeatStatus.available);
       controller.toggleSeat(id7);
 
       // Tetap 6 kursi, tidak bertambah
@@ -188,8 +198,10 @@ void main() {
       controller.cinema = createCinema();
       controller.onInit();
 
-      controller.seatsMap['B3'] = controller.seatsMap['B3']!.copyWith(status: SeatStatus.available);
-      controller.seatsMap['B4'] = controller.seatsMap['B4']!.copyWith(status: SeatStatus.available);
+      controller.seatsMap['B3'] =
+          controller.seatsMap['B3']!.copyWith(status: SeatStatus.available);
+      controller.seatsMap['B4'] =
+          controller.seatsMap['B4']!.copyWith(status: SeatStatus.available);
 
       controller.toggleSeat('B3');
       expect(controller.subtotal, 50000);
@@ -210,7 +222,8 @@ void main() {
   // PB-028: Concurrency Locking & Collision Detection
   // =========================================================================
   group('PB-028: Concurrency Locking & Collision Detection (SET — PB 19)', () {
-    test('lockSeats berhasil mengunci kursi saat belum ada yang memesan', () async {
+    test('lockSeats berhasil mengunci kursi saat belum ada yang memesan',
+        () async {
       final result = await seatService.lockSeats(
         showtimeId: 'st-concurrency-1',
         seatLabels: ['C3', 'C4'],
@@ -226,7 +239,9 @@ void main() {
       expect(active.length, 2);
     });
 
-    test('Collision Detection: Menolak saat User B mencoba mengunci kursi yang dikunci User A', () async {
+    test(
+        'Collision Detection: Menolak saat User B mencoba mengunci kursi yang dikunci User A',
+        () async {
       // User A mengunci kursi C4
       await seatService.lockSeats(
         showtimeId: 'st-concurrency-2',
@@ -247,7 +262,9 @@ void main() {
       expect(resultB.message, contains('pengguna lain'));
     });
 
-    test('Isolasi Pengguna: User yang sama dapat memperbarui/mengunci kembali kursinya', () async {
+    test(
+        'Isolasi Pengguna: User yang sama dapat memperbarui/mengunci kembali kursinya',
+        () async {
       // User A mengunci C4
       await seatService.lockSeats(
         showtimeId: 'st-concurrency-3',
@@ -266,7 +283,8 @@ void main() {
       expect(resultA2.conflictingSeats, isEmpty);
     });
 
-    test('releaseSeats melepaskan kunci sehingga dapat dipesan pengguna lain', () async {
+    test('releaseSeats melepaskan kunci sehingga dapat dipesan pengguna lain',
+        () async {
       await seatService.lockSeats(
         showtimeId: 'st-concurrency-4',
         seatLabels: ['D1'],
@@ -290,7 +308,9 @@ void main() {
       expect(resultBob.isSuccess, isTrue);
     });
 
-    test('getLockedSeatLabels mengecualikan excludeUserId agar kursi selectable', () async {
+    test(
+        'getLockedSeatLabels mengecualikan excludeUserId agar kursi selectable',
+        () async {
       await seatService.lockSeats(
         showtimeId: 'st-concurrency-5',
         seatLabels: ['E1'],
@@ -326,7 +346,8 @@ void main() {
       controller.onInit();
 
       // Simulasikan kursi F5 berstatus locked oleh pengguna lain
-      controller.seatsMap['F5'] = controller.seatsMap['F5']!.copyWith(status: SeatStatus.locked);
+      controller.seatsMap['F5'] =
+          controller.seatsMap['F5']!.copyWith(status: SeatStatus.locked);
 
       controller.toggleSeat('F5');
 
@@ -334,7 +355,8 @@ void main() {
       expect(controller.seatsMap['F5']!.status, SeatStatus.locked);
     });
 
-    test('proceedToOrderSummary mendeteksi collision dan membatalkan checkout', () async {
+    test('proceedToOrderSummary mendeteksi collision dan membatalkan checkout',
+        () async {
       final showtime = createShowtime();
       final controller = BookingSeatController(seatService: seatService);
       controller.showtime = showtime;
@@ -342,7 +364,8 @@ void main() {
       controller.cinema = createCinema();
       controller.onInit();
 
-      controller.seatsMap['B2'] = controller.seatsMap['B2']!.copyWith(status: SeatStatus.available);
+      controller.seatsMap['B2'] =
+          controller.seatsMap['B2']!.copyWith(status: SeatStatus.available);
       controller.toggleSeat('B2');
 
       // Tiba-tiba pengguna lain mengunci B2 sesaat sebelum checkout
@@ -388,7 +411,8 @@ void main() {
       expect(controller.formattedHoldTimer, '00:00');
     });
 
-    test('cleanExpiredLocks membersihkan kunci yang melewati batas waktu', () async {
+    test('cleanExpiredLocks membersihkan kunci yang melewati batas waktu',
+        () async {
       final box = Hive.box(AppConstants.boxSeatLocks);
 
       // Kunci yang sudah kedaluwarsa 5 menit lalu
@@ -419,7 +443,9 @@ void main() {
       expect(box.containsKey(activeLock.id), isTrue);
     });
 
-    test('releaseHeldSeats melepaskan kunci di storage dan mematikan hold timer', () async {
+    test(
+        'releaseHeldSeats melepaskan kunci di storage dan mematikan hold timer',
+        () async {
       final showtime = createShowtime();
       final controller = BookingSeatController(seatService: seatService);
       controller.showtime = showtime;
@@ -427,7 +453,8 @@ void main() {
       controller.cinema = createCinema();
       controller.onInit();
 
-      controller.seatsMap['C1'] = controller.seatsMap['C1']!.copyWith(status: SeatStatus.available);
+      controller.seatsMap['C1'] =
+          controller.seatsMap['C1']!.copyWith(status: SeatStatus.available);
       controller.toggleSeat('C1');
 
       await seatService.lockSeats(

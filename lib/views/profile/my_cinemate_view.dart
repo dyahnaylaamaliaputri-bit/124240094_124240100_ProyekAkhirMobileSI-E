@@ -641,8 +641,8 @@ class MyCinemateView extends StatelessWidget {
                         value: (percent / 100.0).clamp(0.0, 1.0),
                         minHeight: 6,
                         backgroundColor: AppColors.surface,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.gold),
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(AppColors.gold),
                       ),
                     ),
                   ],
@@ -698,7 +698,8 @@ class MyCinemateView extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () => profileCtrl.shareWatchPartyInvite(
-                inviteNote: 'Yuk kita nobar film seru minggu ini bareng-bareng!',
+                inviteNote:
+                    'Yuk kita nobar film seru minggu ini bareng-bareng!',
               ),
               icon: const Icon(Icons.share_rounded, size: 16),
               label: const Text('Bagikan Undangan Nobar 🍿'),

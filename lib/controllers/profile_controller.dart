@@ -338,7 +338,8 @@ class ProfileController extends GetxController {
     if (inviteNote != null && inviteNote.isNotEmpty) {
       buffer.writeln('💬 Catatan: "$inviteNote"');
     } else {
-      buffer.writeln('💬 Yuk nobar bareng, pesan tiket dan snack di Cinemate sekarang!');
+      buffer.writeln(
+          '💬 Yuk nobar bareng, pesan tiket dan snack di Cinemate sekarang!');
     }
     buffer.writeln('----------------------------------------');
     buffer.writeln('🎟️ Buka & pesan tiket bioskopmu di aplikasi Cinemate!');

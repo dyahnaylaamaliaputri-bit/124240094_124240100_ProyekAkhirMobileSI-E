@@ -17,6 +17,7 @@ import '../services/movie_service.dart';
 import '../services/cinema_service.dart';
 import '../services/fnb_service.dart';
 import '../services/storage_service.dart';
+import '../utils/validators.dart';
 import '../routes/app_routes.dart';
 
 enum SearchEntityType { all, movie, cinema, fnb }
@@ -232,7 +233,9 @@ class AppSearchController extends GetxController {
   // =========================================================================
 
   void performSearch() {
-    final query = searchQuery.value.trim().toLowerCase();
+    // Sanitasi input pencarian dari potensi serangan skrip/injeksi (PB-074)
+    final query =
+        Validators.sanitizeSearchQuery(searchQuery.value).toLowerCase();
     final hasQuery = query.isNotEmpty;
 
     // Jika tidak ada query dan tidak ada filter aktif, kosongkan hasil

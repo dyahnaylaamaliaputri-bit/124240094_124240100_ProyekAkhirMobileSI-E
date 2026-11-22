@@ -4,6 +4,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/preference_controller.dart';
 import '../../../routes/app_routes.dart';
@@ -626,7 +627,11 @@ class ProfileTab extends StatelessWidget {
   }) {
     return SwitchListTile(
       value: value,
-      onChanged: onChanged,
+      onChanged: (v) {
+        // PB-072: Haptic feedback lightImpact saat toggle switch di profil
+        HapticFeedback.lightImpact();
+        onChanged(v);
+      },
       secondary: Icon(icon, color: AppColors.gold, size: 22),
       title: Text(
         title,

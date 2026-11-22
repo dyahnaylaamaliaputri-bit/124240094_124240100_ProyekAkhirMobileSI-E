@@ -129,7 +129,8 @@ class TicketsController extends GetxController {
       }
     } else {
       // Cari substring dengan format CNM-XXXXX jika ada
-      final match = RegExp(r'CNM-\w+', caseSensitive: false).firstMatch(cleanCode);
+      final match =
+          RegExp(r'CNM-\w+', caseSensitive: false).firstMatch(cleanCode);
       if (match != null) {
         cleanCode = match.group(0)!.toUpperCase();
       } else {
@@ -151,8 +152,8 @@ class TicketsController extends GetxController {
         targetTicket = inHistory;
       } else {
         final all = await _ticketService.getUserTickets();
-        targetTicket = all.firstWhereOrNull(
-            (t) => t.bookingCode.toUpperCase() == cleanCode || t.id == cleanCode);
+        targetTicket = all.firstWhereOrNull((t) =>
+            t.bookingCode.toUpperCase() == cleanCode || t.id == cleanCode);
       }
     }
 
@@ -160,7 +161,8 @@ class TicketsController extends GetxController {
     if (targetTicket == null) {
       return (
         success: false,
-        message: 'Kode booking "$cleanCode" tidak ditemukan dalam sistem bioskop.',
+        message:
+            'Kode booking "$cleanCode" tidak ditemukan dalam sistem bioskop.',
         ticket: null,
       );
     }
@@ -196,9 +198,11 @@ class TicketsController extends GetxController {
 
       // Update state
       activeTickets.removeWhere((t) =>
-          t.id == targetTicket!.id || t.bookingCode == targetTicket.bookingCode);
+          t.id == targetTicket!.id ||
+          t.bookingCode == targetTicket.bookingCode);
       historyTickets.removeWhere((t) =>
-          t.id == targetTicket!.id || t.bookingCode == targetTicket.bookingCode);
+          t.id == targetTicket!.id ||
+          t.bookingCode == targetTicket.bookingCode);
       historyTickets.insert(0, resultTicket);
 
       return (
@@ -273,7 +277,8 @@ class TicketsController extends GetxController {
         backgroundColor: AppColors.card,
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.error_outline_rounded, color: Colors.orangeAccent),
+        icon:
+            const Icon(Icons.error_outline_rounded, color: Colors.orangeAccent),
       );
     }
   }

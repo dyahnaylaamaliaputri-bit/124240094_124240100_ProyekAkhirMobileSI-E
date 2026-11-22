@@ -85,7 +85,8 @@ void main() {
       expect(badge.progressLabel, 'Tercapai');
     });
 
-    test('LoyaltyBadgeModel copyWith dapat mengubah status terkunci/terbuka', () {
+    test('LoyaltyBadgeModel copyWith dapat mengubah status terkunci/terbuka',
+        () {
       const initial = LoyaltyBadgeModel(
         id: 'b1',
         title: 'Badge 1',
@@ -108,7 +109,8 @@ void main() {
       expect(updated.progressLabel, 'Tercapai');
     });
 
-    test('Evaluasi badge terbuka saat watchedCount mencapai milestone tertentu', () {
+    test('Evaluasi badge terbuka saat watchedCount mencapai milestone tertentu',
+        () {
       // Kondisi awal (watchedCount = 0)
       profileCtrl.watchedCount.value = 0;
       profileCtrl.fnbOrderCount.value = 0;
@@ -129,35 +131,42 @@ void main() {
       // 1 tiket ditonton
       profileCtrl.watchedCount.value = 1;
       badges = profileCtrl.loyaltyBadges;
-      expect(badges.firstWhere((b) => b.id == 'first_ticket').isUnlocked, isTrue);
-      expect(badges.firstWhere((b) => b.id == 'silver_cinephile').isUnlocked, isFalse);
+      expect(
+          badges.firstWhere((b) => b.id == 'first_ticket').isUnlocked, isTrue);
+      expect(badges.firstWhere((b) => b.id == 'silver_cinephile').isUnlocked,
+          isFalse);
 
       // 3 tiket ditonton (Silver)
       profileCtrl.watchedCount.value = 3;
       badges = profileCtrl.loyaltyBadges;
-      expect(badges.firstWhere((b) => b.id == 'silver_cinephile').isUnlocked, isTrue);
+      expect(badges.firstWhere((b) => b.id == 'silver_cinephile').isUnlocked,
+          isTrue);
       expect(badges.firstWhere((b) => b.id == 'gold_vip').isUnlocked, isFalse);
 
       // 6 tiket ditonton (Gold)
       profileCtrl.watchedCount.value = 6;
       badges = profileCtrl.loyaltyBadges;
       expect(badges.firstWhere((b) => b.id == 'gold_vip').isUnlocked, isTrue);
-      expect(badges.firstWhere((b) => b.id == 'cinema_maestro').isUnlocked, isFalse);
+      expect(badges.firstWhere((b) => b.id == 'cinema_maestro').isUnlocked,
+          isFalse);
 
       // 10 tiket ditonton (Platinum Cinema Maestro)
       profileCtrl.watchedCount.value = 10;
       badges = profileCtrl.loyaltyBadges;
-      expect(badges.firstWhere((b) => b.id == 'cinema_maestro').isUnlocked, isTrue);
+      expect(badges.firstWhere((b) => b.id == 'cinema_maestro').isUnlocked,
+          isTrue);
     });
 
     test('Evaluasi badge Penyelam Genre berdasarkan jumlah genre favorit', () {
       profileCtrl.favoriteGenres.assignAll(['Action', 'Drama']);
       var badges = profileCtrl.loyaltyBadges;
-      expect(badges.firstWhere((b) => b.id == 'genre_explorer').isUnlocked, isFalse);
+      expect(badges.firstWhere((b) => b.id == 'genre_explorer').isUnlocked,
+          isFalse);
 
       profileCtrl.favoriteGenres.assignAll(['Action', 'Drama', 'Comedy']);
       badges = profileCtrl.loyaltyBadges;
-      expect(badges.firstWhere((b) => b.id == 'genre_explorer').isUnlocked, isTrue);
+      expect(badges.firstWhere((b) => b.id == 'genre_explorer').isUnlocked,
+          isTrue);
     });
 
     test('Evaluasi badge Master Mood AI & Snack Connoisseur', () {
@@ -165,8 +174,10 @@ void main() {
       profileCtrl.fnbOrderCount.value = 0;
 
       var badges = profileCtrl.loyaltyBadges;
-      expect(badges.firstWhere((b) => b.id == 'ai_cine_match').isUnlocked, isFalse);
-      expect(badges.firstWhere((b) => b.id == 'snack_connoisseur').isUnlocked, isFalse);
+      expect(badges.firstWhere((b) => b.id == 'ai_cine_match').isUnlocked,
+          isFalse);
+      expect(badges.firstWhere((b) => b.id == 'snack_connoisseur').isUnlocked,
+          isFalse);
 
       // Menambahkan riwayat mood
       profileCtrl.moodHistory.add(
@@ -182,12 +193,16 @@ void main() {
       profileCtrl.fnbOrderCount.value = 1;
 
       badges = profileCtrl.loyaltyBadges;
-      expect(badges.firstWhere((b) => b.id == 'ai_cine_match').isUnlocked, isTrue);
-      expect(badges.firstWhere((b) => b.id == 'snack_connoisseur').isUnlocked, isTrue);
+      expect(
+          badges.firstWhere((b) => b.id == 'ai_cine_match').isUnlocked, isTrue);
+      expect(badges.firstWhere((b) => b.id == 'snack_connoisseur').isUnlocked,
+          isTrue);
     });
 
-    test('Kalkulasi genreDistribution membagi persentase secara proporsional', () {
-      profileCtrl.favoriteGenres.assignAll(['Action', 'Sci-Fi', 'Drama', 'Horror']);
+    test('Kalkulasi genreDistribution membagi persentase secara proporsional',
+        () {
+      profileCtrl.favoriteGenres
+          .assignAll(['Action', 'Sci-Fi', 'Drama', 'Horror']);
       final dist = profileCtrl.genreDistribution;
 
       expect(dist.length, 4);
@@ -197,7 +212,8 @@ void main() {
       expect(dist['Horror'], 25.0);
     });
 
-    test('genreDistribution mengembalikan default proporsi jika favorit kosong', () {
+    test('genreDistribution mengembalikan default proporsi jika favorit kosong',
+        () {
       profileCtrl.favoriteGenres.clear();
       final dist = profileCtrl.genreDistribution;
 
@@ -209,7 +225,9 @@ void main() {
   });
 
   group('PB-064B: Kartu Undangan Nonton Bareng (Watch Party Invite)', () {
-    test('formatWatchPartyMessage menghasilkan teks undangan lengkap dengan emoji & rincian', () {
+    test(
+        'formatWatchPartyMessage menghasilkan teks undangan lengkap dengan emoji & rincian',
+        () {
       final message = ProfileController.formatWatchPartyMessage(
         movieTitle: 'Interstellar',
         cinemaName: 'Cinemate Grand Indonesia XXI',
@@ -217,7 +235,8 @@ void main() {
         inviteNote: 'Kuy nobar akhir pekan seru!',
       );
 
-      expect(message, contains('UNDANGAN NONTON BARENG (WATCH PARTY) CINEMATE'));
+      expect(
+          message, contains('UNDANGAN NONTON BARENG (WATCH PARTY) CINEMATE'));
       expect(message, contains('*Interstellar*'));
       expect(message, contains('Cinemate Grand Indonesia XXI'));
       expect(message, contains('19:30 WIB'));
@@ -225,15 +244,22 @@ void main() {
       expect(message, contains('Cinemate'));
     });
 
-    test('formatWatchPartyMessage menangani parameter opsional dengan fallback default', () {
+    test(
+        'formatWatchPartyMessage menangani parameter opsional dengan fallback default',
+        () {
       final message = ProfileController.formatWatchPartyMessage();
 
-      expect(message, contains('UNDANGAN NONTON BARENG (WATCH PARTY) CINEMATE'));
+      expect(
+          message, contains('UNDANGAN NONTON BARENG (WATCH PARTY) CINEMATE'));
       expect(message, contains('Seru-seruan bareng di bioskop pilihan!'));
-      expect(message, contains('Yuk nobar bareng, pesan tiket dan snack di Cinemate sekarang!'));
+      expect(
+          message,
+          contains(
+              'Yuk nobar bareng, pesan tiket dan snack di Cinemate sekarang!'));
     });
 
-    test('shareWatchPartyInvite sukses dieksekusi dengan fallback Clipboard', () async {
+    test('shareWatchPartyInvite sukses dieksekusi dengan fallback Clipboard',
+        () async {
       // Mock clipboard handler
       String? copiedString;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -261,14 +287,17 @@ void main() {
   });
 
   group('PB-065: Linimasa Riwayat Profiling AI & Poster URL', () {
-    test('MoodHistoryItemModel posterUrl mengembalikan URL lengkap atau fallback', () {
+    test(
+        'MoodHistoryItemModel posterUrl mengembalikan URL lengkap atau fallback',
+        () {
       const item1 = MoodHistoryItemModel(
         movieId: 101,
         title: 'Inception',
         matchPercentage: 96,
         posterPath: '/inception_poster.jpg',
       );
-      expect(item1.posterUrl, 'https://image.tmdb.org/t/p/w500/inception_poster.jpg');
+      expect(item1.posterUrl,
+          'https://image.tmdb.org/t/p/w500/inception_poster.jpg');
 
       const item2 = MoodHistoryItemModel(
         movieId: 102,
