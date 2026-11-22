@@ -449,27 +449,112 @@ Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil d
 
 ---
 
-### 🌿 Panduan Branching Git untuk Rekan Tim
+## 👥 Penugasan Terbuka Anggota Tim: Sprint 6 — Fitur Lanjutan & Pengalaman Bioskop Interaktif (PB 27 s.d. PB 30)
 
-Rekan tim dapat langsung menarik kode terbaru dari branch `main` dan membuat branch fitur baru sesuai nomor PB masing-masing:
+> **⚖️ Prinsip Pembagian Tugas yang Adil & Proporsional:**  
+> Seluruh backlog **PB 1 s/d PB 26 (79 User Stories)** telah **100% selesai dan lulus 278 unit tests**.  
+> **Sprint 6 (Post-Release & Advanced Cinema Experience)** dialokasikan ke dalam **4 Product Backlog baru (PB 27 s.d. PB 30)** dengan bobot berimbang masing-masing **12 Story Points (SP)** untuk 4 rekan pengembang:
+
+| Anggota Tim | Kode Backlog | Epic / Modul Tanggung Jawab | Cakupan Story | Estimasi Bobot | Target Branch Git | Status |
+| :--- | :---: | :--- | :---: | :---: | :--- | :---: |
+| **Teman 1** | **PB 27** | **Epic Social Cinema & Nobar Interaktif (SOC)** | PB-080 s.d. PB-082 | **12 SP** | `feat/pb-027-social-cinema-split-bill` | ⏳ Siap Dikerjakan |
+| **Teman 2** | **PB 28** | **Epic Video Trailer Preview & Cinema Wrap Insights (ANL)** | PB-083 s.d. PB-085 | **12 SP** | `feat/pb-028-trailer-player-cinema-rewind` | ⏳ Siap Dikerjakan |
+| **Teman 3** | **PB 29** | **Epic Promo Engine, Dynamic Voucher & Loyalty Redemption (VCH)** | PB-086 s.d. PB-088 | **12 SP** | `feat/pb-029-promo-voucher-points-redemption` | ⏳ Siap Dikerjakan |
+| **Teman 4** | **PB 30** | **Epic In-Theater Mode, Aksesibilitas & Ekspor Tiket (OPS)** | PB-089 s.d. PB-091 | **12 SP** | `feat/pb-030-in-theater-accessibility-pdf` | ⏳ Siap Dikerjakan |
+
+---
+
+### 📦 Tugas Teman 1: Epic Social Cinema & Nobar Interaktif (SOC — PB 27)
+*Mengembangkan fitur kolaborasi sosial penonton, split bill patungan tiket, dan ulasan film komunitas (PB-080 s.d. PB-082 / SRS §3.14 FR-045 s.d. FR-047)*
+
+| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| 1 | **PB-080** | Split Bill & Patungan Pembayaran Tiket Bareng Teman | **Given** pengguna memesan lebih dari 1 tiket bioskop, **When** memilih opsi *"Split Bill"* di ringkasan pesanan, **Then** aplikasi menghitung pembagian tagihan rata per orang, menghasilkan kode/link patungan unik, dan menyediakan QR statis transfer e-wallet/bank. | ⏳ Siap Dikerjakan |
+| 2 | **PB-081** | Kartu Undangan Nobar Digital & Share WhatsApp/Medsos | **Given** pengguna telah memiliki tiket aktif atau menyukai film tertentu, **When** menekan tombol *"Ajak Nobar"*, **Then** aplikasi me-render kartu poster estetik dengan info judul, jam tayang, dan bioskop yang siap dibagikan via `share_plus` ke WhatsApp, Instagram Story, atau Telegram. | ⏳ Siap Dikerjakan |
+| 3 | **PB-082** | Rating Bintang 1-5 & Ulasan Komunitas Pengguna | **Given** pengguna memiliki tiket berstatus `used` (sudah check-in/selesai nonton), **When** membuka detail film atau tiket, **Then** form ulasan muncul untuk memberi rating 1-5 bintang & testimoni teks yang tersimpan di Hive lokal dan tersinkron ke tabel Supabase `movie_reviews`. | ⏳ Siap Dikerjakan |
+
+- **Target File yang Dikerjakan:**
+  - `lib/models/review_model.dart` (Model ulasan pengguna dengan rating, reviewText, timestamp, dan helpfulCount)
+  - `lib/services/review_service.dart` (Service penyimpanan ulasan offline-first berbasis Hive dan sinkronisasi cloud)
+  - `lib/views/booking/split_bill_view.dart` (Layar kalkulator patungan tiket dengan opsi pembagian rata atau kustom)
+  - `lib/views/movie_detail/widgets/review_bottom_sheet.dart` (Modal input rating 5 bintang dan komentar pengguna)
+  - `test/social_review_split_test.dart` (Unit test logika split bill, persistensi ulasan, dan format share)
+
+---
+
+### 📦 Tugas Teman 2: Epic Video Trailer Preview & Cinema Wrap Insights (ANL — PB 28)
+*Mengembangkan pemutar video trailer terintegrasi, visualisasi radar selera penonton, dan kilas balik tahunan (PB-083 s.d. PB-085 / SRS §3.14 FR-048 s.d. FR-050)*
+
+| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| 1 | **PB-083** | Visualisasi Radar Analisis Selera Genre Film | **Given** pengguna telah memesan berbagai genre film, **When** membuka tab profil *My Cinemate*, **Then** tampil chart radar interaktif yang memetakan spektrum selera film pengguna (Action, Romance, Sci-Fi, Horror, Animation, Drama) berdasarkan frekuensi tontonan. | ⏳ Siap Dikerjakan |
+| 2 | **PB-084** | Smart Video Trailer Preview di Halaman Detail Film | **Given** pengguna membuka halaman `MovieDetailView`, **When** menekan tombol *"Tonton Trailer"*, **Then** cuplikan video trailer resmi TMDB/YouTube dimuat secara seamless dalam banner dengan kontrol play/pause, mute, dan auto-pause saat halaman digulir keluar layar. | ⏳ Siap Dikerjakan |
+| 3 | **PB-085** | "Cinemate Rewind" Kilas Balik Menonton Periode | **Given** pengguna telah menggunakan aplikasi selama minimal 1 bulan, **When** membuka menu *"Cinemate Rewind"*, **Then** aplikasi menampilkan story infografis interaktif berisi total menit tontonan, bioskop favorit, hari nonton favorit, dan kartu recap yang bisa di-share. | ⏳ Siap Dikerjakan |
+
+- **Target File yang Dikerjakan:**
+  - `lib/views/movie_detail/widgets/trailer_player_widget.dart` (Komponen video preview trailer film responsif)
+  - `lib/views/profile/cinema_rewind_view.dart` (Layar rekap infografis kilas balik tontonan pengguna)
+  - `lib/views/profile/widgets/genre_radar_chart.dart` (Custom painter / widget chart radar spektrum genre)
+  - `test/trailer_rewind_insights_test.dart` (Unit test parsing YouTube key trailer, kalkulasi statistik rewind, dan radar genre)
+
+---
+
+### 📦 Tugas Teman 3: Epic Promo Engine, Dynamic Voucher & Loyalty Redemption (VCH — PB 29)
+*Mengembangkan katalog penukaran poin loyalitas, sistem validasi kupon promo checkout, dan diskon jadwal flash sale (PB-086 s.d. PB-088 / SRS §3.14 FR-051 s.d. FR-053)*
+
+| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| 1 | **PB-086** | Katalog Penukaran Poin Loyalitas (*Points Redemption*) | **Given** pengguna memiliki saldo *Cinemate Points*, **When** membuka katalog reward di Profil, **Then** pengguna dapat menukar poin dengan voucher potongan tiket bioskop (Rp 10.000 / Rp 25.000) atau voucher diskon menu F&B. | ⏳ Siap Dikerjakan |
+| 2 | **PB-087** | Sistem Validasi Kode Promo & Kupon Checkout | **Given** pengguna berada di layar `OrderSummaryView`, **When** memasukkan kode kupon promo (misal: `NOBARYUK`, `WEEKDAYHEMAT`), **Then** sistem memvalidasi syarat minimal transaksi & masa berlaku, lalu memotong total harga secara instan dan reaktif. | ⏳ Siap Dikerjakan |
+| 3 | **PB-088** | Penanda Flash Sale & Diskon Jadwal Tertentu | **Given** bioskop menawarkan tarif khusus pada jadwal siang weekday atau midnight show, **When** pengguna memilih jam tayang, **Then** tampil badge harga coret diskon dan label hemat pada kartu jadwal bioskop. | ⏳ Siap Dikerjakan |
+
+- **Target File yang Dikerjakan:**
+  - `lib/models/promo_voucher_model.dart` (Model kupon promo, syarat diskon, persentase/potongan nominal, dan status kedaluwarsa)
+  - `lib/services/promo_service.dart` (Service validasi kode kupon promo dan penukaran saldo poin)
+  - `lib/views/profile/voucher_catalog_view.dart` (Layar katalog reward poin penonton dan daftar voucher aktif)
+  - `lib/views/booking/widgets/promo_code_input.dart` (Komponen input kode kupon promo di alur ringkasan checkout)
+  - `test/promo_voucher_redemption_test.dart` (Unit test validasi kode kupon, kalkulasi diskon bertingkat, dan debet poin)
+
+---
+
+### 📦 Tugas Teman 4: Epic In-Theater Mode, Aksesibilitas & Ekspor Tiket (OPS — PB 30)
+*Mengembangkan mode hening di dalam bioskop, aksesibilitas screen reader, dan ekspor tiket ke PDF/kalender (PB-089 s.d. PB-091 / SRS §3.14 FR-054 s.d. FR-056)*
+
+| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| 1 | **PB-089** | Mode Bioskop / "In-Theater Dark Mode" | **Given** pengguna sedang berada di dalam studio saat film berlangsung, **When** mengaktifkan *"In-Theater Mode"*, **Then** antarmuka beralih ke tema ultra-dark 100% hitam, kecerahan layar diredupkan otomatis, perangkat diheningkan, dan tombol pintasan QR tiket tetap mudah diakses. | ⏳ Siap Dikerjakan |
+| 2 | **PB-090** | Aksesibilitas Pembaca Layar (Semantics) & Dynamic Text | **Given** pengguna tunanetra atau berpenglihatan rendah menggunakan TalkBack/VoiceOver, **When** menjelajahi aplikasi, **Then** seluruh widget memiliki label semantik jelas (*Semantic labels*), kontras tinggi, dan tata letak tidak overflow saat ukuran teks diperbesar (*text scaling*). | ⏳ Siap Dikerjakan |
+| 3 | **PB-091** | Ekspor Tiket ke Berkas PDF & Sinkronisasi Kalender | **Given** pemesanan tiket berhasil dikonfirmasi, **When** menekan opsi *"Unduh E-Ticket PDF"* atau *"Simpan ke Kalender"*, **Then** aplikasi menghasilkan berkas PDF struk resmi tiket bioskop serta menambahkan pengingat jadwal nonton ke Google/Apple Calendar. | ⏳ Siap Dikerjakan |
+
+- **Target File yang Dikerjakan:**
+  - `lib/services/ticket_pdf_service.dart` (Service generator dokumen PDF tiket bioskop resmi dengan QR Code)
+  - `lib/views/ticket/in_theater_mode_view.dart` (Layar mode bioskop minimalis redup baterai hemat OLED)
+  - `lib/views/ticket/widgets/ticket_export_dialog.dart` (Dialog opsi ekspor tiket ke PDF dan penambahan ke kalender)
+  - `test/in_theater_accessibility_test.dart` (Unit test label semantik aksesibilitas, tata letak dynamic text scale, dan format payload PDF)
+
+---
+
+### 🌿 Panduan Branching Git untuk Rekan Tim (Sprint 6)
+
+Rekan tim dapat langsung menarik kode terbaru dari branch `main` dan membuat branch fitur baru sesuai penugasan nomor PB masing-masing:
 
 ```bash
 # 1. Pastikan branch main lokal up-to-date:
 git checkout main
 git pull origin main
 
-# 2. Buat branch fitur sesuai penugasan nomor PB Anda:
-# Teman 1 (PB 23):
-git checkout -b feat/pb-023-e2e-testing-compatibility
+# 2. Buat branch fitur sesuai penugasan nomor PB Sprint 6 Anda:
+# Teman 1 (PB 27):
+git checkout -b feat/pb-027-social-cinema-split-bill
 
-# Teman 2 (PB 24):
-git checkout -b feat/pb-024-uiux-micro-animations-haptic
+# Teman 2 (PB 28):
+git checkout -b feat/pb-028-trailer-player-cinema-rewind
 
-# Teman 3 (PB 25):
-git checkout -b feat/pb-025-security-input-sanitization
+# Teman 3 (PB 29):
+git checkout -b feat/pb-029-promo-voucher-points-redemption
 
-# Teman 4 (PB 26):
-git checkout -b feat/pb-026-release-apk-documentation
+# Teman 4 (PB 30):
+git checkout -b feat/pb-030-in-theater-accessibility-pdf
 ```
 
 ---
