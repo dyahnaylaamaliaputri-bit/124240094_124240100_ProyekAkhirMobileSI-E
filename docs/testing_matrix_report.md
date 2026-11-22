@@ -18,7 +18,7 @@
 
 ---
 
-## 2. Hasil Unit Test Suite (278 Tests — 100% Passed)
+## 2. Hasil Unit Test Suite (315 Tests — 100% Passed)
 
 | No | File Test | Modul / Epic | Jumlah Test | Status |
 | :---: | :--- | :--- | :---: | :---: |
@@ -49,7 +49,12 @@
 | 24 | `security_sanitization_test.dart` | Sanitasi Input & Keamanan (PB-074, PB-075, PB-076) | 23 | ✅ PASS |
 | 25 | `e2e_integration_flow_test.dart` | E2E Flow & Offline Resilience (PB-068, PB-069, PB-070) | 25 | ✅ PASS |
 | 26 | `ui_interaction_haptic_test.dart` | Hero Animation, Haptic, Palette (PB-071, PB-072, PB-073) | 22 | ✅ PASS |
-| **TOTAL** | | | **278** | **✅ 100% PASS** |
+| **Sprint 6 Tambahan** | | | | |
+| 27 | `social_review_split_test.dart` | Social Cinema, Split Bill, Rating (PB-080, PB-081, PB-082) | 10 | ✅ PASS |
+| 28 | `trailer_rewind_insights_test.dart` | Radar Genre, Trailer Player, Rewind (PB-083, PB-084, PB-085) | 9 | ✅ PASS |
+| 29 | `promo_voucher_redemption_test.dart` | Redeem Poin, Kupon Promo, Flash Sale (PB-086, PB-087, PB-088) | 11 | ✅ PASS |
+| 30 | `in_theater_accessibility_test.dart` | Mode Bioskop, Aksesibilitas, Ekspor (PB-089, PB-090, PB-091) | 7 | ✅ PASS |
+| **TOTAL** | | | **315** | **✅ 100% PASS** |
 
 ---
 

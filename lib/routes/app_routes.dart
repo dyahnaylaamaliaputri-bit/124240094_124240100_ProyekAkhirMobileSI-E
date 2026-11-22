@@ -32,4 +32,8 @@ abstract class Routes {
   static const advancedProfiling = '/advanced-profiling';
   static const checkInScanner = '/check-in-scanner';
   static const moodHistory = '/mood-history';
+  static const splitBill = '/split-bill';
+  static const voucherCatalog = '/voucher-catalog';
+  static const cinemaRewind = '/cinema-rewind';
+  static const inTheaterMode = '/in-theater-mode';
 }

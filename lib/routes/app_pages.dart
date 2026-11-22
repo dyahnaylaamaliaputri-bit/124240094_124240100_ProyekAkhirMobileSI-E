@@ -30,6 +30,10 @@ import '../views/profile/settings_view.dart';
 import '../views/search/search_view.dart';
 import '../views/chatbot/chatbot_view.dart';
 import '../views/auth/change_password_view.dart';
+import '../views/booking/split_bill_view.dart';
+import '../views/profile/voucher_catalog_view.dart';
+import '../views/profile/cinema_rewind_view.dart';
+import '../views/ticket/in_theater_mode_view.dart';
 import '../bindings/profile_binding.dart';
 import '../bindings/search_binding.dart';
 import '../controllers/mood_controller.dart';
@@ -160,6 +164,30 @@ class AppPages {
       name: Routes.moodHistory,
       page: () => const MoodHistoryView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: Routes.splitBill,
+      page: () => const SplitBillView(),
+    ),
+    GetPage(
+      name: Routes.voucherCatalog,
+      page: () => const VoucherCatalogView(),
+      binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: Routes.cinemaRewind,
+      page: () => const CinemaRewindView(),
+      binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: Routes.inTheaterMode,
+      page: () => const InTheaterModeView(
+        movieTitle: 'Film Bioskop',
+        cinemaName: 'CGV Cinema',
+        hallName: 'Studio 1',
+        seats: ['A1', 'A2'],
+        showTime: '19:00',
+      ),
     ),
   ];
 }
