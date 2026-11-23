@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../services/supabase_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/validators.dart';
 
@@ -88,7 +89,38 @@ class _RegisterViewState extends State<RegisterView> {
                 'Isi data berikut untuk mendaftar',
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 12),
+
+              // Banner mode offline
+              if (!SupabaseService.isInitialized)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF9800).withAlpha(25),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: const Color(0xFFFF9800).withAlpha(120)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.cloud_off_rounded,
+                          color: Color(0xFFFF9800), size: 18),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Mode Offline — akun akan tersimpan di perangkat ini dan tersinkronisasi saat Supabase kembali online.',
+                          style: TextStyle(
+                              color: Color(0xFFFF9800),
+                              fontSize: 11,
+                              height: 1.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 20),
 
               Form(
                 key: _formKey,

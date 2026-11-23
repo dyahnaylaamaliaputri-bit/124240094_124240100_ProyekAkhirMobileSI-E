@@ -5,6 +5,7 @@
 //   - Lockout 5 menit setelah 5x gagal (PB-006)
 //   - Countdown timer saat lockout
 //   - Link ke halaman Register
+//   - Banner mode offline saat Supabase tidak tersedia
 // Referensi: SRS §3.1, NFR-006
 
 import 'dart:async';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../services/supabase_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/validators.dart';
 
@@ -152,7 +154,37 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 16),
+
+              // Banner mode offline (hanya tampil saat Supabase tidak tersedia)
+              if (!SupabaseService.isInitialized)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF9800).withAlpha(25),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: const Color(0xFFFF9800).withAlpha(120)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.cloud_off_rounded,
+                          color: Color(0xFFFF9800), size: 18),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Mode Offline Aktif — akun tersimpan di perangkat ini. Data akan tersinkronisasi saat Supabase kembali online.',
+                          style: TextStyle(
+                              color: Color(0xFFFF9800),
+                              fontSize: 11,
+                              height: 1.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
               const Text(
                 'Selamat datang\nkembali 👋',

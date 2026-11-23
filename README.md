@@ -1,583 +1,394 @@
-# 🎬 Cinemate
+# 🎬 Cinemate — Aplikasi Pemesanan Tiket Bioskop Berbasis AI
 
-**Cinemate** adalah aplikasi pemesanan tiket bioskop multi-cinema berbasis AI untuk rekomendasi film sesuai *mood* dan penemuan lokasi bioskop terdekat (*Location-Based Services*), dilengkapi pemesanan tiket & F&B, simulasi pembayaran, serta *e-ticket QR code* yang dapat diakses secara *offline*.
-
-Proyek ini dibangun menggunakan **Dart** & framework **Flutter** dengan arsitektur **GetX OOP**, serta mengacu pada **SRS-CNM-001** dan **PB-CNM-001**.
-
----
-
-## 🛠️ Tech Stack & Konvensi
-- **Framework & SDK:** Flutter (Dart 3.x, Android API 26+)
-- **State Management & Routing:** GetX (`GetxController`, `GetPage`, `Bindings`, `Obx`)
-- **Desain UI:** Material Design 3 — *Dark Cinema Palette* (`#0A0A0A`, `#E50914`, `#1A1A2E`, `#FFD700`)
-- **Backend Online:** Supabase (PostgreSQL Database & Storage) — *Bukan Firebase*
-- **HTTP Client:** Dio (Interceptor token, retry 2x, timeout 15s/30s)
-- **Local Storage:**
-  - `flutter_secure_storage`: Token sesi & user ID (terenkripsi)
-  - `hive` & `hive_flutter`: Cache data film, bioskop, F&B, dan e-ticket offline (NoSQL)
-  - `get_storage`: Preferensi tema, mata uang, zona waktu, dan login attempt lockout
-- **Peta & LBS:** `flutter_map` (OpenStreetMap tile layer gratis & offline friendly), `geolocator`, `latlong2`, `url_launcher`
-- **Konversi & Format:** `intl` (locale IDR, USD, SGD, EUR, JPY, GBP) & penyesuaian zona waktu (WIB, WITA, WIT, London GMT/BST)
-- **Referensi Modul Praktikum:**
-  - Modul 6/7 (Local Storage & Hive): [pertemuan_7_mobile](https://github.com/TheBinKingVII/pertemuan_7_mobile)
-  - Modul 7/8 (Notification & LBS): [pertemuan_8_mobile_2026](https://github.com/TheBinKingVII/pertemuan_8_mobile_2026)
+> **Proyek Mobile Programming — Flutter/Dart**  
+> Referensi: SRS-CNM-001 · PB-CNM-001 · Modul II–VII
 
 ---
 
-## 📁 Struktur Folder Proyek
-```text
-lib/
-├── app.dart                    # GetMaterialApp konfigurasi tema & initial route
-├── main.dart                   # Inisialisasi binding, dotenv, GetStorage, Hive, Supabase
-├── bindings/                   # GetX Bindings (InitialBinding, AuthBinding, DashboardBinding, dll.)
-├── controllers/                # GetxController (CinemaController, PreferenceController, FnbController, dll.)
-├── models/                     # Data class/model (CinemaModel, ShowtimeModel, FnbItemModel, TicketModel, dll.)
-├── repositories/               # Repository pattern (Interface & Implementation)
-├── routes/                     # AppRoutes & AppPages
-├── services/                   # Service layer (LocationService, CinemaService, FnbService, MoodService, dll.)
-├── utils/                      # AppColors, AppTheme, CurrencyHelper, TimezoneHelper, Validators
-└── views/                      # Antarmuka UI (splash, auth, dashboard, booking, cinema, fnb, mood, profile, ticket)
-assets/
-├── .env.example                # Template variabel lingkungan
-└── .env                        # Kredensial API (diabaikan oleh git)
-docs/
-└── supabase_schema.sql         # Skema database & RLS Supabase
-```
+## 📋 Daftar Isi
+
+1. [Tentang Proyek](#tentang-proyek)
+2. [Setup Lingkungan Pengembangan](#setup-lingkungan-pengembangan)
+3. [Konfigurasi API Keys](#konfigurasi-api-keys)
+4. [Arsitektur Proyek](#arsitektur-proyek)
+5. [Fitur yang Sudah Selesai](#fitur-yang-sudah-selesai)
+6. [⚠️ Tugas Selanjutnya (4 PB Tersisa)](#tugas-selanjutnya)
+7. [Panduan Kontribusi](#panduan-kontribusi)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
-## ✅ Status Pengerjaan (Sprint 1 s/d Sprint 4 — SELESAI 100%)
+## Tentang Proyek
 
-### 1. Epic Fondasi Teknis (TEK — PB 1)
-- [x] **PB-001 (Kerangka Proyek & OOP):** Struktur folder GetX OOP lengkap (`models`, `services`, `repositories`, `controllers`, `bindings`, `views`, `routes`, `utils`). Lolos uji `dart analyze` (0 error).
-- [x] **PB-002 (Skema Supabase):** Skema SQL di `docs/supabase_schema.sql` (tabel `users`, `sessions`, `cinemas`, `movies`, `showtimes`, `seat_locks`, `bookings`, `fnb_items`, `fnb_orders`, aturan RLS, dan seed data). Skema telah aktif dan terhubung ke database cloud Supabase.
-- [x] **PB-003 (Lapisan HTTP Dio):** `HttpService` berbasis Dio dengan auth interceptor, auto-retry 2x, penanganan error terstandar, dan integrasi `.env`.
-- [x] **PB-004 (Lapisan Penyimpanan Lokal):** `StorageService` mengabstraksi Hive (cache data), `flutter_secure_storage` (token sesi), dan `GetStorage` (preferensi).
+**Cinemate** adalah aplikasi pemesanan tiket bioskop berbasis Flutter dengan fitur AI (rekomendasi film berdasarkan mood, chatbot asisten, dan split bill). Dibangun di atas:
 
-### 2. Epic Autentikasi (AUT — PB 2)
-- [x] **PB-005 (Registrasi Akun):** Halaman register (`register_view.dart`) dengan validasi form lengkap, hashing password aman (*salt + SHA-256*), dan deteksi email duplikat.
-- [x] **PB-006 (Login Email & Password):** Halaman login (`login_view.dart`) dengan verifikasi kredensial, pesan error aman, serta fitur **lockout 5 menit setelah 5x gagal** lengkap dengan *countdown timer*.
-- [x] **PB-007 (Sesi Persisten):** `splash_view.dart` otomatis memverifikasi token sesi (< 7 hari) dan mengarahkan pengguna ke Dashboard atau Login.
-- [x] **PB-008 (Logout):** Tombol logout dengan dialog konfirmasi, menghapus sesi di storage lokal dan tabel `sessions` Supabase.
-
-### 3. Epic Dashboard & Katalog (DSH — PB 3)
-- [x] **PB-011 (Navigasi Bawah 5 Menu):** Menu navigasi bawah 5 tab (Dashboard, Tiket, Pesan Makanan, Profil, Logout) dengan `IndexedStack` agar state tiap tab tidak ter-reset. Mengimplementasikan native `Navigator` bawaan Flutter SDK dan passing data antar halaman.
-- [x] **PB-012 (Banner, Now Playing, & Coming Soon):** `MovieModel`, `MovieService` terintegrasi TMDB API `/movie/now_playing` & `/movie/upcoming`, Carousel Banner otomatis, Horizontal List poster film, dan Shimmer/Skeleton loading.
-- [x] **PB-013 (Cache Film Offline):** Caching data katalog film TMDB ke Hive box `movies_cache` dengan penanda waktu (*TTL 6 jam*). Menampilkan banner indikator "Mode Offline" saat memuat dari cache lokal / tanpa koneksi.
-- [x] **PB-014 (Halaman Detail Film):** Halaman `MovieDetailView` lengkap dibuka via `Get.toNamed(Routes.movieDetail, arguments: movie)` menampilkan backdrop, poster, sinopsis, genre chips, estimasi durasi, rating bintang, dan tombol sticky "Beli Tiket".
-- [x] **PB-015 (Bioskop Terdekat di Dashboard):** Ringkasan 3 bioskop terdekat di bawah section film pada dashboard dengan kalkulasi jarak akurat (*Haversine Formula*), pengambilan data dari tabel Supabase `cinemas`, cache Hive `cinemas_cache`, skeleton loading, dan fitur ganti titik lokasi acuan LBS interaktif.
-
-### 4. Epic Pemesanan Tiket Bioskop (TKT — PB 4)
-- [x] **PB-018 (Alur Booked by Cinema):** Alur pemesanan tiket dari pemilihan bioskop (`BookByCinemaView`) -> film yang sedang tayang -> tanggal penayangan (7 hari ke depan) -> kelas studio (Regular 2D, IMAX with Laser, The Premiere) & jam tayang lengkap dengan indikator sisa kursi dan harga tiket.
-- [x] **PB-019 (Alur Booked by Movie):** Alur pemesanan tiket langsung dari film di dashboard/detail (`BookByMovieView`) -> filter otomatis bioskop terdekat yang menayangkan film tersebut -> pilih bioskop, tanggal, studio & jam tayang -> navigasi ke pemilihan kursi (`SelectSeatView`).
-- [x] **PB-020 (Ringkasan Pesanan / Order Summary):** Layar `OrderSummaryView` menampilkan informasi pesanan lengkap: poster & judul film, bioskop, tanggal, studio, jam, chip kursi yang dipilih, rincian biaya (tiket x jumlah + biaya layanan aplikasi Rp 3.000), dan total pembayaran.
-- [x] **PB-021 (Simulasi Pembayaran):** Layar `PaymentView` dengan pilihan metode (BCA VA, Mandiri VA, BRI VA, GoPay, OVO, Dana, QRIS Dinamis), countdown timer batas bayar 10 menit, serta integrasi tombol "Bayar Sekarang" yang memproses tiket.
-- [x] **PB-022 & PB-023 (E-Ticket QR Code & Persistensi Cloud/Local):** `TicketModel` dengan QR code dinamis (`qr_flutter`), kode booking unik (`CNM-XXXXX`), penyimpanan ke Supabase (`bookings` & `booking_seats`) serta persistensi offline ke Hive box `tickets_cache`. Dilengkapi dialog sukses & navigasi instan ke E-Ticket.
-- [x] **PB-024 (Akses E-Ticket Offline):** Tiket dapat dibuka secara instan tanpa koneksi internet langsung dari Hive cache. Terdapat indikator visual "Mode Offline (Hive Cache)" dan QR code tetap dapat di-scan oleh petugas bioskop.
-- [x] **PB-025 (Daftar Tiket Aktif, Riwayat, & Simulasi Check-in):** Tab `TicketsTab` dengan pemisahan otomatis tiket aktif (jadwal belum lewat) dan riwayat tiket (sudah ditonton / lewat), pencarian live (*search by title, booking code, cinema*), countdown waktu tayang ("Dimulai dalam X jam/menit"), serta tombol simulasi check-in petugas yang memperbarui status tiket secara real-time di Supabase dan Hive.
-
-### 5. Epic Pesan Makanan & Minuman / F&B (FNB — PB 7 Teman)
-- [x] **PB-026 (Katalog F&B Offline-First & Hive Cache — Tanpa Supabase):** Model `FnbItemModel` dengan 12 varian menu lengkap, `FnbService` berbasis Hive box `fnb_cache` (100% offline-first murni tanpa ketergantungan Supabase), banner indikator status Hive cache & timestamp sinkronisasi, filter chip kategori dinamis (*Semua*, *Snack*, *Minuman*, *Paket Combo*, *Makanan Berat*) dengan counter kuantitas menu, pencarian real-time dengan tombol clear, shimmer skeleton loading (`FnbListSkeleton`), dan penanganan empty state saat pencarian tidak ditemukan.
-- [x] **PB-027 (Keranjang Pesanan F&B / Reactive Cart Management — Tanpa Supabase):** `FnbController` mengelola keranjang belanja reaktif (`cart`), penambahan/pengurangan item, persistensi otomatis ke Hive box `fnb_cache` (`active_cart` & `cart_notes`), instruksi/catatan khusus per menu (`itemNotes`), kalkulasi subtotal, biaya layanan aplikasi Rp 2.000, grand total, floating summary bar interaktif, badge keranjang di AppBar, modal bottom sheet detail keranjang (`FnbCartBottomSheet`), serta dialog konfirmasi pengosongan keranjang.
-- [x] **PB-028 (Pilihan Bioskop & Metode Pengambilan F&B — Tanpa Supabase):** Layar `FnbCheckoutView` mendukung pemilihan lokasi bioskop penjualan (`availableCinemas`) dari seed/cache lokal tanpa Supabase, 2 metode pengambilan (*Ambil di Counter Concession* dengan QR voucher mandiri vs *Antar Langsung ke Studio & Kursi* oleh staf bioskop), auto-detection tiket aktif (`detectedActiveTicket`) dari Hive `tickets_cache` / `TicketsController` untuk pre-fill otomatis nama studio & nomor kursi lengkap dengan banner visual informasi tiket, text controller persisten tersinkronisasi, serta validasi form pengantaran studio & kursi sebelum checkout.
-- [x] **PB-029 (Simulasi Pembayaran & E-Voucher QR Code F&B):** Integrasi transaksi ke tabel Supabase `fnb_orders` & `fnb_order_items`, penerbitan kode pickup 5 digit (`FNB-XXXXX`), serta QR Code E-Voucher (`qr_flutter`) untuk verifikasi staf bioskop.
-- [x] **PB-030 (Riwayat & Pelacakan Status Pesanan F&B):** Sub-tab *"Pesanan Saya"* dengan status stepper dinamis (*Sedang Disiapkan* 🍳 $\rightarrow$ *Siap Diambil* 🍿 $\rightarrow$ *Selesai Diambil* ✅), persistensi offline ke Hive (`fnb_orders_cache`), dan tombol simulasi staf bioskop.
-
-### 6. Epic Rekomendasi Film Berbasis Mood AI (MOD / AIL — PB 8 Teman)
-- [x] **PB-031 (Layar Pemilih Mood Interaktif — Tanpa Supabase):** Banner pengantar Mood AI di `HomeTab`, navigasi ke `MoodPickerView` dengan 6 kategori emosi (*Gembira*, *Haru*, *Romantis*, *Tegang*, *Santai*, *Bosan*), visualisasi gradien estetik dinamis, highlight kartu emosi terpilih, `MoodController` reaktif, integrasi binding rute, fallback kurasi offline tanpa Supabase, dan penyimpanan Hive cache lokal.
-- [x] **PB-032 (Mood-to-Genre Engine & Filter TMDB Discovery — Tanpa Supabase):** Engine rekomendasi `MoodRecommendationService` memetakan genre ID TMDB dengan filter penemuan discovery cerdas (rating $\ge 7.0$, sorting dinamis *Terpopuler* & *Rating Tertinggi*), fallback kurasi offline berkualitas tinggi dengan TTL di Hive cache tanpa Supabase, serta didukung langkah opsional Tambah Makanan F&B sebelum ringkasan pesanan tiket bioskop (FR-028 / PB-032).
-- [x] **PB-033 (Hasil Rekomendasi AI & Aksi Direct Booking — Tanpa Supabase):** Kartu rekomendasi film interaktif dengan persentase kecocokan AI (*88% - 99% MATCH*), badge gradien dinamis, analisis personalisasi berbasis mood emosi pengguna, tombol *"Lihat Sinopsis"* untuk detail lengkap, tombol *"Pesan Tiket"* langsung ke alur *Book by Movie* (`Routes.bookByMovie`), serta didukung alur pemesanan F&B mandiri tanpa tiket dengan kode ambil unik 5 digit `FNB-XXXXX` dan status processing (FR-036 / PB-033).
-
-### 7. Epic Location-Based Services & Peta Bioskop (LBS — PB 9)
-- [x] **PB-042 (Deteksi Lokasi Pengguna & Izin GPS):** Service `LocationService` dengan integrasi `geolocator`, pendeteksian koordinat pengguna secara real-time, tombol "Deteksi GPS Otomatis" di `HomeTab` & `CinemaMapView`, penyimpanan koordinat terakhir ke storage lokal (`GetStorage`), dan penanganan prompt perizinan Android & iOS yang aman tanpa crash.
-- [x] **PB-043 (Daftar Bioskop Terdekat Terurut Jarak):** Kalkulasi jarak realtime setiap bioskop dari koordinat pengguna dengan formula *Haversine* dan pengurutan ascending (km) yang reaktif di `CinemaController` (`getCinemasSortedByDistance`).
-- [x] **PB-044 (Peta Bioskop Interaktif `flutter_map`):** Visualisasi peta interaktif OpenStreetMap (OSM) via `CinemaMapView` (`Routes.cinemaMap`) tanpa API key berbayar, marker posisi user (pin biru dengan efek glowing), dan pin bioskop (merah/emas) yang interaktif memunculkan bottom modal detail bioskop.
-- [x] **PB-045 (Filter Radius Jarak Bioskop):** Filter radius dinamis: `1 km`, `3 km`, `5 km`, `10 km`, `25 km`, dan `Semua Jarak`. Penanda peta & daftar bioskop tersaring secara real-time disertai indikator jumlah bioskop yang ditemukan.
-- [x] **PB-046 (Rute & Navigasi Eksternal ke Google Maps):** Tombol *"Petunjuk Arah"* pada kartu & peta bioskop yang membuka aplikasi Google Maps eksternal via `url_launcher` dengan koordinat tujuan bioskop dan fallback geo URI.
-- [x] **PB-047 (Fallback Offline & Pilihan Lokasi Manual):** Penyedia 10 titik acuan kota manual (Jakarta Pusat, Jakarta Selatan, Jakarta Utara, Depok, Tangerang, Bandung, Surabaya, Yogyakarta, Medan, Bali) agar LBS tetap berfungsi 100% mulus saat offline atau saat izin GPS ditolak.
-
-### 8. Epic Konversi Mata Uang, Zona Waktu, Pintasan F&B & Profil (KNV / PRF / FNB — PB 10)
-- [x] **PB-048 (Konversi Mata Uang Dinamis):** Helper `CurrencyHelper` mendukung konversi harga tiket dan F&B ke IDR, USD, SGD, EUR, JPY, dan GBP, lengkap dengan metadata waktu pembaruan kurs (TTL cache 12 jam) dan formatting locale akurat.
-- [x] **PB-049 (Penyesuaian Zona Waktu Jam Tayang Film):** Helper `TimezoneHelper` menyesuaikan jadwal tayang film di seluruh aplikasi ke zona waktu pilihan (WIB UTC+7, WITA UTC+8, WIT UTC+9, dan London GMT/BST UTC+0/+1) lengkap dengan konversi jam rollover tengah malam.
-- [x] **PB-050 (Selector Preferensi Mata Uang & Waktu di Profil):** `PreferenceController` reaktif dan modal bottom sheet pemilih mata uang & zona waktu di `ProfileTab` yang persisten ke local storage (`GetStorage`) serta pratinjau live konversi.
-- [x] **PB-034 (Pintasan Menu F&B dari Halaman Lain):** Tombol pintasan *"Pesan F&B di Bioskop Ini"* di `TicketDetailView` untuk tiket aktif dan card pintasan `+ Tambah Popcorn & Minuman (F&B)` di `OrderSummaryView` yang otomatis mengunci bioskop terpilih.
-- [x] **PB-035 (Stepper Pelacakan & Simulasi Status Pesanan F&B):** Layar `FnbOrderDetailView` dengan stepper visual dinamis (*Sedang Disiapkan* 🍳 $\rightarrow$ *Siap Diambil* 🍿 $\rightarrow$ *Selesai Diambil* ✅), E-Voucher QR Code, dan tombol simulasi status staf bioskop.
-- [x] **PB-062 (Form Edit Profil Pengguna):** Layar `EditProfileView` (`Routes.editProfile`) dengan form edit nama lengkap, nomor telepon, dan selector lencana avatar anggota (Cinephile, VIP Gold, Director, Popcorn Fan, Sci-Fi Star) yang tersimpan di sesi lokal.
-
-### 9. Epic Pencarian & Filter Multi-Kriteria (SRC — PB 11)
-- [x] **PB-051 (Pencarian Multi-Entitas dengan Debounce 300ms):** Controller `AppSearchController` dengan debounce worker 300ms untuk input query tanpa lag, pencarian universal lintas 3 entitas (Film: judul, sinopsis, genre; Bioskop: nama, kota, alamat; F&B: nama menu, deskripsi, kategori), serta shortcut pencarian interaktif di AppBar & Dashboard `HomeTab`.
-- [x] **PB-052 (Filter Pencarian Multi-Kriteria):** Filter tab kategori entitas (*Semua*, *Film*, *Bioskop*, *F&B*), filter genre film (Action, Animation, Comedy, Horror, dll.), filter rating tinggi ($\ge 7.0$ bintang), filter batas harga maksimal F&B, filter kota bioskop (Jakarta, Depok, Bandung, Surabaya), active filter chips bar dengan kemampuan hapus per chip, dan tombol *"Reset Filter"*.
-- [x] **PB-053 (Pengurutan Hasil Pencarian):** Pilihan sorting hasil dinamis: *Rating Tertinggi* (rating film $\ge 7.0$ di atas), *Paling Populer* (popularity TMDB), *Harga Termurah* (F&B price ascending), *Jarak Terdekat* (bioskop distance ascending), dan *Abjad (A - Z)*.
-- [x] **PB-054 (Riwayat 5 Pencarian Terakhir):** Menyimpan hingga 5 riwayat pencarian terakhir secara persisten di storage lokal dengan urutan LIFO, tombol hapus riwayat individual, tombol *"Hapus Semua Riwayat"*, dan aksi klik riwayat untuk langsung mengisi query pencarian.
-- [x] **PB-055 (State Kosong, Skeleton Loading & Direct Actions):** Shimmer skeleton loading saat pencarian/filtering berlangsung, tampilan empty state ramah saat hasil tidak ditemukan beserta saran ejaan & tombol reset, kartu film dengan tombol direct *"Pesan Tiket"*, kartu bioskop dengan tombol *"Jadwal"*, serta kartu F&B dengan harga terkonversi.
-
-### 12. Notifikasi Lokal & Pengingat Jadwal (PB 12 / PB-056 s.d. PB-060) [SELESAI ✅]
-- [x] **PB-056 (Notifikasi Konfirmasi Pemesanan Tiket & F&B):** Notifikasi lokal instan saat checkout tiket bioskop atau pesanan F&B berhasil, memuat judul film, kode booking (`CNM-XXXXX` / `FNB-XXXXX`), rincian studio, dan payload terstruktur.
-- [x] **PB-057 (Notifikasi Pengingat Jadwal Film Terjadwal):** Penjadwalan otomatis alarm notifikasi lokal H-2 jam dan H-30 menit sebelum film dimulai menggunakan `flutter_local_notifications` dan timezone lokal, serta pembatalan alarm otomatis jika tiket dibatalkan.
-- [x] **PB-058 (Pengaturan Izin & Preferensi Notifikasi di Profil):** 4 switch toggle interaktif di `ProfileTab` (`notifBooking`, `notifReminder`, `notifFnb`, `notifPromo`) yang tersimpan persisten di local storage / Hive.
-- [x] **PB-059 (Notifikasi Pengingat Pesanan F&B Siap Diambil):** Notifikasi lokal instan saat status pesanan F&B berubah menjadi *Ready* di counter concession atau delivery ke kursi studio.
-- [x] **PB-060 (Notifikasi Penawaran Promo F&B Mingguan):** Simulasi berkala penawaran diskon combo popcorn & F&B dengan tombol "Kirim Notifikasi Uji Coba" langsung di layar profil pengguna.
-
-### 13. Profil Lanjutan, My Cinemate & Riwayat AI (PB 13 / PB-061 s.d. PB-065) [SELESAI ✅]
-- [x] **PB-061 (Unggah Foto Profil Pengguna):** Fitur ganti foto profil dari Kamera atau Galeri perangkat menggunakan `image_picker`, preview avatar interaktif dengan fallback lencana avatar bawaan saat offline atau jika dibatalkan.
-- [x] **PB-063 (Halaman Pengaturan Aplikasi Lanjutan):** Layar pengaturan komprehensif (`SettingsView`) untuk preferensi tema aplikasi (*Cinematic Dark*, *Light*, *Mengikuti Sistem*), opsi keamanan login biometrik (Fingerprint / Face ID toggle), ringkasan preferensi aktif, dan pembersihan cache Hive.
-- [x] **PB-064 (Layar "My Cinemate" Dashboard Penonton):** Dashboard personal penonton (`MyCinemateView`) yang menampilkan statistik jumlah film yang ditonton, estimasi jam tontonan, total belanja tiket & F&B, sistem badge loyalitas penonton (*Bronze*, *Silver*, *Gold*, *Platinum*), dan multi-select chips preferensi genre favorit yang tersimpan persisten.
-- [x] **PB-065 (Riwayat Hasil Profiling AI Mood):** Penyimpanan riwayat hasil rekomendasi mood yang pernah dilakukan beserta tanggal/jam dan film-film yang disarankan secara LIFO di local storage, dengan opsi hapus riwayat individual & hapus semua.
-
-### 14. Sinkronisasi Data & Hardening Kualitas (PB 14 / PB-066 s.d. PB-067) [SELESAI ✅]
-- [x] **PB-066 (Sinkronisasi Otomatis Data Lokal & Cloud):** Deteksi konektivitas internet aktif dan reaktif (`connectivity_plus`), listener peralihan offline ke online otomatis, sinkronisasi dua arah Hive-Supabase dengan pencegahan duplikasi (*idempotency key check*), pembaruan status `is_synced: true`, serta sinkronisasi manual langsung dari menu Pengaturan.
-- [x] **PB-067 (Optimasi Cold Start & Hardening Kualitas):** Benchmarking cold start inisialisasi aplikasi (< 4 detik / ~10-40 ms terukur), perlindungan crash resistance guard (`executeProtected` $\ge 98\%$), ketahanan terhadap data cache lokal JSON yang korup (*corrupted cache resilience*), penyesuaian layout responsif, dan standarisasi rilis.
-
-### 15. Epic Finalisasi Rilis & Pengujian End-to-End (PB 23 s.d. PB 26 / PB-068 s.d. PB-079) [SELESAI ✅]
-- [x] **PB-068 (Pengujian End-to-End Alur Transaksi Lengkap):** Pengujian integrasi penuh Login $\rightarrow$ Pilih Film $\rightarrow$ Kursi $\rightarrow$ F&B Combo $\rightarrow$ Simulasi Bayar $\rightarrow$ E-Ticket $\rightarrow$ Scan QR Check-in tanpa error.
-- [x] **PB-069 (Ketahanan Offline Ekstrem & Sinkronisasi):** Pemesanan tiket dan F&B offline persisten di Hive lokal dan otomatis sinkron tanpa duplikasi saat online.
-- [x] **PB-070 (Multi-Resolusi Layar Android Bebas Overflow):** Validasi bebas overflow di HP 5.0" (720p), HP 6.5" (1080p), dan Tablet 8.0"+.
-- [x] **PB-071 (Transisi Sinematik Hero Animation):** Animasi Hero tag unik `movie_poster_{id}` pada poster film di MovieCard dan MovieDetailView.
-- [x] **PB-072 (Sensasi Getar Haptic Feedback Interaktif):** Feedback haptic pada pemilihan kursi (`selectionClick`), scan QR check-in tiket (`mediumImpact`), dan switch preferensi profil (`lightImpact`).
-- [x] **PB-073 (Standarisasi Dark Cinema Palette & Empty State):** Palet warna Dark Cinema `#0A0A0A`, `#E50914`, `#FFD700` dengan kontras WCAG AA dan ilustrasi empty state yang informatif.
-- [x] **PB-074 (Sanitasi Form Input & Pencegahan Injeksi Teks):** Helper `Validators.sanitizeInput()`, `hasDangerousPayload()`, `stripHtml()`, dan `sanitizeSearchQuery()` untuk proteksi dari XSS dan injeksi query.
-- [x] **PB-075 (Audit Keamanan Biometrik & Proteksi Brute-Force):** Proteksi lockout 5 menit setelah 5x gagal login dan penambahan security headers `X-Content-Type-Options: nosniff` & `X-Frame-Options: DENY`.
-- [x] **PB-076 (Optimasi Disk Caching Gambar TMDB & Memori):** Batasan resolusi memori `cacheWidth: 280` dan `cacheHeight: 390` pada kartu film untuk performa scrolling 60 FPS.
-- [x] **PB-077 (Standarisasi Kompilasi Build APK Rilis Android):** Panduan build rilis multi-ABI dan verifikasi build release.
-- [x] **PB-078 (Penyusunan Buku Panduan Pengguna / User Manual):** Dokumen `docs/USER_MANUAL.md` komprehensif 16 bab panduan pengguna.
-- [x] **PB-079 (Matriks Pengujian & Laporan Sidang):** Laporan `docs/testing_matrix_report.md` matriks pengujian perangkat dan verifikasi 278 unit tests (100% pass).
+| Layer | Teknologi |
+|---|---|
+| State Management | GetX (`GetxController`, `Obx`, `Bindings`) |
+| Database Cloud | Supabase (Custom Auth di tabel `public.users`) |
+| Database Lokal | Hive + GetStorage + flutter_secure_storage |
+| HTTP Client | Dio (interceptor, timeout, retry) |
+| Data Film Real-time | TMDB API v3 (Now Playing + Coming Soon) |
+| Peta | Flutter Map + OpenStreetMap |
+| Notifikasi | flutter_local_notifications (immediate + scheduled) |
+| AI/LLM | Abstraksi `LlmService` (OpenRouter/Gemini) |
 
 ---
 
-## 🚀 Panduan Setup untuk Anggota Tim
+## Setup Lingkungan Pengembangan
 
-1. **Clone repository:**
-   ```bash
-   git clone https://github.com/dyahnaylaamaliaputri-bit/Cinemate.git
-   cd Cinemate
-   ```
-2. **Switch ke branch terbaru atau tarik update dari main:**
-   ```bash
-   git pull origin main
-   ```
-3. **Siapkan berkas `.env`:**
-   Salin `assets/.env.example` menjadi `assets/.env`:
-   ```bash
-   cp assets/.env.example assets/.env
-   ```
-   Isi nilai `SUPABASE_URL`, `SUPABASE_ANON_KEY`, dan `TMDB_API_KEY` milik tim.
-4. **Unduh dependensi:**
-   ```bash
-   flutter pub get
-   ```
-5. **Jalankan pengujian unit (Semua 315 Unit Test Wajib Passed):**
-   ```bash
-   flutter test
-   ```
-6. **Jalankan aplikasi di emulator atau HP:**
-   ```bash
-   flutter run
-   ```
-   *(Catatan untuk pengguna Windows: Pengaturan `kotlin.incremental=false` sudah diset di `android/gradle.properties` untuk mencegah bug cross-drive).*
-
----
-
-### 15. Epic Chatbot Asisten AI Cinemate (AIL — PB 15 / PB-039 s.d. PB-041) [SELESAI ✅]
-- [x] **PB-039 (Chatbot Interaktif Film, Bioskop, F&B & Jadwal):** Antarmuka CineBot estetik Dark Cinema dengan bubble chat responsif, input text bar, dan asisten cerdas yang menjawab pertanyaan terkait jadwal tayang, lokasi bioskop terdekat, camilan F&B, dan rekomendasi mood.
-- [x] **PB-040 (Riwayat Percakapan Chatbot di Hive):** Persistensi riwayat percakapan secara otomatis ke Hive box `chat_history`, dapat dibaca offline, dan dilengkapi tombol konfirmasi bersihkan riwayat chat.
-- [x] **PB-041 (Penanganan Error Cerdas & Rate Limiting):** Pembatasan kuota query chat (rate limiting 12 pesan/menit) dengan countdown timer jeda dan tombol retry interaktif saat error terjadi.
-
-### 16. Epic Keamanan Akun & Autentikasi Biometrik (AUT — PB 16 / PB-009 s.d. PB-010) [SELESAI ✅]
-- [x] **PB-009 (Login Biometrik Fingerprint & Face ID):** Integrasi `local_auth` perangkat nyata dengan konfigurasi `USE_BIOMETRIC` & `USE_FINGERPRINT` di AndroidManifest dan `FlutterFragmentActivity`. Mendukung quick biometric login di `LoginView` dan switch toggle preferensi di Pengaturan.
-- [x] **PB-010 (Layar Ubah Kata Sandi Akun):** Layar `ChangePasswordView` dengan verifikasi hash lama, enkripsi salt + SHA-256 untuk kata sandi baru (minimal 8 karakter kombinasi huruf & angka), indikator kekuatan kata sandi, dan feedback interaktif.
-
-### 17. Epic Rekomendasi AI Dashboard & Quick Access Chatbot (DSH — PB 17 / PB-016 s.d. PB-017) [SELESAI ✅]
-- [x] **PB-016 (Widget Rekomendasi AI di Dashboard):** Integrasi kartu rekomendasi personal di `HomeTab` berdasarkan riwayat profiling mood pengguna terakhir lengkap dengan persentase kecocokan (*match score*), alasan rekomendasi AI, dan tombol langsung pesan tiket. Jika belum ada riwayat, otomatis menampilkan kartu ajakan AI interaktif.
-- [x] **PB-017 (Akses Cepat Tombol Chatbot FAB & Detail Film):** Floating Action Button (FAB) CineBot di `HomeTab` dan kartu akses konsultasi cerdas *"Tanya CineBot"* di `MovieDetailView` dengan passing argument query otomatis.
-
-### 18. Epic Profiling Mood Lanjutan & LLM Engine (AIL — PB 18 / PB-036 s.d. PB-038) [SELESAI ✅]
-- [x] **PB-036 (Layanan LLM Terabstraksi & JSON Validation):** Abstraksi `LlmService` dengan validasi skema JSON ketat, pembangunan prompt terstruktur, dan mesin aturan kurasi offline (*Curated Rule-Based Fallback Engine*) yang sangat tangguh.
-- [x] **PB-037 (Formulir Profiling Multi-Kriteria):** Layar `AdvancedProfilingView` dengan 4 kriteria terpadu: suasana hati (Mood), teman menonton (Sendiri, Pasangan, Keluarga, Teman), durasi film ideal, dan batas anggaran tiket (Budget limit).
-- [x] **PB-038 (Kartu Hasil Rekomendasi & Alasan AI):** Kartu rekomendasi film terbaik dengan skor kecocokan tinggi (88% - 99%), tag kesesuaian teman menonton, kartu alasan AI mendalam, dan tombol pemesanan langsung tiket bioskop (`Routes.bookByMovie`).
-
-### 19. Epic Pemilihan Kursi Interaktif & Concurrency Locking (SET — PB 19 / PB-027 s.d. PB-029) [SELESAI ✅]
-- [x] **PB-027 (Seat Map Interaktif Multi-Studio):** Visualisasi denah kursi dinamis adaptif untuk Regular 2D (56 kursi), IMAX with Laser (120 kursi dengan baris Sweetbox sofa premium), dan The Premiere (24 kursi plush recliner). Pembatasan maksimal 6 kursi per pemesanan anti-calo dan kalkulasi subtotal harga instan.
-- [x] **PB-028 (Pencegahan Pemesanan Ganda / Concurrency Collision):** Mekanisme penguncian kursi real-time via `SeatService` (`seat_locks` Supabase & Hive box `seat_locks_cache`). Mendeteksi bentrok saat dua pengguna memilih kursi sama dalam waktu bersamaan dan memuat ulang status kursi terkunci secara otomatis.
-- [x] **PB-029 (Temporary Seat Hold Timer 10 Menit):** Penahanan kursi otomatis 10 menit (600 detik) dengan countdown timer visual di layar denah kursi dan auto-release kunci kursi kembali ke status *Available* saat waktu habis atau saat pesanan dibatalkan.
-
-### 20. Epic Validasi E-Ticket, QR Scanner & Siklus Tiket Kedaluwarsa (TKT — PB 20 / PB-026 s.d. PB-026C) [SELESAI ✅]
-- [x] **PB-026 (Penandaan Tiket Kedaluwarsa Otomatis):** Deteksi otomatis tiket yang waktu tayangnya telah terlewat (`showDateTime` / `isShowPassed`). Tiket secara otomatis diubah statusnya menjadi `expired` dan dipindahkan dari tab Tiket Aktif ke Riwayat Tontonan di Hive cache & Supabase saat aplikasi dibuka atau tiket dimuat.
-- [x] **PB-026B (QR Scanner Check-in Petugas Bioskop):** Layar pemindai staf bioskop `CheckInScannerView` (`/check-in-scanner`) dengan animasi garis laser viewfinder, senter, pemindaian QR Code tiket penonton (`CNM-XXXXX`), validasi keaslian kode booking, pencegahan duplikasi check-in, dan fallback formulir input kode booking manual.
-- [x] **PB-026C (Fitur Bagikan Tiket & Undangan Nonton):** Fitur bagikan ringkasan tiket dan undangan nonton bareng terstruktur (film, bioskop, studio, tanggal, jam tayang, nomor kursi, kode booking) di `TicketDetailView` via dialog sistem (`share_plus`) dengan fallback aman ke clipboard.
-
-### 21. Epic Integrasi F&B Terpadu & Multi-Bioskop Concession (FNB — PB 21 / PB-032, PB-033, PB-035) [SELESAI ✅]
-- [x] **PB-032 (Langkah Opsional Tambah Makanan Sebelum Checkout):** Integrasi penawaran camilan bioskop bundling hemat diskon Rp 10.000 (Combo Nonton Hemat, Combo Popcorn Duo, Combo Nachos Party) di layar `OrderSummaryView`. Bundling otomatis menyatu ke invoice tiket bioskop, memperbarui total tagihan secara instan, dan menerbitkan pesanan concession saat checkout berhasil.
-- [x] **PB-033 (Pemesanan F&B Mandiri Tanpa Tiket Nonton):** Alur pemesanan makanan & minuman langsung dari katalog tanpa kewajiban memiliki tiket bioskop aktif. Pengambilan mandiri di counter concession terdekat dengan penerbitan kode pickup 5 digit `FNB-XXXXX` dan status awal `processing`.
-- [x] **PB-035 (Stepper Pelacakan Status & Estimasi Penyiapan):** Stepper pelacakan pesanan dinamis (*Sedang Disiapkan 🍳* $\rightarrow$ *Siap Diambil 🍿* $\rightarrow$ *Selesai Diambil ✅*) di `FnbOrderDetailView` lengkap dengan estimasi menit penyiapan dinamis berdasarkan jumlah item dan tombol simulasi status staf concession.
-
-### 22. Epic Loyalitas Pengguna, Gamifikasi & Rekomendasi Sosial (PRF / DSH — PB 22 / PB-064, PB-064B, PB-065) [SELESAI ✅]
-- [x] **PB-064 (Gamifikasi Badge Loyalitas & Statistik Penonton):** Dashboard personal di `MyCinemateView` menampilkan total film/tiket ditonton, estimasi jam tontonan, total pengeluaran belanja tiket & F&B, progress bar kenaikan level (*Bronze* $\rightarrow$ *Silver* $\rightarrow$ *Gold* $\rightarrow$ *Platinum Cinema Maestro*), visualisasi koleksi badge pencapaian (*Tiket Perdana*, *Silver Cinephile*, *Gold VIP*, *Cinema Maestro VIP*, *Penyelam Genre*, *Master Mood AI*, *Snack Connoisseur*), dan visualisasi distribusi persentase genre film favorit.
-- [x] **PB-064B (Kartu Undangan Nonton Bareng / Watch Party Card):** Fitur ajakan nobar di `MyCinemateView` dan `MovieDetailView` yang menghasilkan kartu undangan terstruktur berisi judul film, bioskop pilihan, jam tayang, dan catatan ajakan, dibagikan via sistem share dialog (`share_plus`) atau fallback clipboard.
-- [x] **PB-065 (Linimasa Riwayat Profiling AI & Komparasi Mood):** Layar linimasa terdedikasi `MoodHistoryView` (`/mood-history`) menampilkan riwayat profiling suasana hati dari waktu ke waktu, metrik komparasi mood dominan, filter chip per kategori emosi, kartu film rekomendasi dengan skor kecocokan, tombol pintasan cari/pesan tiket, serta penghapusan riwayat satu per satu atau sekaligus.
-
----
-
-## 🎯 Rekapitulasi Milestone & Pembagian Tugas Tim
-
-> **📊 Status Pengerjaan Terkini:**  
-> Seluruh modul **PB 1 s/d PB 22 (total 97+ user stories)** telah tuntas 100% dikerjakan dengan **208 unit tests lolos (100%)** dan 0 issue statis `dart analyze`.
-
----
-
-## 📋 Catatan Status 4 PB (PB 15 s.d. PB 18) [SELESAI ✅]
-
-Berikut adalah status pencapaian 4 Product Backlog (PB) yang telah diselesaikan:
-
-### 📦 Tugas Rekan 1: Epic Chatbot Asisten AI Cinemate (AIL — PB 15)
-*Menuntaskan asisten AI interaktif untuk tanya jawab film, sinopsis, jadwal bioskop, dan panduan tiket (PB-039 s.d. PB-041 / SRS §3.8 FR-043 s.d. FR-045)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-039** | Chatbot Interaktif Film & Jadwal | **Given** pengguna mengetik pertanyaan pada input chat, **When** pesan dikirim, **Then** asisten AI merespons dengan konteks film, studio, dan jadwal bioskop yang relevan. | ✅ SELESAI |
-| 2 | **PB-040** | Riwayat Percakapan Chatbot | **Given** percakapan berlangsung, **When** pengguna menutup dan membuka kembali chatbot, **Then** riwayat chat tersimpan di Hive box `chat_history` (dapat dibaca offline) dan dapat dihapus. | ✅ SELESAI |
-| 3 | **PB-041** | Penanganan Error Cerdas & Rate Limiting | **Given** koneksi terputus atau batas kuota tercapai, **When** pesan dikirim, **Then** muncul bubble pesan error ramah, countdown waktu tunggu, dan tombol *"Coba Lagi"*. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/services/chatbot_service.dart` (Service API LLM Gemini / heuristic responder dengan context injection jadwal & film)
-  - `lib/controllers/chatbot_controller.dart` (Pengelolaan pesan reaktif, streaming typing effect, persistensi Hive)
-  - `lib/views/chatbot/chatbot_view.dart` (Antarmuka chat bubble estetik Dark Cinema, input bar, dan scroll-to-bottom otomatis)
-  - `test/chatbot_service_test.dart` (Unit test pengujian alur percakapan, parsing intent, dan penanganan fallback)
-
----
-
-### 📦 Tugas Rekan 2: Epic Keamanan Akun & Autentikasi Biometrik (AUT — PB 16)
-*Menuntaskan verifikasi biometrik perangkat nyata dan manajemen keamanan kata sandi pengguna (PB-009, PB-010 / SRS §3.2 FR-009, FR-010)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-009** | Login Biometrik (Fingerprint & Face ID) | **Given** opsi biometrik aktif di preferensi, **When** pengguna membuka login atau verifikasi pembayaran tiket, **Then** sistem memanggil sensor biometrik perangkat (`local_auth`); jika gagal 3x atau dibatalkan, otomatis fallback ke password/PIN. | ✅ SELESAI |
-| 2 | **PB-010** | Layar Ubah Password Pengguna | **Given** pengguna sedang login di `ProfileTab`, **When** memasukkan password lama dan password baru (minimal 8 karakter kombinasi), **Then** sistem memverifikasi hash lama, memperbarui password baru di storage/Supabase, dan mencabut sesi lain. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/services/biometric_service.dart` (Integrasi plugin `local_auth`, pemeriksaan ketersediaan hardware, dan autentikasi biometrik)
-  - `lib/views/auth/change_password_view.dart` (Layar formulir ganti password lengkap dengan toggle visibility mata dan validasi)
-  - `lib/controllers/auth_controller.dart` (Penambahan metode `changePassword` dan `authenticateWithBiometrics`)
-  - `test/auth_security_test.dart` (Unit test verifikasi keamanan pergantian password dan validasi biometrik)
-
----
-
-### 📦 Tugas Rekan 3: Epic Rekomendasi AI Dashboard & Quick Access Chatbot (DSH — PB 17)
-*Mengintegrasikan widget rekomendasi AI personal di dashboard dan shortcut akses cepat chatbot (PB-016, PB-017 / SRS §3.3 FR-016, FR-017)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-016** | Widget Rekomendasi AI di Dashboard | **Given** pengguna pernah melakukan mood profiling, **When** Dashboard dibuka, **Then** kartu rekomendasi film terakhir tampil di `HomeTab`; **Given** belum pernah, **Then** tampil kartu ajakan personal interaktif. | ✅ SELESAI |
-| 2 | **PB-017** | Akses Cepat Tombol Chatbot (Floating FAB) | **Given** pengguna berada di Dashboard atau Detail Film, **When** menekan tombol chatbot melayang (*Floating Action Button*), **Then** halaman chatbot langsung terbuka dalam 1 ketukan. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/views/dashboard/tabs/home_tab.dart` (Penambahan widget kartu rekomendasi AI personal dan Floating Action Button chatbot)
-  - `lib/controllers/home_controller.dart` (Pemeriksaan riwayat rekomendasi AI lokal saat inisialisasi tab home)
-  - `test/home_dashboard_ai_test.dart` (Unit test verifikasi render kartu rekomendasi AI dan integrasi tombol cepat)
-
----
-
-### 📦 Tugas Rekan 4: Epic Profiling Mood Lanjutan & LLM Engine (AIL — PB 18)
-*Menuntaskan formulir profiling penonton multi-kriteria dan integrasi prompt engine LLM terstruktur (PB-036 s.d. PB-038 / SRS §3.8 FR-039 s.d. FR-041)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :--- | :---: |
-| 1 | **PB-036** | Layanan LLM Terabstraksi & JSON Validation | **Given** prompt dan format schema JSON terdefinisi, **When** LLM merespons, **Then** output divalidasi ke data film nyata; jika API gagal, otomatis fallback ke rule-based curated engine. | ✅ SELESAI |
-| 2 | **PB-037** | Formulir Profiling Multi-Kriteria | **Given** layar profiling dibuka, **When** pengguna mengisi mood, teman nonton (Sendiri/Pasangan/Keluarga), durasi film, dan batas budget, **Then** input divalidasi dan tombol Cari Film aktif. | ✅ SELESAI |
-| 3 | **PB-038** | Kartu Hasil Rekomendasi & Alasan AI | **Given** profiling selesai, **When** hasil ditampilkan, **Then** muncul kartu rekomendasi dengan analisis alasan AI Cinemate serta tombol direct booking tiket bioskop. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/services/llm_service.dart` (Abstraksi pemanggilan model LLM, schema prompt JSON, dan fallback rule engine)
-  - `lib/views/mood/advanced_profiling_view.dart` (Formulir interaktif multi-step kriteria penonton)
-  - `lib/controllers/mood_controller.dart` (Pengelolaan state formulir profiling lanjutan dan integrasi hasil)
-  - `test/llm_profiling_test.dart` (Unit test validasi JSON LLM, fallback rule engine, dan data model hasil profiling)
-
----
-
-## 📋 Catatan Tugas untuk Rekan Tim (4 PB Lanjutan: PB 19 s.d. PB 22)
-
-Berikut adalah 4 Product Backlog (PB) berikutnya yang dialokasikan secara adil dan terstruktur untuk dikerjakan oleh rekan tim:
-
-### 📦 Tugas Rekan 1: Epic Pemilihan Kursi Interaktif & Concurrency Locking (SET — PB 19) [SELESAI ✅]
-*Menuntaskan visualisasi denah kursi bioskop, batas maksimal pemesanan, dan mekanisme penguncian kursi real-time (PB-027 s.d. PB-029 / SRS §3.4 FR-024 s.d. FR-027, NFR-010, NFR-017)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-027** | Seat Map Interaktif Multi-Studio | **Given** jadwal bioskop dan studio dipilih (Regular, IMAX, Premiere), **When** seat map dibuka, **Then** denah kursi interaktif (hingga 200 kursi) menampilkan status *Available*, *Booked*, *Selected*, dan *Locked*; membatasi maksimal 6 kursi per transaksi dan subtotal harga terhitung instan. | ✅ SELESAI |
-| 2 | **PB-028** | Pencegahan Pemesanan Ganda (Concurrency Collision) | **Given** dua pengguna memilih kursi yang sama dalam rentang waktu bersamaan, **When** keduanya menekan konfirmasi, **Then** hanya satu pengguna yang berhasil mengunci kursi dan pengguna lain menerima pemberitahuan ramah serta status kursi terkunci dimuat ulang otomatis. | ✅ SELESAI |
-| 3 | **PB-029** | Temporary Seat Hold Timer (10 Menit) | **Given** pengguna telah memilih kursi dan melanjutkan ke ringkasan pesanan, **When** proses checkout dimulai, **Then** kursi dikunci sementara selama 10 menit dengan countdown timer visual, dan otomatis dilepas kembali ke status *Available* jika waktu habis atau pesanan dibatalkan. | ✅ SELESAI |
-
-- **File yang Telah Dibuat & Teruji:**
-  - `lib/models/seat_lock_model.dart` (Model temporary hold & concurrency lock kursi bioskop)
-  - `lib/models/seat_model.dart` (Status locked, seat types sweetbox & recliner)
-  - `lib/services/seat_service.dart` (Service manajemen lock kursi, collision detection, auto-release Hive & Supabase)
-  - `lib/controllers/booking_seat_controller.dart` (Multi-studio layout, batas 6 kursi, hold timer 10 menit & collision handling)
-  - `lib/views/booking/select_seat_view.dart` (Antarmuka seating plan adaptif, banner timer 10 menit, 4 status kursi & legend)
-  - `test/seat_selection_concurrency_test.dart` (16 Unit tests lengkap lolos 100%)
-
----
-
-### 📦 Tugas Rekan 2: Epic Validasi E-Ticket, QR Scanner & Siklus Tiket Kedaluwarsa (TKT — PB 20) [SELESAI ✅]
-*Menuntaskan siklus penutupan tiket otomatis, scanner kamera petugas bioskop, dan fitur berbagi tiket (PB-026 / SRS §3.4 FR-023, FR-031 s.d. FR-033)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-026** | Penandaan Tiket Kedaluwarsa Otomatis | **Given** jadwal film telah lewat dari tanggal dan jam tayang saat ini, **When** aplikasi dibuka atau tab Tiket dimuat, **Then** status tiket otomatis berubah menjadi *Expired* dan dipindahkan dari tab Tiket Aktif ke Riwayat Tontonan secara otomatis di Hive & Supabase. | Selesai ✅ |
-| 2 | **PB-026B** | QR Scanner Check-in Petugas Bioskop | **Given** petugas bioskop membuka menu Scanner Check-in (`CheckInScannerView`), **When** kamera memindai QR Code e-ticket penonton (`CNM-XXXXX`), **Then** sistem memvalidasi keaslian kode booking, menampilkan data tiket penonton, dan mengubah status menjadi *Checked-in* / *Used* secara offline & online. | Selesai ✅ |
-| 3 | **PB-026C** | Fitur Bagikan Tiket & Undangan Nonton | **Given** tiket bioskop aktif terbuka di `TicketDetailView`, **When** pengguna menekan tombol *"Bagikan Tiket"*, **Then** aplikasi membuka dialog share sistem untuk membagikan kartu ringkasan tiket (judul film, bioskop, jam, studio, nomor kursi) ke WhatsApp / media sosial. | Selesai ✅ |
-
-- **Target File yang Dikerjakan:**
-  - `lib/views/ticket/check_in_scanner_view.dart` (Layar pemindai QR Code menggunakan kamera atau simulasi scanner staf bioskop)
-  - `lib/controllers/tickets_controller.dart` (Logika otomatis filter tiket kedaluwarsa & pembaruan status check-in)
-  - `lib/views/ticket/ticket_detail_view.dart` (Penambahan tombol aksi bagikan tiket & status lencana)
-  - `test/ticket_lifecycle_scanner_test.dart` (Unit test validasi siklus kedaluwarsa tiket dan pemindaian QR code)
-
----
-
-### 📦 Tugas Rekan 3: Epic Integrasi F&B Terpadu & Multi-Bioskop Concession (FNB — PB 21) [SELESAI ✅]
-*Menuntaskan alur pemesanan makanan bundling tiket bioskop, pemesanan mandiri, dan pelacakan pesanan (PB-032, PB-033, PB-035 / SRS §3.5 FR-028, FR-036 s.d. FR-038)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-032** | Langkah Opsional Tambah Makanan Sebelum Checkout | **Given** pengguna telah memilih kursi dan berada di alur booking tiket, **When** sebelum masuk ringkasan pesanan akhir, **Then** muncul langkah opsional penawaran snack combo F&B diskon Rp 10.000 yang langsung terintegrasi menyatu dengan total pembayaran tiket. | Selesai ✅ |
-| 2 | **PB-033** | Pemesanan F&B Mandiri Tanpa Tiket Nonton | **Given** pengguna membuka tab Pesan Makanan, **When** pengguna memilih menu dan bioskop concession terdekat tanpa tiket bioskop aktif, **Then** alur checkout mandiri berjalan lancar dengan opsi ambil di counter concession dan penerbitan kode pickup `FNB-XXXXX`. | Selesai ✅ |
-| 3 | **PB-035** | Stepper Pelacakan Status & Estimasi Penyiapan | **Given** pesanan F&B telah dibayar, **When** pengguna membuka layar `FnbOrderDetailView`, **Then** tampil stepper status dinamis (*Sedang Disiapkan* 🍳 $\rightarrow$ *Siap Diambil* 🍿 $\rightarrow$ *Selesai Diambil* ✅), estimasi menit penyiapan, dan tombol simulasi staf concession. | Selesai ✅ |
-
-- **Target File yang Dikerjakan:**
-  - `lib/views/booking/order_summary_view.dart` (Integrasi bundling menu F&B ke dalam invoice tiket bioskop)
-  - `lib/views/fnb/fnb_checkout_view.dart` & `lib/views/fnb/fnb_order_detail_view.dart` (Penyempurnaan alur pickup mandiri dan stepper)
-  - `lib/controllers/fnb_controller.dart` (State management pesanan mandiri, bundling diskon, dan pelacakan stepper)
-  - `test/fnb_integration_lifecycle_test.dart` (Unit test alur bundling F&B, pemesanan mandiri, dan stepper status)
-
----
-
-### 📦 Tugas Rekan 4: Epic Loyalitas Pengguna, Gamifikasi & Rekomendasi Sosial (PRF / DSH — PB 22) [SELESAI ✅]
-*Menuntaskan sistem penghargaan badge loyalitas penonton, analisis statistik tontonan, dan riwayat AI (PB-064, PB-065 / SRS §3.8 FR-070, FR-071)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-064** | Gamifikasi Badge Loyalitas & Statistik Penonton | **Given** pengguna telah menonton film di Cinemate, **When** membuka menu *My Cinemate*, **Then** tampil statistik total film, jam tontonan, pengeluaran, progress bar kenaikan level (*Bronze* $\rightarrow$ *Silver* $\rightarrow$ *Gold* $\rightarrow$ *Platinum Cinema Maestro*), dan grafik donat genre favorit. | Selesai ✅ |
-| 2 | **PB-064B** | Kartu Undangan Nonton Bareng (Watch Party Card) | **Given** pengguna melihat detail film atau jadwal yang diminati, **When** menekan tombol *"Ajak Teman Nobar"*, **Then** aplikasi menghasilkan kartu ajakan estetik berisi judul film, poster, bioskop, dan link deep link untuk dibagikan ke teman. | Selesai ✅ |
-| 3 | **PB-065** | Linimasa Riwayat Profiling AI & Komparasi Mood | **Given** pengguna sering melakukan profiling mood AI, **When** membuka riwayat profiling di Profil, **Then** tampil linimasa riwayat emosi pengguna dari waktu ke waktu (*mood tracker timeline*), perbandingan film yang disarankan, dan filter riwayat berdasarkan tanggal. | Selesai ✅ |
-
-- **Target File yang Dikerjakan:**
-  - `lib/views/profile/my_cinemate_view.dart` (Visualisasi statistik tontonan, progress bar level loyalitas, dan grafik genre)
-  - `lib/views/profile/mood_history_view.dart` (Layar linimasa riwayat mood dan perbandingan rekomendasi film)
-  - `lib/controllers/profile_controller.dart` (Kalkulasi otomatis poin loyalitas dari tiket aktif & riwayat)
-  - `test/loyalty_gamification_test.dart` (Unit test perhitungan badge loyalitas penonton, riwayat AI, dan data statistik)
-
----
-
-## 👥 Status Pengerjaan Anggota Tim: Fase Finalisasi & Kesiapan Rilis (Sprint 5 / PB 23 s.d. PB 26) [SELESAI ✅]
-
-> **⚖️ Prinsip Pembagian Tugas yang Adil & Proporsional:**  
-> Seluruh fitur fungsional inti (**PB 1 s/d PB 26 / 79 User Stories**) telah berhasil diselesaikan dan lolos **278 unit tests (100% passed)**.  
-> Fase akhir Sprint 5 terbagi ke dalam **4 Product Backlog (PB 23 s.d. PB 26)** dengan bobot masing-masing **12 Story Points (SP)** dan seluruhnya telah rampung:
-
-| Anggota Tim | Kode Backlog | Epic / Modul Tanggung Jawab | Cakupan Story | Estimasi Bobot | Status Akhir |
-| :--- | :---: | :--- | :---: | :---: | :---: |
-| **Teman 1** | **PB 23** | **Epic Pengujian End-to-End & Kompatibilitas Perangkat (TST)** | PB-068 s.d. PB-070 | **12 SP** | ✅ SELESAI |
-| **Teman 2** | **PB 24** | **Epic Polishing UI/UX, Mikro-Animasi & Haptic Delight (UIX)** | PB-071 s.d. PB-073 | **12 SP** | ✅ SELESAI |
-| **Teman 3** | **PB 25** | **Epic Keamanan Aplikasi, Sanitasi Input & Optimasi (SEC)** | PB-074 s.d. PB-076 | **12 SP** | ✅ SELESAI |
-| **Teman 4** | **PB 26** | **Epic Standarisasi Rilis APK, Dokumentasi & Demo Sidang (REL)** | PB-077 s.d. PB-079 | **12 SP** | ✅ SELESAI |
-
----
-
-### 📦 Tugas Teman 1: Epic Pengujian End-to-End & Kompatibilitas Perangkat (TST — PB 23) [SELESAI ✅]
-*Menuntaskan integrasi lintas modul, uji alur transaksi menyeluruh, dan ketahanan multi-perangkat (PB-068 s.d. PB-070 / SRS §3.13 NFR-013, NFR-018 s.d. NFR-020)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-068** | Pengujian End-to-End Alur Transaksi Lengkap | **Given** pengguna membuka aplikasi dari awal, **When** melakukan alur Login $\rightarrow$ Pilih Film $\rightarrow$ Pilih Kursi $\rightarrow$ Tambah F&B Combo $\rightarrow$ Simulasi Bayar $\rightarrow$ E-Ticket $\rightarrow$ Scan QR Check-in, **Then** seluruh alur selesai lancar tanpa error atau status tertahan. | ✅ SELESAI |
-| 2 | **PB-069** | Pengujian Ketahanan Offline Ekstrem & Sinkronisasi | **Given** koneksi internet terputus di tengah pemesanan tiket atau F&B, **When** transaksi diselesaikan secara offline lalu internet terhubung kembali, **Then** data di Hive cache lokal tetap utuh dan otomatis tersinkronisasi ke cloud Supabase tanpa duplikasi. | ✅ SELESAI |
-| 3 | **PB-070** | Pengujian Multi-Resolusi Layar Android Bebas Overflow | **Given** aplikasi dijalankan pada 3 jenis ukuran layar Android (HP 5.0" 720p, HP 6.5" 1080p, dan Tablet 8.0"+), **When** seluruh layar aplikasi dibuka, **Then** tidak ada visual overflow (*A RenderFlex overflowed*) dan tata letak responsif proporsional. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `test/e2e_integration_flow_test.dart` (Widget/Integration test alur transaksi lengkap pengguna)
-  - `docs/testing_matrix_report.md` (Dokumen laporan matriks pengujian multi-device & offline resilience)
-
----
-
-### 📦 Tugas Teman 2: Epic Polishing UI/UX, Mikro-Animasi & Haptic Delight (UIX — PB 24) [SELESAI ✅]
-*Menuntaskan visual polish, transisi poster sinematik, sensasi getar haptic, dan aksesibilitas (PB-071 s.d. PB-073 / SRS §3.13 NFR-011, NFR-012, NFR-014)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-071** | Transisi Sinematik Hero Animation | **Given** pengguna menekan kartu poster film di `HomeTab` atau `SearchView`, **When** berpindah ke `MovieDetailView` dan alur booking `BookByMovieView`, **Then** poster film bertransisi mulus menggunakan widget `Hero` tanpa flicker visual. | ✅ SELESAI |
-| 2 | **PB-072** | Sensasi Getar Haptic Feedback Interaktif | **Given** pengguna berinteraksi dengan kontrol sentuh kritis, **When** memilih kursi di denah (`HapticFeedback.selectionClick()`), scan QR check-in berhasil (`mediumImpact()`), dan toggle switch di profil (`lightImpact()`), **Then** perangkat memberikan feedback fisik getar yang halus. | ✅ SELESAI |
-| 3 | **PB-073** | Standarisasi Dark Cinema Palette & Empty State | **Given** pencarian tidak ditemukan, keranjang F&B kosong, atau riwayat kosong, **When** layar dibuka, **Then** tampil ilustrasi vektor ramah dan palet warna kontras konsisten berstandar WCAG AA (`#0A0A0A`, `#E50914`, `#FFD700`). | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/views/widgets/movie_card.dart` (Penerapan widget `Hero` pada poster dan haptic feedback)
-  - `lib/views/booking/select_seat_view.dart` (Integrasi `HapticFeedback` pada pemilihan kursi denah)
-  - `lib/views/ticket/check_in_scanner_view.dart` (Integrasi `HapticFeedback` saat verifikasi scan QR sukses)
-  - `lib/views/dashboard/tabs/profile_tab.dart` (Integrasi `HapticFeedback.lightImpact()` pada switch switch preferensi)
-  - `test/ui_interaction_haptic_test.dart` (Unit test interaktivitas getar haptic dan animasi transisi)
-
----
-
-### 📦 Tugas Teman 3: Epic Keamanan Aplikasi, Sanitasi Input & Optimasi Performa (SEC — PB 25) [SELESAI ✅]
-*Menuntaskan sanitasi input form, pencegahan serangan injeksi, dan efisiensi memori (PB-074 s.d. PB-076 / SRS §3.13 NFR-007 s.d. NFR-010, NFR-025, NFR-026)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-074** | Sanitasi Form Input & Pencegahan Injeksi Teks | **Given** pengguna memasukkan karakter berbahaya (tanda petik, tag HTML, payload skrip) pada input pencarian, chat box CineBot, form profil, atau catatan F&B, **When** input dikirim, **Then** sistem membersihkan input tanpa crash atau SQL/NoSQL injection. | ✅ SELESAI |
-| 2 | **PB-075** | Audit Keamanan Biometrik & Proteksi Brute-Force | **Given** percobaan login gagal berturut-turut, **When** mencapai 5x kesalahan, **Then** sistem mengunci akses (*lockout*) selama 5 menit; **Given** biometrik dibatalkan, **Then** fallback autentikasi kata sandi bekerja tanpa membocorkan sesi. | ✅ SELESAI |
-| 3 | **PB-076** | Optimasi Disk Caching Gambar TMDB & Memori | **Given** pengguna menggulir katalog film dan F&B yang panjang, **When** thumbnail gambar dimuat, **Then** pemuatan memanfaatkan cache memori/disk yang dibatasi agar tidak terjadi memory spike atau lag saat scrolling (target 60 FPS). | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/utils/validators.dart` (Penambahan fungsi sanitasi string input dan filter karakter berbahaya)
-  - `lib/controllers/chatbot_controller.dart` (Pencegahan format injeksi pada pesan pengguna)
-  - `lib/controllers/search_controller.dart` (Sanitasi query pencarian dari karakter berbahaya)
-  - `lib/services/http_service.dart` (Audit header keamanan X-Content-Type-Options dan X-Frame-Options)
-  - `lib/views/widgets/movie_card.dart` (Pembatasan resolusi cache cacheWidth 280 & cacheHeight 390)
-  - `test/security_sanitization_test.dart` (Unit test validasi sanitasi input dan pengujian batas brute-force)
-
----
-
-### 📦 Tugas Teman 4: Epic Standarisasi Rilis APK, Dokumentasi & Demo Sidang (REL — PB 26) [SELESAI ✅]
-*Menuntaskan pembuatan build rilis APK, buku panduan pengguna, dan materi sidang praktikum (PB-077 s.d. PB-079 / SRS §3.13 NFR-018, NFR-021 s.d. NFR-024)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-077** | Standarisasi Kompilasi Build APK Rilis Android | **Given** kode di branch `main` telah siap, **When** perintah `flutter build apk --release --split-per-abi` dijalankan, **Then** dihasilkan file APK release berukuran hemat (< 30 MB) yang sukses diinstal dan diuji di HP Android fisik nyata (API 26+). | ✅ SELESAI |
-| 2 | **PB-078** | Penyusunan Buku Panduan Pengguna (*User Manual Guide*) | **Given** pengguna baru memasang aplikasi, **When** membaca panduan, **Then** tersedia dokumen terstruktur dengan tangkapan layar alur utama: Rekomendasi Mood AI, Booking Tiket & Kursi, F&B Concession, E-Ticket Offline, dan Scanner Check-in. | ✅ SELESAI |
-| 3 | **PB-079** | Penyusunan Slide Presentasi & Skenario Demo Sidang | **Given** tim akan mempresentasikan tugas akhir praktikum di hadapan dosen/asisten, **When** demo disiapkan, **Then** tersedia slide presentasi (diagram arsitektur GetX OOP, skema relasi database Supabase, dan bukti kelulusan 278 unit tests). | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `docs/USER_MANUAL.md` (Dokumen panduan pengguna komprehensif format Markdown 16 bab)
-  - `docs/testing_matrix_report.md` (Laporan pengujian multi-device & evaluasi keamanan)
-
----
-
-## 👥 Status Pengerjaan Anggota Tim: Sprint 6 — Fitur Lanjutan & Pengalaman Bioskop Interaktif (PB 27 s.d. PB 30) [SELESAI ✅]
-
-> **⚖️ Prinsip Pembagian Tugas yang Adil & Proporsional:**  
-> Seluruh backlog **PB 1 s/d PB 30 (91 User Stories)** telah **100% selesai dan lulus 315 unit tests**.  
-> **Sprint 6 (Post-Release & Advanced Cinema Experience)** dialokasikan ke dalam **4 Product Backlog (PB 27 s.d. PB 30)** dengan bobot masing-masing **12 Story Points (SP)** dan seluruhnya telah sukses dituntaskan:
-
-| Anggota Tim | Kode Backlog | Epic / Modul Tanggung Jawab | Cakupan Story | Estimasi Bobot | Status Akhir |
-| :--- | :---: | :--- | :---: | :---: | :---: |
-| **Teman 1** | **PB 27** | **Epic Social Cinema & Nobar Interaktif (SOC)** | PB-080 s.d. PB-082 | **12 SP** | ✅ SELESAI |
-| **Teman 2** | **PB 28** | **Epic Video Trailer Preview & Cinema Wrap Insights (ANL)** | PB-083 s.d. PB-085 | **12 SP** | ✅ SELESAI |
-| **Teman 3** | **PB 29** | **Epic Promo Engine, Dynamic Voucher & Loyalty Redemption (VCH)** | PB-086 s.d. PB-088 | **12 SP** | ✅ SELESAI |
-| **Teman 4** | **PB 30** | **Epic In-Theater Mode, Aksesibilitas & Ekspor Tiket (OPS)** | PB-089 s.d. PB-091 | **12 SP** | ✅ SELESAI |
-
----
-
-### 📦 Tugas Teman 1: Epic Social Cinema & Nobar Interaktif (SOC — PB 27) [SELESAI ✅]
-*Mengembangkan fitur kolaborasi sosial penonton, split bill patungan tiket, dan ulasan film komunitas (PB-080 s.d. PB-082 / SRS §3.14 FR-045 s.d. FR-047)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-080** | Split Bill & Patungan Pembayaran Tiket Bareng Teman | **Given** pengguna memesan lebih dari 1 tiket bioskop, **When** memilih opsi *"Split Bill"* di ringkasan pesanan, **Then** aplikasi menghitung pembagian tagihan rata per orang, menghasilkan kode/link patungan unik, dan menyediakan QR statis transfer e-wallet/bank. | ✅ SELESAI |
-| 2 | **PB-081** | Kartu Undangan Nobar Digital & Share WhatsApp/Medsos | **Given** pengguna telah memiliki tiket aktif atau menyukai film tertentu, **When** menekan tombol *"Ajak Nobar"*, **Then** aplikasi me-render kartu poster estetik dengan info judul, jam tayang, dan bioskop yang siap dibagikan via `share_plus` ke WhatsApp, Instagram Story, atau Telegram. | ✅ SELESAI |
-| 3 | **PB-082** | Rating Bintang 1-5 & Ulasan Komunitas Pengguna | **Given** pengguna memiliki tiket berstatus `used` (sudah check-in/selesai nonton), **When** membuka detail film atau tiket, **Then** form ulasan muncul untuk memberi rating 1-5 bintang & testimoni teks yang tersimpan di Hive lokal dan tersinkron ke tabel Supabase `movie_reviews`. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/models/review_model.dart` (Model ulasan pengguna dengan rating, reviewText, timestamp, dan helpfulCount)
-  - `lib/models/split_bill_model.dart` (Model partisipan, perhitungan porsi per orang, dan status pembayaran)
-  - `lib/services/review_service.dart` (Service penyimpanan ulasan offline-first berbasis Hive dan sinkronisasi cloud)
-  - `lib/services/split_bill_service.dart` (Kalkulasi pembagian rata dan update status lunas partisipan)
-  - `lib/views/booking/split_bill_view.dart` (Layar kalkulator patungan tiket dengan opsi penambahan teman)
-  - `lib/views/booking/widgets/nobar_share_helper.dart` (Helper format kartu undangan nobar sinematik)
-  - `lib/views/movie_detail/widgets/review_bottom_sheet.dart` (Modal input rating 5 bintang dan komentar pengguna)
-  - `test/social_review_split_test.dart` (Unit test logika split bill, persistensi ulasan, dan format share)
-
----
-
-### 📦 Tugas Teman 2: Epic Video Trailer Preview & Cinema Wrap Insights (ANL — PB 28) [SELESAI ✅]
-*Mengembangkan pemutar video trailer terintegrasi, visualisasi radar selera penonton, dan kilas balik tahunan (PB-083 s.d. PB-085 / SRS §3.14 FR-048 s.d. FR-050)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-083** | Visualisasi Radar Analisis Selera Genre Film | **Given** pengguna telah memesan berbagai genre film, **When** membuka tab profil *My Cinemate*, **Then** tampil chart radar interaktif yang memetakan spektrum selera film pengguna (Action, Romance, Sci-Fi, Horror, Animation, Drama) berdasarkan frekuensi tontonan. | ✅ SELESAI |
-| 2 | **PB-084** | Smart Video Trailer Preview di Halaman Detail Film | **Given** pengguna membuka halaman `MovieDetailView`, **When** menekan tombol *"Tonton Trailer"*, **Then** cuplikan video trailer resmi TMDB/YouTube dimuat secara seamless dalam banner dengan kontrol play/pause, mute, dan auto-pause saat halaman digulir keluar layar. | ✅ SELESAI |
-| 3 | **PB-085** | "Cinemate Rewind" Kilas Balik Menonton Periode | **Given** pengguna telah menggunakan aplikasi selama minimal 1 bulan, **When** membuka menu *"Cinemate Rewind"*, **Then** aplikasi menampilkan story infografis interaktif berisi total menit tontonan, bioskop favorit, hari nonton favorit, dan kartu recap yang bisa di-share. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/views/movie_detail/widgets/trailer_player_widget.dart` (Komponen video preview trailer film responsif)
-  - `lib/views/profile/cinema_rewind_view.dart` (Layar rekap infografis kilas balik tontonan pengguna)
-  - `lib/views/profile/widgets/genre_radar_chart.dart` (Custom painter / widget chart radar spektrum genre)
-  - `test/trailer_rewind_insights_test.dart` (Unit test parsing YouTube key trailer, kalkulasi statistik rewind, dan radar genre)
-
----
-
-### 📦 Tugas Teman 3: Epic Promo Engine, Dynamic Voucher & Loyalty Redemption (VCH — PB 29) [SELESAI ✅]
-*Mengembangkan katalog penukaran poin loyalitas, sistem validasi kupon promo checkout, dan diskon jadwal flash sale (PB-086 s.d. PB-088 / SRS §3.14 FR-051 s.d. FR-053)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-086** | Katalog Penukaran Poin Loyalitas (*Points Redemption*) | **Given** pengguna memiliki saldo *Cinemate Points*, **When** membuka katalog reward di Profil, **Then** pengguna dapat menukar poin dengan voucher potongan tiket bioskop (Rp 10.000 / Rp 25.000) atau voucher diskon menu F&B. | ✅ SELESAI |
-| 2 | **PB-087** | Sistem Validasi Kode Promo & Kupon Checkout | **Given** pengguna berada di layar `OrderSummaryView`, **When** memasukkan kode kupon promo (misal: `NOBARYUK`, `WEEKDAYHEMAT`), **Then** sistem memvalidasi syarat minimal transaksi & masa berlaku, lalu memotong total harga secara instan dan reaktif. | ✅ SELESAI |
-| 3 | **PB-088** | Penanda Flash Sale & Diskon Jadwal Tertentu | **Given** bioskop menawarkan tarif khusus pada jadwal siang weekday atau midnight show, **When** pengguna memilih jam tayang, **Then** tampil badge harga coret diskon dan label hemat pada kartu jadwal bioskop. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/models/promo_voucher_model.dart` (Model kupon promo, syarat diskon, persentase/potongan nominal, dan status kedaluwarsa)
-  - `lib/services/promo_service.dart` (Service validasi kode kupon promo dan penukaran saldo poin)
-  - `lib/views/profile/voucher_catalog_view.dart` (Layar katalog reward poin penonton dan daftar voucher aktif)
-  - `lib/views/booking/widgets/promo_code_input.dart` (Komponen input kode kupon promo di alur ringkasan checkout)
-  - `test/promo_voucher_redemption_test.dart` (Unit test validasi kode kupon, kalkulasi diskon bertingkat, dan debet poin)
-
----
-
-### 📦 Tugas Teman 4: Epic In-Theater Mode, Aksesibilitas & Ekspor Tiket (OPS — PB 30) [SELESAI ✅]
-*Mengembangkan mode hening di dalam bioskop, aksesibilitas screen reader, dan ekspor tiket ke PDF/kalender (PB-089 s.d. PB-091 / SRS §3.14 FR-054 s.d. FR-056)*
-
-| No | Backlog ID | Nama Fitur / User Story | Cakupan Teknis & Acceptance Criteria (Given-When-Then) | Status |
-| :---: | :---: | :--- | :--- | :---: |
-| 1 | **PB-089** | Mode Bioskop / "In-Theater Dark Mode" | **Given** pengguna sedang berada di dalam studio saat film berlangsung, **When** mengaktifkan *"In-Theater Mode"*, **Then** antarmuka beralih ke tema ultra-dark 100% hitam, kecerahan layar diredupkan otomatis, perangkat diheningkan, dan tombol pintasan QR tiket tetap mudah diakses. | ✅ SELESAI |
-| 2 | **PB-090** | Aksesibilitas Pembaca Layar (Semantics) & Dynamic Text | **Given** pengguna tunanetra atau berpenglihatan rendah menggunakan TalkBack/VoiceOver, **When** menjelajahi aplikasi, **Then** seluruh widget memiliki label semantik jelas (*Semantic labels*), kontras tinggi, dan tata letak tidak overflow saat ukuran teks diperbesar (*text scaling*). | ✅ SELESAI |
-| 3 | **PB-091** | Ekspor Tiket ke Berkas PDF & Sinkronisasi Kalender | **Given** pemesanan tiket berhasil dikonfirmasi, **When** menekan opsi *"Unduh E-Ticket PDF"* atau *"Simpan ke Kalender"*, **Then** aplikasi menghasilkan berkas PDF struk resmi tiket bioskop serta menambahkan pengingat jadwal nonton ke Google/Apple Calendar. | ✅ SELESAI |
-
-- **Target File yang Dikerjakan:**
-  - `lib/services/ticket_export_service.dart` (Service generator dokumen PDF tiket bioskop resmi dengan QR Code)
-  - `lib/views/ticket/in_theater_mode_view.dart` (Layar mode bioskop minimalis redup baterai hemat OLED)
-  - `lib/views/ticket/widgets/ticket_export_dialog.dart` (Dialog opsi ekspor tiket ke PDF dan penambahan ke kalender)
-  - `test/in_theater_accessibility_test.dart` (Unit test label semantik aksesibilitas, tata letak dynamic text scale, dan format payload PDF)
-
----
-
-### 🌿 Panduan Branching Git untuk Rekan Tim (Sprint 6)
-
-Rekan tim dapat langsung menarik kode terbaru dari branch `main` dan membuat branch fitur baru sesuai penugasan nomor PB masing-masing:
+### Prasyarat
 
 ```bash
-# 1. Pastikan branch main lokal up-to-date:
-git checkout main
-git pull origin main
+flutter --version   # Butuh Flutter >= 3.19.0
+dart --version      # Butuh Dart >= 3.3.0
+```
 
-# 2. Buat branch fitur sesuai penugasan nomor PB Sprint 6 Anda:
-# Teman 1 (PB 27):
-git checkout -b feat/pb-027-social-cinema-split-bill
+### Langkah Setup
 
-# Teman 2 (PB 28):
-git checkout -b feat/pb-028-trailer-player-cinema-rewind
+```bash
+# 1. Clone repository
+git clone <URL_REPO> && cd Cinemate
 
-# Teman 3 (PB 29):
-git checkout -b feat/pb-029-promo-voucher-points-redemption
+# 2. Install dependencies
+flutter pub get
 
-# Teman 4 (PB 30):
-git checkout -b feat/pb-030-in-theater-accessibility-pdf
+# 3. Generate Hive TypeAdapters (wajib setelah pull pertama)
+dart run build_runner build --delete-conflicting-outputs
+
+# 4. Salin file environment
+cp assets/.env.example assets/.env
+# Lalu isi API keys di assets/.env (lihat bagian Konfigurasi)
+
+# 5. Jalankan aplikasi
+flutter run
 ```
 
 ---
 
-### 📌 Standar Koding & Pengujian Sebelum Pull Request (PR)
+## Konfigurasi API Keys
 
-1. **Arsitektur GetX OOP & 100% Offline-First:**
-   - Pisahkan logika ke `Controller`, data/cache ke `Service`/`Utils`, dan antarmuka ke `View`.
-   - Wajib berjalan mulus dalam mode offline dengan fallback data lokal / Hive tanpa Supabase.
-   - Gunakan palet warna konsisten dari `AppColors` (*Dark Cinema Palette: `#0A0A0A`, `#E50914`, `#1A1A2E`, `#FFD700`*).
-2. **Checklist Wajib Sebelum Commit & Push:**
-   ```bash
-   # 1. Pastikan tidak ada error atau warning:
-   dart analyze lib test
+Edit file **`assets/.env`**:
 
-   # 2. Jalankan seluruh unit test (wajib 100% passed):
-   flutter test
+```env
+# ─── Supabase ─────────────────────────────────────────────────────────────────
+SUPABASE_URL=https://<project-id>.supabase.co
+SUPABASE_ANON_KEY=<anon-key-mu>
 
-   # 3. Format kode:
-   dart format lib test
-   ```
-3. **Keamanan Kredensial:**
-   - Jangan pernah melakukan commit berkas `assets/.env`.
+# ─── TMDB (Film Real-time) ────────────────────────────────────────────────────
+TMDB_API_KEY=<api-key-mu>          # ← WAJIB diisi untuk data film terbaru
+TMDB_BASE_URL=https://api.themoviedb.org/3
+
+# ─── LLM (Opsional untuk Chatbot & Mood AI) ───────────────────────────────────
+# LLM_API_KEY=<openrouter-or-gemini-key>
+```
+
+### 🎬 Cara Mendapatkan TMDB API Key (Gratis)
+
+1. Daftar di **https://www.themoviedb.org/signup**
+2. Login → buka **Settings → API**
+3. Klik **"Create"** → pilih **"Developer"**
+4. Isi formulir (gunakan info proyek/pribadi)
+5. Copy **"API Key (v3 auth)"**
+6. Paste ke `TMDB_API_KEY=` di `assets/.env`
+
+> ℹ️ Tanpa TMDB API key, aplikasi tetap berjalan dengan data film contoh (mock data) yang sudah tersimpan di cache Hive.
+
+### ☁️ Cara Resume Supabase (jika project di-pause)
+
+> Project Supabase yang tidak aktif selama 7 hari akan di-pause otomatis oleh Supabase (Free tier).
+
+1. Buka **https://supabase.com/dashboard**
+2. Pilih project **"cinemate"**
+3. Klik tombol **"Resume project"**
+4. Tunggu ~1–2 menit hingga status berubah menjadi **"Active"**
+
+> ℹ️ Jika Supabase di-pause, aplikasi otomatis beralih ke **Mode Offline** — registrasi dan login tetap berfungsi menggunakan penyimpanan lokal perangkat (GetStorage). Data akan tersinkronisasi ke Supabase saat koneksi pulih via `SyncService`.
+
+---
+
+## Arsitektur Proyek
+
+```
+lib/
+├── main.dart                  # Entry point: init Supabase, Hive, GetStorage, dotenv
+├── app.dart                   # CinemateApp: tema, routes, initial binding
+├── routes/
+│   └── app_routes.dart        # Semua nama route (string constants)
+├── models/                    # Data class + fromJson/toJson (Modul III)
+├── services/                  # Logic layer: API calls, local storage, auth
+│   ├── auth_service.dart      # Custom auth (hash SHA-256 + salt, offline fallback)
+│   ├── movie_service.dart     # TMDB API + Hive cache TTL 6 jam
+│   ├── sync_service.dart      # Offline → Supabase auto-sync (PB-066)
+│   ├── notification_service.dart  # Local notifications immediate + scheduled
+│   └── ...
+├── repositories/              # Abstraksi akses data (interface + implementasi)
+├── controllers/               # GetxController: state management (Modul III)
+├── views/                     # UI: semua halaman & widget
+│   ├── auth/                  # Login, Register, Change Password
+│   ├── dashboard/             # Home, Tiket, F&B, Profil (IndexedStack)
+│   ├── booking/               # Alur pemesanan tiket (6 langkah)
+│   ├── ticket/                # E-ticket, QR scan check-in, In-Theater Mode
+│   └── ...
+├── bindings/                  # GetX Dependency Injection per route
+└── utils/                     # Konstanta, warna, validator, helper
+```
+
+---
+
+## Fitur yang Sudah Selesai
+
+| PB | Fitur | Status |
+|---|---|---|
+| PB-001 | Setup arsitektur (GetX, Hive, GetStorage, Dio) | ✅ |
+| PB-002 | Skema database Supabase | ✅ |
+| PB-003 | HTTP Service terpusat (Dio + interceptor + retry) | ✅ |
+| PB-004 | Inisialisasi storage 3 lapis (Hive + GetStorage + SecureStorage) | ✅ |
+| PB-005 | Registrasi akun (validasi + hash SHA-256 + offline fallback) | ✅ |
+| PB-006 | Login + lockout 5 menit setelah 5x gagal | ✅ |
+| PB-007 | Auto-login (sesi persisten) | ✅ |
+| PB-008 | Logout + konfirmasi dialog + hapus sesi | ✅ |
+| PB-009 | Login biometrik (fingerprint/face) | ✅ |
+| PB-010 | Layar splash | ✅ |
+| PB-011 | Bottom Navigation Bar 5 tab (IndexedStack) | ✅ |
+| PB-012 | Daftar film Now Playing & Coming Soon (TMDB API) | ✅ |
+| PB-013 | Cache film Hive TTL 6 jam + offline fallback | ✅ |
+| PB-014 | Halaman detail film (poster, sinopsis, genre, cast) | ✅ |
+| PB-015–PB-023 | Alur pemesanan tiket (pilih bioskop/film → kursi → pembayaran) | ✅ |
+| PB-024 | E-ticket offline (QR code, disimpan Hive) | ✅ |
+| PB-025 | Daftar tiket pengguna | ✅ |
+| PB-026 | Halaman detail tiket + ekspor PDF | ✅ |
+| PB-027 | Seat map interaktif (real-time lock via Supabase) | ✅ |
+| PB-028–PB-034 | Fitur F&B (katalog, keranjang, checkout, riwayat pesanan) | ✅ |
+| PB-035–PB-041 | AI Mood & Chatbot | ✅ |
+| PB-042–PB-047 | LBS: lokasi pengguna, bioskop terdekat, peta OSM | ✅ |
+| PB-048–PB-053 | Preferensi (mata uang, timezone, notifikasi) | ✅ |
+| PB-054–PB-055 | Profil pengguna (edit, avatar, ganti password) | ✅ |
+| PB-056–PB-058 | Notifikasi lokal (konfirmasi + scheduled 2 jam & 30 menit) | ✅ |
+| PB-059–PB-065 | Promo/voucher, review, split bill, check-in QR, in-theater mode | ✅ |
+| PB-066 | Sync offline → Supabase (auto-sync saat online kembali) | ✅ |
+| PB-067 | Cold start benchmark + crash resistance guard | ✅ |
+
+---
+
+## ⚠️ Tugas Selanjutnya
+
+> Berikut adalah **4 PB yang masih perlu diselesaikan** oleh tim berikutnya. Semua struktur kode, model, dan service sudah disiapkan — tinggal implementasi UI dan integrasi final.
+
+---
+
+### 📌 PB-068 — Cinema Rewind (Riwayat Tahunan Sinematik)
+
+**Deskripsi:**  
+Halaman "Cinema Rewind" yang menampilkan rekap tontonan tahunan pengguna (ala Spotify Wrapped) — total film ditonton, genre favorit, bioskop favorit, waktu total di bioskop.
+
+**File yang perlu dibuat/dimodifikasi:**
+- `lib/views/cinema_rewind/cinema_rewind_view.dart` — **[BUAT BARU]** UI animatif halaman rewind
+- `lib/controllers/cinema_rewind_controller.dart` — **[BUAT BARU]** agregasi data dari tiket lokal
+- Route sudah ada: `Routes.cinemaRewind = '/cinema-rewind'`
+
+**Panduan implementasi:**
+```dart
+// 1. Ambil semua tiket dari StorageService().getCachedTickets()
+// 2. Filter berdasarkan tahun (DateTime.now().year)
+// 3. Hitung: totalMovies, genreMap (terbanyak = favorit), cinemaCount, totalMinutes
+// 4. Tampilkan dengan animasi PageView card demi card (mirip Spotify Wrapped)
+```
+
+**Acceptance Criteria:**
+- [ ] Menampilkan minimal 4 statistik: total film, genre favorit, bioskop favorit, total durasi
+- [ ] Ada animasi transisi antar statistik (AnimatedContainer / PageView)
+- [ ] Tombol share (bisa pakai `screenshot` package untuk share ke media sosial)
+- [ ] Bisa diakses dari halaman Profil
+
+---
+
+### 📌 PB-069 — My Cinemate (Loyalty & Badge System)
+
+**Deskripsi:**  
+Halaman "My Cinemate" yang menampilkan level loyalty pengguna (Bronze → Silver → Gold → Platinum) berdasarkan total pembelian, serta koleksi badge yang sudah diperoleh.
+
+**File yang perlu dibuat/dimodifikasi:**
+- `lib/views/profile/my_cinemate_view.dart` — **[BUAT BARU]** (route `/my-cinemate` sudah ada)
+- `lib/models/loyalty_badge_model.dart` — sudah ada, tinggal digunakan
+- `lib/controllers/profile_controller.dart` — tambahkan `fetchLoyaltyData()`
+
+**Panduan implementasi:**
+```dart
+// Model LoyaltyBadgeModel sudah ada di lib/models/loyalty_badge_model.dart
+// Level berdasarkan total_spending:
+//   Bronze:   0 – 499.999
+//   Silver:   500.000 – 1.499.999
+//   Gold:     1.500.000 – 4.999.999
+//   Platinum: >= 5.000.000
+//
+// Badge diperoleh otomatis (contoh):
+//   "First Timer"    → tiket pertama
+//   "Night Owl"      → nonton > 21:00
+//   "Binge Watcher"  → 5+ film dalam sebulan
+//   "Foodie"         → pesan F&B 3x berturut-turut
+```
+
+**Acceptance Criteria:**
+- [ ] Progress bar level dengan animasi fill
+- [ ] Grid badge (locked/unlocked visual berbeda)
+- [ ] Total poin dan total pengeluaran ditampilkan
+- [ ] Bisa diakses dari tab Profil
+
+---
+
+### 📌 PB-070 — Voucher Catalog (Promo & Kode Kupon)
+
+**Deskripsi:**  
+Halaman katalog voucher/promo yang dapat diklaim oleh pengguna berdasarkan level loyalty. Voucher diterapkan di halaman Order Summary saat checkout.
+
+**File yang perlu dibuat/dimodifikasi:**
+- `lib/views/profile/voucher_catalog_view.dart` — **[BUAT BARU]** (route `/voucher-catalog` sudah ada)
+- `lib/services/promo_service.dart` — **sudah ada**, tinggal lengkapi method `claimVoucher()`
+- `lib/models/promo_voucher_model.dart` — sudah ada
+
+**Panduan implementasi:**
+```dart
+// PromoService sudah ada di lib/services/promo_service.dart
+// Tambahkan method:
+//   Future<List<PromoVoucherModel>> getAvailableVouchers(String userId)
+//   Future<bool> claimVoucher(String userId, String voucherId)
+//
+// Data voucher bisa dari:
+//   - Supabase tabel 'promos' (jika online)
+//   - Mock data hardcode (jika offline)
+//
+// Contoh mock vouchers:
+//   - CINEMA10: diskon 10% (min. transaksi 50.000)
+//   - POPCORN: gratis popcorn M (dengan beli tiket)
+//   - GOLD20: diskon 20% khusus member Gold+
+```
+
+**Acceptance Criteria:**
+- [ ] Daftar voucher tersedia dengan detail (kode, diskon, min. transaksi, exp. date)
+- [ ] Tombol "Klaim" per voucher (dengan feedback loading)
+- [ ] Voucher yang sudah diklaim tampil berbeda (badge "Diklaim")
+- [ ] Input kode manual voucher juga tersedia
+- [ ] Voucher terklaim bisa dipilih di Order Summary
+
+---
+
+### 📌 PB-071 — Advanced Search & Filter Film
+
+**Deskripsi:**  
+Penyempurnaan fitur Search dengan filter lanjutan: genre, rating, bioskop, tanggal tayang, dan urutan (terbaru/terpopuler/terdekat).
+
+**File yang perlu dimodifikasi:**
+- `lib/views/search/search_view.dart` — tambahkan bottom sheet filter
+- `lib/controllers/search_controller.dart` — tambahkan `applyFilters()` dan state filter aktif
+- `lib/services/movie_service.dart` — tambahkan method `searchMovies(query, {filters})`
+
+**Panduan implementasi:**
+```dart
+// SearchController sudah ada di lib/controllers/search_controller.dart
+// Tambahkan state filter:
+//   final selectedGenres = <String>[].obs;
+//   final minRating = 0.0.obs;
+//   final sortBy = 'popularity'.obs; // 'popularity', 'release_date', 'rating'
+//
+// TMDB Search API: GET /search/movie?query=<q>&with_genres=<id>&sort_by=<s>
+// Genre IDs TMDB: Action=28, Drama=18, Comedy=35, Horror=27, Romance=10749
+//
+// Filter genre, rating, sortBy dikirimkan sebagai query param ke TMDB
+```
+
+**Acceptance Criteria:**
+- [ ] Filter genre (multi-select chips)
+- [ ] Filter rating minimum (slider 0–10)
+- [ ] Sort: Terpopuler / Terbaru / Rating tertinggi
+- [ ] Chip filter aktif ditampilkan di atas hasil pencarian
+- [ ] Tombol "Reset Filter" tersedia
+- [ ] Jumlah hasil pencarian ditampilkan ("X hasil ditemukan")
+
+---
+
+## Panduan Kontribusi
+
+### Alur Kerja Git
+
+```bash
+# Buat branch baru untuk setiap PB
+git checkout -b feature/PB-068-cinema-rewind
+
+# Setelah selesai, push dan buat Pull Request
+git push origin feature/PB-068-cinema-rewind
+```
+
+### Konvensi Penamaan
+
+| Jenis File | Konvensi | Contoh |
+|---|---|---|
+| View | `snake_case_view.dart` | `cinema_rewind_view.dart` |
+| Controller | `snake_case_controller.dart` | `cinema_rewind_controller.dart` |
+| Service | `snake_case_service.dart` | `promo_service.dart` |
+| Model | `snake_case_model.dart` | `loyalty_badge_model.dart` |
+
+### Checklist Sebelum PR
+
+- [ ] `dart analyze` → No issues found
+- [ ] Widget baru menggunakan warna dari `AppColors` (bukan hardcode)
+- [ ] Semua teks menggunakan `TextStyle(color: AppColors.textPrimary/Secondary)`
+- [ ] Ada state loading, empty, error (sesuai PB-055)
+- [ ] Controller di-dispose dengan benar (`onClose()`)
+- [ ] Tidak ada API key atau kredensial hardcode di kode
+
+### Menjalankan Lint & Test
+
+```bash
+# Lint
+dart analyze
+
+# Test
+flutter test
+
+# Format kode
+dart format lib/
+```
+
+---
+
+## Troubleshooting
+
+### ❌ Error: `ClientException with SocketFailed host lookup`
+
+**Penyebab:** Supabase project di-pause  
+**Solusi:**  
+1. Buka https://supabase.com/dashboard → Resume project "cinemate"  
+2. Atau biarkan saja — aplikasi otomatis beralih ke **Mode Offline** dan tetap bisa digunakan
+
+### ❌ Error: `compileSdk requires 37`
+
+**Solusi:** Sudah diperbaiki di `android/app/build.gradle.kts` (`compileSdk = 37`)
+
+### ❌ Error: `core library desugaring to be enabled`
+
+**Solusi:** Sudah diperbaiki — `isCoreLibraryDesugaringEnabled = true` + `desugar_jdk_libs:2.1.4`
+
+### ❌ Data film tidak berubah (masih mock data)
+
+**Penyebab:** `TMDB_API_KEY` di `assets/.env` masih placeholder  
+**Solusi:** Daftar di https://themoviedb.org, dapatkan API key gratis, isi di `.env`
+
+### ❌ Hive error saat pertama run
+
+**Solusi:**
+```bash
+dart run build_runner build --delete-conflicting-outputs
+flutter clean && flutter run
+```
+
+---
+
+## Referensi
+
+- [SRS Cinemate (SRS-CNM-001)](docs/SRS-Cinemate.pdf)
+- [Product Backlog (PB-CNM-001)](docs/ProductBacklog-Cinemate.pdf)
+- [TMDB API Docs](https://developer.themoviedb.org/docs)
+- [Supabase Flutter Docs](https://supabase.com/docs/reference/dart/introduction)
+- [GetX Documentation](https://pub.dev/packages/get)
+- [Flutter Local Notifications](https://pub.dev/packages/flutter_local_notifications)
