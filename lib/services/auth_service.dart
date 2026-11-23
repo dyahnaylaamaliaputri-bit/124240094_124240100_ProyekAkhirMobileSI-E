@@ -48,7 +48,6 @@ class AuthService {
   bool _isConnectionError(Object e) {
     final msg = e.toString().toLowerCase();
     return e is SocketException ||
-        msg.contains('socketeexception') ||
         msg.contains('socket') ||
         msg.contains('failed host lookup') ||
         msg.contains('clientexception') ||
@@ -57,7 +56,10 @@ class AuthService {
         msg.contains('host lookup') ||
         msg.contains('timeout') ||
         msg.contains('no address associated') ||
-        msg.contains('os error');
+        msg.contains('os error') ||
+        msg.contains('does not exist') ||
+        msg.contains('42p01') ||
+        msg.contains('relation');
   }
 
   // ================================================================
