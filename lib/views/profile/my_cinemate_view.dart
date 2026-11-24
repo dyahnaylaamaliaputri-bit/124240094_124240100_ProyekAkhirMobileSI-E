@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/preference_controller.dart';
 import '../../controllers/profile_controller.dart';
-import '../../models/mood_history_model.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/app_colors.dart';
 
@@ -55,7 +54,6 @@ class MyCinemateView extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           await profileCtrl.loadProfileStats();
-          profileCtrl.loadMoodHistory();
         },
         color: AppColors.gold,
         backgroundColor: AppColors.card,
@@ -122,31 +120,6 @@ class MyCinemateView extends StatelessWidget {
               _buildSectionHeader('Ajak Teman Nonton Bareng (Watch Party)'),
               const SizedBox(height: 10),
               _buildWatchPartyInviteCard(profileCtrl),
-
-              const SizedBox(height: 28),
-
-              // 6. RIWAYAT HASIL PROFILING AI MOOD (PB-065)
-              Row(
-                children: [
-                  _buildSectionHeader('Riwayat Rekomendasi AI Mood'),
-                  const Spacer(),
-                  TextButton.icon(
-                    onPressed: () => Get.toNamed(Routes.moodHistory),
-                    icon: const Icon(Icons.timeline_rounded,
-                        color: AppColors.gold, size: 16),
-                    label: const Text(
-                      'Buka Linimasa',
-                      style: TextStyle(
-                        color: AppColors.gold,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              _buildMoodHistorySection(profileCtrl),
 
               const SizedBox(height: 32),
             ],
@@ -713,170 +686,6 @@ class MyCinemateView extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMoodHistorySection(ProfileController profileCtrl) {
-    return Obx(() {
-      final history = profileCtrl.moodHistory;
-
-      if (history.isEmpty) {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            children: [
-              const Icon(Icons.psychology_outlined,
-                  color: AppColors.gold, size: 40),
-              const SizedBox(height: 8),
-              const Text(
-                'Belum Ada Riwayat AI Mood',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Gunakan fitur Rekomendasi Mood AI untuk mencari film sesuai suasana hatimu!',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () => Get.toNamed(Routes.moodPicker),
-                icon: const Icon(Icons.auto_awesome_rounded, size: 16),
-                label: const Text('Coba Mood AI'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-
-      return ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: history.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          final item = history[index];
-          return _buildMoodHistoryCard(item, profileCtrl);
-        },
-      );
-    });
-  }
-
-  Widget _buildMoodHistoryCard(
-      MoodHistoryModel item, ProfileController profileCtrl) {
-    final dateFormatted =
-        '${item.timestamp.day.toString().padLeft(2, '0')}/${item.timestamp.month.toString().padLeft(2, '0')}/${item.timestamp.year} ${item.timestamp.hour.toString().padLeft(2, '0')}:${item.timestamp.minute.toString().padLeft(2, '0')}';
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(item.moodEmoji, style: const TextStyle(fontSize: 20)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.moodTitle,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                    Text(
-                      dateFormatted,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close_rounded,
-                    color: AppColors.textSecondary, size: 16),
-                onPressed: () => profileCtrl.removeMoodHistoryItem(item.id),
-                tooltip: 'Hapus Entri',
-              ),
-            ],
-          ),
-          if (item.movies.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: item.movies.map((m) {
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: AppColors.gold.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.movie_rounded,
-                          color: AppColors.gold, size: 12),
-                      const SizedBox(width: 4),
-                      Text(
-                        m.title,
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '(${m.matchPercentage}%)',
-                        style: const TextStyle(
-                          color: AppColors.primaryLight,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
         ],
       ),
     );

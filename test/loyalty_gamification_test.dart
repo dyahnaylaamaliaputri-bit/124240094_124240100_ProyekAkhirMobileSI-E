@@ -9,7 +9,6 @@ import 'package:hive/hive.dart';
 import 'package:cinemate/controllers/auth_controller.dart';
 import 'package:cinemate/controllers/profile_controller.dart';
 import 'package:cinemate/models/loyalty_badge_model.dart';
-import 'package:cinemate/models/mood_history_model.dart';
 import 'package:cinemate/models/user_model.dart';
 import 'package:cinemate/services/storage_service.dart';
 
@@ -114,7 +113,6 @@ void main() {
       // Kondisi awal (watchedCount = 0)
       profileCtrl.watchedCount.value = 0;
       profileCtrl.fnbOrderCount.value = 0;
-      profileCtrl.moodHistory.clear();
       profileCtrl.favoriteGenres.assignAll(['Action']);
 
       var badges = profileCtrl.loyaltyBadges;
@@ -169,32 +167,16 @@ void main() {
           isTrue);
     });
 
-    test('Evaluasi badge Master Mood AI & Snack Connoisseur', () {
-      profileCtrl.moodHistory.clear();
+    test('Evaluasi badge Snack Connoisseur', () {
       profileCtrl.fnbOrderCount.value = 0;
 
       var badges = profileCtrl.loyaltyBadges;
-      expect(badges.firstWhere((b) => b.id == 'ai_cine_match').isUnlocked,
-          isFalse);
       expect(badges.firstWhere((b) => b.id == 'snack_connoisseur').isUnlocked,
           isFalse);
 
-      // Menambahkan riwayat mood
-      profileCtrl.moodHistory.add(
-        MoodHistoryModel(
-          id: 'mood-1',
-          moodType: 'happy',
-          moodTitle: 'Gembira',
-          moodEmoji: '😄',
-          timestamp: DateTime.now(),
-          movies: [],
-        ),
-      );
       profileCtrl.fnbOrderCount.value = 1;
 
       badges = profileCtrl.loyaltyBadges;
-      expect(
-          badges.firstWhere((b) => b.id == 'ai_cine_match').isUnlocked, isTrue);
       expect(badges.firstWhere((b) => b.id == 'snack_connoisseur').isUnlocked,
           isTrue);
     });
@@ -283,92 +265,6 @@ void main() {
 
       expect(result, isTrue);
       expect(copiedString, contains('Spider-Man: Beyond the Spider-Verse'));
-    });
-  });
-
-  group('PB-065: Linimasa Riwayat Profiling AI & Poster URL', () {
-    test(
-        'MoodHistoryItemModel posterUrl mengembalikan URL lengkap atau fallback',
-        () {
-      const item1 = MoodHistoryItemModel(
-        movieId: 101,
-        title: 'Inception',
-        matchPercentage: 96,
-        posterPath: '/inception_poster.jpg',
-      );
-      expect(item1.posterUrl,
-          'https://image.tmdb.org/t/p/w500/inception_poster.jpg');
-
-      const item2 = MoodHistoryItemModel(
-        movieId: 102,
-        title: 'Local Film',
-        matchPercentage: 88,
-        posterPath: 'https://cdn.cinemate.id/posters/film.jpg',
-      );
-      expect(item2.posterUrl, 'https://cdn.cinemate.id/posters/film.jpg');
-
-      const item3 = MoodHistoryItemModel(
-        movieId: 103,
-        title: 'No Poster Film',
-        matchPercentage: 80,
-        posterPath: null,
-      );
-      expect(item3.posterUrl, isEmpty);
-    });
-
-    test('Merekam dan menghapus riwayat profiling AI dengan benar', () async {
-      profileCtrl.moodHistory.clear();
-      await storage.clearMoodHistory();
-
-      final record1 = MoodHistoryModel(
-        id: 'rec-001',
-        moodType: 'touching',
-        moodTitle: 'Haru & Menyentuh',
-        moodEmoji: '🥺',
-        timestamp: DateTime.now(),
-        movies: const [
-          MoodHistoryItemModel(
-            movieId: 201,
-            title: 'Miracle in Cell No. 7',
-            matchPercentage: 98,
-          ),
-        ],
-      );
-
-      await profileCtrl.recordMoodProfiling(record1);
-
-      expect(profileCtrl.moodHistory.length, 1);
-      expect(profileCtrl.moodHistory.first.moodTitle, 'Haru & Menyentuh');
-
-      // Hapus satu entri
-      await profileCtrl.removeMoodHistoryItem('rec-001');
-      expect(profileCtrl.moodHistory.isEmpty, isTrue);
-    });
-
-    test('Membersihkan seluruh riwayat profiling AI sekaligus', () async {
-      final r1 = MoodHistoryModel(
-        id: 'r1',
-        moodType: 'thrilling',
-        moodTitle: 'Tegang & Adrenalin',
-        moodEmoji: '⚡',
-        timestamp: DateTime.now(),
-        movies: const [],
-      );
-      final r2 = MoodHistoryModel(
-        id: 'r2',
-        moodType: 'relaxed',
-        moodTitle: 'Santai & Ringan',
-        moodEmoji: '☕',
-        timestamp: DateTime.now(),
-        movies: const [],
-      );
-
-      await profileCtrl.recordMoodProfiling(r1);
-      await profileCtrl.recordMoodProfiling(r2);
-      expect(profileCtrl.moodHistory.length, 2);
-
-      await profileCtrl.clearAllMoodHistory();
-      expect(profileCtrl.moodHistory.isEmpty, isTrue);
     });
   });
 }

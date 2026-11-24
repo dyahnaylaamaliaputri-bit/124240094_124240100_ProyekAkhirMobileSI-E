@@ -12,7 +12,6 @@ import '../views/booking/order_summary_view.dart';
 import '../views/booking/payment_view.dart';
 import '../views/booking/select_seat_view.dart';
 import '../views/ticket/ticket_detail_view.dart';
-import '../views/ticket/check_in_scanner_view.dart';
 import '../views/splash/splash_view.dart';
 import '../views/auth/login_view.dart';
 import '../views/auth/register_view.dart';
@@ -20,15 +19,11 @@ import '../views/dashboard/dashboard_view.dart';
 import '../views/movie_detail/movie_detail_view.dart';
 import '../views/fnb/fnb_checkout_view.dart';
 import '../views/fnb/fnb_order_detail_view.dart';
-import '../views/mood/mood_picker_view.dart';
-import '../views/mood/advanced_profiling_view.dart';
 import '../views/cinema/cinema_map_view.dart';
 import '../views/profile/edit_profile_view.dart';
 import '../views/profile/my_cinemate_view.dart';
-import '../views/profile/mood_history_view.dart';
 import '../views/profile/settings_view.dart';
 import '../views/search/search_view.dart';
-import '../views/chatbot/chatbot_view.dart';
 import '../views/auth/change_password_view.dart';
 import '../views/booking/split_bill_view.dart';
 import '../views/profile/voucher_catalog_view.dart';
@@ -36,7 +31,6 @@ import '../views/profile/cinema_rewind_view.dart';
 import '../views/ticket/in_theater_mode_view.dart';
 import '../bindings/profile_binding.dart';
 import '../bindings/search_binding.dart';
-import '../controllers/mood_controller.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -116,15 +110,6 @@ class AppPages {
       page: () => const EditProfileView(),
     ),
     GetPage(
-      name: Routes.moodPicker,
-      page: () => const MoodPickerView(),
-      binding: BindingsBuilder(() {
-        if (!Get.isRegistered<MoodController>()) {
-          Get.lazyPut<MoodController>(() => MoodController());
-        }
-      }),
-    ),
-    GetPage(
       name: Routes.search,
       page: () => const SearchView(),
       binding: SearchBinding(),
@@ -140,30 +125,8 @@ class AppPages {
       binding: ProfileBinding(),
     ),
     GetPage(
-      name: Routes.chatbot,
-      page: () => const ChatbotView(),
-    ),
-    GetPage(
       name: Routes.changePassword,
       page: () => const ChangePasswordView(),
-    ),
-    GetPage(
-      name: Routes.advancedProfiling,
-      page: () => const AdvancedProfilingView(),
-      binding: BindingsBuilder(() {
-        if (!Get.isRegistered<MoodController>()) {
-          Get.lazyPut<MoodController>(() => MoodController());
-        }
-      }),
-    ),
-    GetPage(
-      name: Routes.checkInScanner,
-      page: () => const CheckInScannerView(),
-    ),
-    GetPage(
-      name: Routes.moodHistory,
-      page: () => const MoodHistoryView(),
-      binding: ProfileBinding(),
     ),
     GetPage(
       name: Routes.splitBill,

@@ -7,7 +7,6 @@ import '../controllers/cinema_controller.dart';
 import '../controllers/dashboard_controller.dart';
 import '../controllers/movie_controller.dart';
 import '../controllers/fnb_controller.dart';
-import '../controllers/mood_controller.dart';
 
 class DashboardBinding extends Bindings {
   @override
@@ -19,6 +18,5 @@ class DashboardBinding extends Bindings {
     Get.lazyPut<MovieController>(() => MovieController());
     Get.lazyPut<CinemaController>(() => CinemaController());
     Get.lazyPut<FnbController>(() => FnbController());
-    Get.lazyPut<MoodController>(() => MoodController());
   }
 }

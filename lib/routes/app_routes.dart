@@ -21,17 +21,12 @@ abstract class Routes {
   static const ticketDetail = '/ticket-detail';
   static const fnbCheckout = '/fnb-checkout';
   static const fnbOrderDetail = '/fnb-order-detail';
-  static const moodPicker = '/mood-picker';
   static const cinemaMap = '/cinema-map';
   static const editProfile = '/edit-profile';
   static const search = '/search';
   static const myCinemate = '/my-cinemate';
   static const settings = '/settings';
-  static const chatbot = '/chatbot';
   static const changePassword = '/change-password';
-  static const advancedProfiling = '/advanced-profiling';
-  static const checkInScanner = '/check-in-scanner';
-  static const moodHistory = '/mood-history';
   static const splitBill = '/split-bill';
   static const voucherCatalog = '/voucher-catalog';
   static const cinemaRewind = '/cinema-rewind';

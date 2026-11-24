@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/loyalty_badge_model.dart';
-import '../models/mood_history_model.dart';
 import '../services/fnb_service.dart';
 import '../services/storage_service.dart';
 import '../services/ticket_service.dart';
@@ -222,7 +221,6 @@ class ProfileController extends GetxController {
   List<LoyaltyBadgeModel> get loyaltyBadges {
     final watched = watchedCount.value;
     final fnbCount = fnbOrderCount.value;
-    final moodCount = moodHistory.length;
     final genresCount = favoriteGenres.length;
 
     return [
@@ -270,15 +268,6 @@ class ProfileController extends GetxController {
         isUnlocked: genresCount >= 3,
         progress: (genresCount / 3).clamp(0.0, 1.0),
         progressLabel: genresCount >= 3 ? 'Tercapai' : '$genresCount/3 Genre',
-      ),
-      LoyaltyBadgeModel(
-        id: 'ai_cine_match',
-        title: 'Master Mood AI',
-        description: 'Gunakan kurasi rekomendasi film berbasis Mood AI',
-        icon: '🧠',
-        isUnlocked: moodCount >= 1,
-        progress: moodCount >= 1 ? 1.0 : 0.0,
-        progressLabel: moodCount >= 1 ? 'Tercapai' : '$moodCount/1 Sesi AI',
       ),
       LoyaltyBadgeModel(
         id: 'snack_connoisseur',
@@ -441,41 +430,6 @@ class ProfileController extends GetxController {
     }
   }
 
-  // =========================================================================
-  // 4. PB-065: RIWAYAT HASIL PROFILING AI MOOD
-  // =========================================================================
-
-  /// Daftar riwayat profiling AI Mood yang tersimpan
-  final moodHistory = <MoodHistoryModel>[].obs;
-
-  /// Memuat riwayat dari local storage
-  void loadMoodHistory() {
-    final raw = _storage.getMoodHistory();
-    final items = raw.map((json) => MoodHistoryModel.fromJson(json)).toList();
-    moodHistory.assignAll(items);
-  }
-
-  /// Menambahkan riwayat profiling baru (LIFO)
-  Future<void> recordMoodProfiling(MoodHistoryModel record) async {
-    await _storage.addMoodHistory(record.toJson());
-    moodHistory.insert(0, record);
-    if (moodHistory.length > 20) {
-      moodHistory.removeLast();
-    }
-  }
-
-  /// Menghapus satu entri riwayat berdasarkan ID
-  Future<void> removeMoodHistoryItem(String id) async {
-    await _storage.deleteMoodHistory(id);
-    moodHistory.removeWhere((item) => item.id == id);
-  }
-
-  /// Menghapus seluruh riwayat profiling AI
-  Future<void> clearAllMoodHistory() async {
-    await _storage.clearMoodHistory();
-    moodHistory.clear();
-  }
-
   @override
   void onInit() {
     super.onInit();
@@ -485,7 +439,6 @@ class ProfileController extends GetxController {
     isBiometricEnabled.value = _storage.biometricEnabled;
     favoriteGenres.assignAll(_storage.getFavoriteGenres());
 
-    loadMoodHistory();
     loadProfileStats();
   }
 }

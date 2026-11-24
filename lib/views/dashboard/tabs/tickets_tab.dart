@@ -52,12 +52,6 @@ class _TicketsTabState extends State<TicketsTab>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.qr_code_scanner_rounded,
-                color: AppColors.gold),
-            tooltip: 'Petugas: Scan QR Check-in (PB-026B)',
-            onPressed: () => Get.toNamed(Routes.checkInScanner),
-          ),
-          IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white),
             tooltip: 'Muat Ulang Tiket',
             onPressed: () => _controller.loadTickets(forceRefresh: true),
