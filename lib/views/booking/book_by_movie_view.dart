@@ -64,7 +64,7 @@ class _BookByMovieViewState extends State<BookByMovieView> {
               ),
             ),
             Text(
-              'Alur Booked by Movie (PB-019)',
+              'Pilih Bioskop & Jadwal',
               style: TextStyle(
                 color: AppColors.primaryLight,
                 fontSize: 11,
@@ -435,33 +435,92 @@ class _BookByMovieViewState extends State<BookByMovieView> {
   // 3. DAFTAR BIOSKOP ACCORDION & JAM TAYANG
   // =========================================================================
   Widget _buildCinemasList() {
-    return Obx(() {
-      final cinemas = controller.cinemas;
-      if (cinemas.isEmpty) {
-        return const Padding(
-          padding: EdgeInsets.all(24),
-          child: Center(
-            child: Text(
-              'Tidak ada bioskop yang menayangkan film ini.',
-              style: TextStyle(color: AppColors.textSecondary),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Filter Kota untuk pesan tiket dari kota mana saja
+        Obx(() {
+          final cities = controller.availableCities;
+          final activeCity = controller.selectedCity.value;
+          return SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: cities.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final city = cities[index];
+                final isSelected = city == activeCity;
+                return ChoiceChip(
+                  label: Text(city),
+                  selected: isSelected,
+                  onSelected: (_) => controller.setCity(city),
+                  selectedColor: AppColors.gold,
+                  backgroundColor: AppColors.card,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.black : Colors.white70,
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  ),
+                  side: BorderSide(
+                    color: isSelected ? AppColors.gold : Colors.white12,
+                  ),
+                );
+              },
             ),
-          ),
-        );
-      }
+          );
+        }),
+        const SizedBox(height: 12),
+        Obx(() {
+          final cinemas = controller.cinemas;
+          if (cinemas.isEmpty) {
+            return const Padding(
+              padding: EdgeInsets.all(24),
+              child: Center(
+                child: Text(
+                  'Tidak ada bioskop yang menayangkan film ini.',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+              ),
+            );
+          }
 
-      return ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: cinemas.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final cinema = cinemas[index];
-          return Obx(() {
-            final isExpanded = controller.expandedCinemaId.value == cinema.id;
-            final isCinemaSelected =
-                controller.selectedCinema.value?.id == cinema.id;
-            final showtimes = controller.cinemaShowtimes[cinema.id] ?? [];
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: cinemas.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final cinema = cinemas[index];
+              return Obx(() {
+                final isExpanded =
+                    controller.expandedCinemaId.value == cinema.id;
+                final isCinemaSelected =
+                    controller.selectedCinema.value?.id == cinema.id;
+                final showtimes = controller.cinemaShowtimes[cinema.id] ?? [];
+
+                return _buildCinemaCard(
+                  cinema: cinema,
+                  isExpanded: isExpanded,
+                  isCinemaSelected: isCinemaSelected,
+                  showtimes: showtimes,
+                );
+              });
+            },
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildCinemaCard({
+    required CinemaModel cinema,
+    required bool isExpanded,
+    required bool isCinemaSelected,
+    required List<ShowtimeModel> showtimes,
+  }) {
 
             return AnimatedContainer(
               duration: const Duration(milliseconds: 250),
@@ -581,10 +640,6 @@ class _BookByMovieViewState extends State<BookByMovieView> {
                 ],
               ),
             );
-          });
-        },
-      );
-    });
   }
 
   Widget _buildCinemaShowtimesBody(
@@ -1022,7 +1077,7 @@ class _BookByMovieViewState extends State<BookByMovieView> {
                   icon:
                       const Icon(Icons.event_seat_rounded, color: Colors.white),
                   label: const Text(
-                    'Konfirmasi & Pilih Kursi (PB-020)',
+                    'Konfirmasi Kursi',
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

@@ -300,7 +300,7 @@ class FnbOrderDetailView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'STATUS & ESTIMASI PESANAN (PB-035)',
+                'STATUS & ESTIMASI PESANAN',
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.bold,

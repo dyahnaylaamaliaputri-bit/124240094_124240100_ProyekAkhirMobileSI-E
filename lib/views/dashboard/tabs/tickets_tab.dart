@@ -85,7 +85,7 @@ class _TicketsTabState extends State<TicketsTab>
         return Column(
           children: [
             // Banner Mode Offline (PB-024)
-            if (_controller.isOfflineMode.value) _buildOfflineBanner(),
+            // Offline banner dihapus agar UI bersih sesuai kebutuhan pengguna
 
             // Kolom Pencarian Cepat
             _buildSearchBar(),
@@ -125,54 +125,7 @@ class _TicketsTabState extends State<TicketsTab>
     );
   }
 
-  /// Banner Offline Ready (PB-024)
-  Widget _buildOfflineBanner() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF231F14),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.offline_bolt_rounded,
-              color: AppColors.gold, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Mode Offline (PB-024) • Hive Cache',
-                  style: TextStyle(
-                    color: AppColors.gold,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'E-ticket dimuat dari cache lokal Hive. QR Code tetap bisa dipindai saat di dalam bioskop tanpa internet.',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded,
-                color: AppColors.gold, size: 18),
-            tooltip: 'Segarkan Cache',
-            onPressed: () => _controller.loadTickets(forceRefresh: true),
-          ),
-        ],
-      ),
-    );
-  }
+  // _buildOfflineBanner dihapus
 
   /// Search Bar Pencarian Tiket
   Widget _buildSearchBar() {

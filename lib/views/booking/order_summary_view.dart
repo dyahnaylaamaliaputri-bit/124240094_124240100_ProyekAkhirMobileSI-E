@@ -36,7 +36,7 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
             ),
             SizedBox(height: 2),
             Text(
-              'Periksa kembali rincian tiket bioskop Anda (PB-020)',
+              'Periksa kembali rincian tiket bioskop Anda',
               style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
             ),
           ],
@@ -563,7 +563,7 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                   Icon(Icons.fastfood_rounded, color: AppColors.gold, size: 18),
                   SizedBox(width: 8),
                   Text(
-                    'Tambah Camilan Bioskop (PB-032)',
+                    'Tambah Camilan Bioskop',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 13,

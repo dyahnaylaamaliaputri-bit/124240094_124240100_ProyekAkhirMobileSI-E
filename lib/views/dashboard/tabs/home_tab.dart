@@ -338,7 +338,6 @@ class _HomeTabState extends State<HomeTab> {
               // =============================================================
               _buildSectionHeader(
                 title: 'Bioskop Terdekat',
-                subtitle: 'LBS Geolocation',
                 actionLabel: 'Peta Bioskop',
                 actionIcon: Icons.map_outlined,
                 onSeeAll: () => Get.toNamed(Routes.cinemaMap),
@@ -598,7 +597,7 @@ class _HomeTabState extends State<HomeTab> {
 
   Widget _buildSectionHeader({
     required String title,
-    required String subtitle,
+    String? subtitle,
     required VoidCallback onSeeAll,
     String actionLabel = 'Lihat Semua',
     IconData? actionIcon,
@@ -608,34 +607,46 @@ class _HomeTabState extends State<HomeTab> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 4,
-                height: 18,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(2),
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '($subtitle)',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-            ],
+                if (subtitle != null && subtitle.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      '($subtitle)',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
           TextButton(
             onPressed: onSeeAll,
@@ -732,7 +743,7 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   ),
                   subtitle: const Text(
-                    'Gunakan sensor GPS perangkat saat ini (PB-042)',
+                    'Gunakan sensor GPS perangkat saat ini',
                     style:
                         TextStyle(color: AppColors.textSecondary, fontSize: 11),
                   ),

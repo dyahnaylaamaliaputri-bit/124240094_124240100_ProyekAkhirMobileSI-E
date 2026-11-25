@@ -3,9 +3,11 @@
 // Menampilkan data yang diinput saat registrasi, avatar per akun, edit profil, dan tombol keluar.
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/auth_controller.dart';
+import '../../../controllers/profile_controller.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/storage_service.dart';
 import '../../../utils/app_colors.dart';
@@ -23,6 +25,9 @@ class ProfileTab extends StatelessWidget {
     final authCtrl = Get.isRegistered<AuthController>()
         ? Get.find<AuthController>()
         : Get.put(AuthController());
+    final profileCtrl = Get.isRegistered<ProfileController>()
+        ? Get.find<ProfileController>()
+        : Get.put(ProfileController());
     final storage = StorageService();
 
     return Scaffold(
@@ -76,12 +81,21 @@ class ProfileTab extends StatelessWidget {
             joinedDate = '${dt.day} ${months[dt.month]} ${dt.year}';
           }
 
-          // Cek avatar lokal khusus user ID aktif
-          final localAvatarPath = storage.getAvatarPath(user?.id);
-          final effectiveAvatar = localAvatarPath ?? user?.avatarUrl;
+          // Cek avatar lokal khusus user ID aktif (mendukung Web blob/http dan Native File)
+          final localAvatarPath =
+              profileCtrl.avatarPath.value ?? storage.getAvatarPath(user?.id);
+          final effectiveAvatar =
+              (localAvatarPath != null && localAvatarPath.isNotEmpty)
+                  ? localAvatarPath
+                  : user?.avatarUrl;
+          final isNetworkOrBlob = effectiveAvatar != null &&
+              (kIsWeb ||
+                  effectiveAvatar.startsWith('http') ||
+                  effectiveAvatar.startsWith('blob:') ||
+                  effectiveAvatar.startsWith('data:'));
           final hasAvatarImage = effectiveAvatar != null &&
               effectiveAvatar.isNotEmpty &&
-              File(effectiveAvatar).existsSync();
+              (isNetworkOrBlob || File(effectiveAvatar).existsSync());
 
           return Column(
             children: [
@@ -110,7 +124,10 @@ class ProfileTab extends StatelessWidget {
                           radius: 44,
                           backgroundColor: AppColors.primary,
                           backgroundImage: hasAvatarImage
-                              ? FileImage(File(effectiveAvatar))
+                              ? (isNetworkOrBlob
+                                  ? NetworkImage(effectiveAvatar)
+                                      as ImageProvider
+                                  : FileImage(File(effectiveAvatar)))
                               : null,
                           child: hasAvatarImage
                               ? null

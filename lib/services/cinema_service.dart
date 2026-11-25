@@ -293,17 +293,226 @@ class CinemaService {
       'city': 'Medan',
       'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
     },
+
+    // ── BOGOR & BEKASI ──────────────────────────────────────────────────────
+    {
+      'id': 'cin-bgr-1',
+      'name': 'Botani Square XXI Bogor',
+      'address': 'Jl. Raya Pajajaran No. 40, Tegallega, Bogor Tengah',
+      'latitude': -6.6015,
+      'longitude': 106.8065,
+      'city': 'Bogor',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
+    {
+      'id': 'cin-bgr-2',
+      'name': 'AEON Mall Sentul City XXI',
+      'address': 'Jl. MH. Thamrin, Citaringgul, Babakan Madang, Bogor',
+      'latitude': -6.5656,
+      'longitude': 106.8548,
+      'city': 'Bogor',
+      'facilities': ['IMAX', 'Premiere', 'Dolby Atmos'],
+    },
+    {
+      'id': 'cin-bks-1',
+      'name': 'Summarecon Mall Bekasi XXI',
+      'address': 'Jl. Boulevard Ahmad Yani, Marga Mulya, Bekasi Utara',
+      'latitude': -6.2261,
+      'longitude': 107.0011,
+      'city': 'Bekasi',
+      'facilities': ['IMAX', 'Premiere', 'Dolby Atmos'],
+    },
+    {
+      'id': 'cin-bks-2',
+      'name': 'Grand Metropolitan XXI Bekasi',
+      'address': 'Jl. KH. Noer Ali, Pekayon Jaya, Bekasi Selatan',
+      'latitude': -6.2485,
+      'longitude': 106.9923,
+      'city': 'Bekasi',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-5'],
+    },
+
+    // ── MALANG, CIREBON, PURWOKERTO ─────────────────────────────────────────
+    {
+      'id': 'cin-mlg-1',
+      'name': 'Araya XXI Malang',
+      'address': 'Jl. Blimbing Indah Megah No. 2, Purwodadi, Malang',
+      'latitude': -7.9392,
+      'longitude': 112.6484,
+      'city': 'Malang',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-5'],
+    },
+    {
+      'id': 'cin-mlg-2',
+      'name': 'CGV Malang City Point',
+      'address': 'Jl. Terusan Dieng No. 32, Pisang Candi, Malang',
+      'latitude': -7.9771,
+      'longitude': 112.6152,
+      'city': 'Malang',
+      'facilities': ['SphereX', 'Gold Class', 'Regular 2D'],
+    },
+    {
+      'id': 'cin-crb-1',
+      'name': 'CSB XXI Cirebon',
+      'address': 'Jl. Dr. Cipto Mangunkusumo No. 26, Pekiringan, Cirebon',
+      'latitude': -6.7186,
+      'longitude': 108.5503,
+      'city': 'Cirebon',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
+    {
+      'id': 'cin-pwt-1',
+      'name': 'CGV Rita Supermall Purwokerto',
+      'address': 'Jl. Jend. Sudirman No. 296, Sokanegara, Purwokerto',
+      'latitude': -7.4243,
+      'longitude': 109.2302,
+      'city': 'Purwokerto',
+      'facilities': ['Satin Class', 'Dolby Atmos', 'Regular 2D'],
+    },
+
+    // ── SUMATERA (PALEMBANG, PADANG, PEKANBARU, BATAM, LAMPUNG) ─────────────
+    {
+      'id': 'cin-plg-1',
+      'name': 'Palembang Icon Cinepolis',
+      'address': 'Jl. POM IX, Lorok Pakjo, Ilir Barat I, Palembang',
+      'latitude': -2.9761,
+      'longitude': 104.7458,
+      'city': 'Palembang',
+      'facilities': ['VIP', 'Macro XE', 'Dolby Atmos'],
+    },
+    {
+      'id': 'cin-plg-2',
+      'name': 'PIM XXI Palembang',
+      'address': 'Jl. Letkol Iskandar No. 18, Bukit Kecil, Palembang',
+      'latitude': -2.9813,
+      'longitude': 104.7565,
+      'city': 'Palembang',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
+    {
+      'id': 'cin-pdg-1',
+      'name': 'Plaza Andalas XXI Padang',
+      'address': 'Jl. Pemuda No. 1, Olo, Padang Barat, Padang',
+      'latitude': -0.9537,
+      'longitude': 100.3547,
+      'city': 'Padang',
+      'facilities': ['Dolby Atmos', 'Studio 1-5'],
+    },
+    {
+      'id': 'cin-pku-1',
+      'name': 'SKA XXI Pekanbaru',
+      'address': 'Jl. Soekarno-Hatta, Delima, Tampan, Pekanbaru',
+      'latitude': 0.5004,
+      'longitude': 101.4197,
+      'city': 'Pekanbaru',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
+    {
+      'id': 'cin-btm-1',
+      'name': 'Grand Batam XXI',
+      'address': 'Jl. Pembangunan, Batu Selicin, Lubuk Baja, Batam',
+      'latitude': 1.1301,
+      'longitude': 104.0117,
+      'city': 'Batam',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-7'],
+    },
+    {
+      'id': 'cin-lpg-1',
+      'name': 'Boemi Kedaton XXI Lampung',
+      'address': 'Jl. Teuku Umar No. 1, Kedaton, Bandar Lampung',
+      'latitude': -5.3822,
+      'longitude': 105.2597,
+      'city': 'Lampung',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
+
+    // ── SULAWESI & KALIMANTAN ───────────────────────────────────────────────
+    {
+      'id': 'cin-mks-1',
+      'name': 'Panakkukang XXI Makassar',
+      'address': 'Jl. Boulevard, Masale, Panakkukang, Makassar',
+      'latitude': -5.1578,
+      'longitude': 119.4472,
+      'city': 'Makassar',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
+    {
+      'id': 'cin-mks-2',
+      'name': 'Nipah Mall XXI Makassar',
+      'address': 'Jl. Urip Sumoharjo, Panaikang, Panakkukang, Makassar',
+      'latitude': -5.1388,
+      'longitude': 119.4494,
+      'city': 'Makassar',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-5'],
+    },
+    {
+      'id': 'cin-bpn-1',
+      'name': 'E-Walk XXI Balikpapan',
+      'address': 'Jl. Jend. Sudirman No. 47, Damai, Balikpapan Selatan',
+      'latitude': -1.2747,
+      'longitude': 116.8583,
+      'city': 'Balikpapan',
+      'facilities': ['IMAX', 'Premiere', 'Dolby Atmos'],
+    },
+    {
+      'id': 'cin-bjm-1',
+      'name': 'Duta Mall XXI Banjarmasin',
+      'address': 'Jl. Ahmad Yani KM 2, Sungai Baru, Banjarmasin Tengah',
+      'latitude': -3.3239,
+      'longitude': 114.6025,
+      'city': 'Banjarmasin',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
+    {
+      'id': 'cin-mdc-1',
+      'name': 'Mantos XXI Manado',
+      'address': 'Jl. Piere Tendean Boulevard, Sario, Manado',
+      'latitude': 1.4664,
+      'longitude': 124.8286,
+      'city': 'Manado',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
+    {
+      'id': 'cin-ptk-1',
+      'name': 'Ayani Mega Mall XXI Pontianak',
+      'address': 'Jl. Jend. Ahmad Yani, Parit Tokaya, Pontianak Selatan',
+      'latitude': -0.0522,
+      'longitude': 109.3497,
+      'city': 'Pontianak',
+      'facilities': ['Premiere', 'Dolby Atmos', 'Studio 1-6'],
+    },
   ];
+
+  /// Menggabungkan data seed multi-kota dengan daftar bioskop dari Supabase/cache
+  /// agar seluruh kota di Indonesia selalu tersedia dan tidak tertimpa cache lama.
+  List<CinemaModel> _mergeWithSeed(List<CinemaModel> remoteOrCached) {
+    final merged = <CinemaModel>[];
+    final seenNames = <String>{};
+
+    // Utamakan seedCinemas terlebih dahulu (Cinemate Plaza tetap #1)
+    for (final s in seedCinemas) {
+      final cinema = CinemaModel.fromJson(s);
+      if (seenNames.add(cinema.name.toLowerCase())) {
+        merged.add(cinema);
+      }
+    }
+    for (final c in remoteOrCached) {
+      if (seenNames.add(c.name.toLowerCase())) {
+        merged.add(c);
+      }
+    }
+    return merged;
+  }
 
   /// Mengambil semua bioskop dari Supabase / Hive Cache / Fallback Seed
   Future<({List<CinemaModel> cinemas, bool fromCache})> getAllCinemas({
     bool forceRefresh = false,
   }) async {
-    // 1. Cek cache Hive jika tidak forceRefresh
+    // 1. Cek cache Hive jika tidak forceRefresh & jumlahnya sudah lengkap multi-kota
     if (!forceRefresh) {
       try {
         final cached = await _storage.getCachedCinemas();
-        if (cached != null && cached.isNotEmpty) {
+        if (cached != null && cached.length >= seedCinemas.length) {
           final list = cached.map((e) => CinemaModel.fromJson(e)).toList();
           return (cinemas: list, fromCache: true);
         }
@@ -312,39 +521,30 @@ class CinemaService {
       }
     }
 
-    // 2. Fetch online dari Supabase database
+    // 2. Fetch online dari Supabase database lalu gabungkan dengan seed semua kota
     try {
       final response =
           await _supabase.client.from('cinemas').select().order('name');
 
       if (response.isNotEmpty) {
-        final jsonList =
-            response.map((e) => Map<String, dynamic>.from(e)).toList();
+        final remoteList = response
+            .map((e) => CinemaModel.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+        final merged = _mergeWithSeed(remoteList);
 
-        // Simpan ke Hive cache
-        await _storage.cacheCinemas(jsonList);
-
-        final list = jsonList.map((e) => CinemaModel.fromJson(e)).toList();
-        return (cinemas: list, fromCache: false);
+        await _storage.cacheCinemas(merged.map((e) => e.toJson()).toList());
+        return (cinemas: merged, fromCache: false);
       }
     } catch (e) {
       debugPrint('[CinemaService] Supabase fetch error: $e');
     }
 
-    // 3. Fallback jika offline: periksa apakah ada cache lama
-    try {
-      final cached = await _storage.getCachedCinemas();
-      if (cached != null && cached.isNotEmpty) {
-        final list = cached.map((e) => CinemaModel.fromJson(e)).toList();
-        return (cinemas: list, fromCache: true);
-      }
-    } catch (e) {
-      debugPrint('[CinemaService] Error reading Hive fallback cache: $e');
-    }
-
-    // 4. Fallback terakhir: seed data lokal lengkap multi-kota
+    // 3. Fallback offline: gabungkan seed lengkap multi-kota
     final fallbackList =
         seedCinemas.map((e) => CinemaModel.fromJson(e)).toList();
+    try {
+      await _storage.cacheCinemas(fallbackList.map((e) => e.toJson()).toList());
+    } catch (_) {}
     return (cinemas: fallbackList, fromCache: true);
   }
 

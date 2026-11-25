@@ -250,9 +250,8 @@ class StorageService {
   set avatarPath(String? path) => setAvatarPath(path);
 
   String? getAvatarPath([String? userId]) {
-    final key = (userId != null && userId.isNotEmpty)
-        ? 'avatar_path_$userId'
-        : 'avatar_path';
+    if (userId == null || userId.isEmpty) return null;
+    final key = 'avatar_path_$userId';
     if (_isTestEnvironment) {
       return _memoryFallback[key] as String?;
     }
@@ -260,9 +259,8 @@ class StorageService {
   }
 
   void setAvatarPath(String? path, [String? userId]) {
-    final key = (userId != null && userId.isNotEmpty)
-        ? 'avatar_path_$userId'
-        : 'avatar_path';
+    if (userId == null || userId.isEmpty) return;
+    final key = 'avatar_path_$userId';
     if (_isTestEnvironment) {
       if (path == null) {
         _memoryFallback.remove(key);

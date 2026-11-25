@@ -347,7 +347,7 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Pemesanan F&B Mandiri (PB-033)',
+                        'Pemesanan F&B Mandiri',
                         style: TextStyle(
                           color: AppColors.gold,
                           fontSize: 13,

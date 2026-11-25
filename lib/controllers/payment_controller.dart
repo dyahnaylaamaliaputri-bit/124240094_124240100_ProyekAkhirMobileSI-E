@@ -375,7 +375,7 @@ class PaymentController extends GetxController {
                     ),
                     icon: const Icon(Icons.qr_code_2_rounded, size: 20),
                     label: const Text(
-                      'Lihat E-Ticket (PB-022)',
+                      'Lihat E-Ticket',
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     ),
@@ -407,12 +407,18 @@ class PaymentController extends GetxController {
       children: [
         Text(label,
             style: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 12)),
-        Text(
-          value,
-          style: TextStyle(
-            color: isTotal ? const Color(0xFFFFD700) : Colors.white,
-            fontSize: isTotal ? 15 : 12,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: isTotal ? const Color(0xFFFFD700) : Colors.white,
+              fontSize: isTotal ? 15 : 12,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
+            ),
           ),
         ),
       ],

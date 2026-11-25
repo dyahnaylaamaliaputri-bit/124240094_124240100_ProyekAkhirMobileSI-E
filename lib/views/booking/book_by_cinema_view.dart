@@ -73,7 +73,7 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
               ),
             ),
             Text(
-              'Alur Booked by Cinema (PB-018)',
+              'Pilih Film & Jadwal',
               style: TextStyle(
                 color: AppColors.primaryLight,
                 fontSize: 11,
@@ -1003,7 +1003,7 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                   icon:
                       const Icon(Icons.event_seat_rounded, color: Colors.white),
                   label: const Text(
-                    'Konfirmasi & Pilih Kursi (PB-020)',
+                    'Konfirmasi Kursi',
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

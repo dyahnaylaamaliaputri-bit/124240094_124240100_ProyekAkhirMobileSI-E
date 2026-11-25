@@ -48,7 +48,10 @@ class FnbService {
           final items = cachedRaw.map((e) {
             return FnbItemModel.fromJson(Map<String, dynamic>.from(e as Map));
           }).toList();
-          if (items.isNotEmpty) {
+          // Pastikan item cache sudah memiliki imageUrl terbaru (jika cache lama kosong, perbarui dari seed)
+          final hasAllImages = items.every(
+              (item) => item.imageUrl != null && item.imageUrl!.isNotEmpty);
+          if (items.isNotEmpty && hasAllImages) {
             debugPrint(
                 '[FnbService] Berhasil memuat ${items.length} menu F&B dari Hive cache.');
             return items;

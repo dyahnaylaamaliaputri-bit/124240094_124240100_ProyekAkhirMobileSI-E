@@ -141,7 +141,7 @@ class PaymentMethodModel {
         // 3. QRIS
         PaymentMethodModel(
           id: 'qris',
-          name: 'QRIS Bersama (Semua Bank & E-Wallet)',
+          name: 'QRIS Bersama',
           category: PaymentCategory.qris,
           icon: Icons.qr_code_scanner_rounded,
           description:

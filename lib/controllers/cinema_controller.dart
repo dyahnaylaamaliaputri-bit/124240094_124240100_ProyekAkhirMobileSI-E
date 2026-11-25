@@ -45,8 +45,12 @@ class CinemaController extends GetxController {
   /// Filter kota aktif (default: 'Semua Kota')
   final selectedCity = 'Semua Kota'.obs;
 
-  /// Daftar kota yang didukung
-  List<String> get availableCities => const [
+  /// Daftar kota yang didukung (dinamis dari seluruh bioskop yang tersedia)
+  List<String> get availableCities {
+    final cities = allCinemas.map((c) => c.city).where((c) => c.isNotEmpty).toSet().toList()
+      ..sort();
+    if (cities.isEmpty) {
+      return const [
         'Semua Kota',
         'Jakarta',
         'Yogyakarta',
@@ -57,6 +61,9 @@ class CinemaController extends GetxController {
         'Bali',
         'Medan',
       ];
+    }
+    return ['Semua Kota', ...cities];
+  }
 
   /// Filter radius yang dipilih (null = Semua, 1.0, 3.0, 5.0, 10.0, 25.0) (PB-045)
   final Rxn<double> selectedRadiusKm = Rxn<double>();
@@ -210,7 +217,7 @@ class CinemaController extends GetxController {
     _recalculateDistances();
   }
 
-  /// Mengubah filter kota dan otomatis menyesuaikan koordinat acuan jika ada
+  /// Mengubah filter kota dan otomatis menyesuaikan koordinat acuan serta mendeteksi kota aktif
   void setCity(String city) {
     selectedCity.value = city;
     if (city != 'Semua Kota') {
@@ -220,6 +227,28 @@ class CinemaController extends GetxController {
         userLat.value = preset.latitude;
         userLng.value = preset.longitude;
         selectedLocationName.value = preset.name;
+        _locationService.saveLastKnownLocation(
+          preset.latitude,
+          preset.longitude,
+          preset.name,
+        );
+      } else {
+        final firstCinema = allCinemas.firstWhereOrNull(
+            (c) => c.city.toLowerCase() == city.toLowerCase());
+        if (firstCinema != null) {
+          userLat.value = firstCinema.latitude;
+          userLng.value = firstCinema.longitude;
+          selectedLocationName.value = firstCinema.city;
+          _locationService.saveLastKnownLocation(
+            firstCinema.latitude,
+            firstCinema.longitude,
+            firstCinema.city,
+          );
+        }
+      }
+      if (selectedCinemaOnMap.value != null &&
+          selectedCinemaOnMap.value!.city.toLowerCase() != city.toLowerCase()) {
+        selectedCinemaOnMap.value = null;
       }
     }
     _recalculateDistances();

@@ -38,7 +38,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
             ),
             SizedBox(height: 2),
             Text(
-              'Tunjukkan kode QR saat masuk studio (PB-022)',
+              'Tunjukkan kode QR saat masuk studio',
               style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
             ),
           ],
@@ -111,7 +111,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                     icon: const Icon(Icons.share_rounded,
                         color: AppColors.primaryLight, size: 18),
                     label: const Text(
-                      'Bagikan E-Ticket / Ajak Nonton (PB-026C)',
+                      'Bagikan E-Ticket / Ajak Nonton',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,

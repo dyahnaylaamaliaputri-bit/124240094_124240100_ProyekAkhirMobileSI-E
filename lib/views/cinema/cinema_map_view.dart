@@ -666,7 +666,7 @@ class _CinemaMapViewState extends State<CinemaMapView> {
               ),
               const SizedBox(height: 4),
               const Text(
-                'Pilih kota Anda untuk menghitung bioskop terdekat secara offline tanpa GPS (PB-047).',
+                'Pilih kota Anda untuk mencari bioskop terdekat.',
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
               ),
               const SizedBox(height: 14),

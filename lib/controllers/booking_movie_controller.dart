@@ -38,6 +38,10 @@ class BookByMovieController extends GetxController {
   final Rx<CinemaModel?> selectedCinema = Rx<CinemaModel?>(null);
   final Rx<ShowtimeModel?> selectedShowtime = Rx<ShowtimeModel?>(null);
 
+  /// Filter kota pada halaman pesan tiket (default: Semua Kota agar bebas pilih dari kota mana saja)
+  final selectedCity = 'Semua Kota'.obs;
+  final availableCities = <String>['Semua Kota'].obs;
+
   final isLoading = false.obs;
   final isLoadingShowtimes = false.obs;
 
@@ -95,23 +99,39 @@ class BookByMovieController extends GetxController {
       selectedShowtime.value = null;
       selectedCinema.value = null;
 
-      // Ambil koordinat pengguna & filter kota saat ini jika CinemaController terdaftar
+      // Ambil koordinat pengguna & daftar semua kota dari CinemaController jika terdaftar
       double lat = -6.2000;
       double lng = 106.8167;
-      String? city;
       if (Get.isRegistered<CinemaController>()) {
         final cinemaCtrl = Get.find<CinemaController>();
         lat = cinemaCtrl.userLat.value;
         lng = cinemaCtrl.userLng.value;
-        city = cinemaCtrl.selectedCity.value;
+        availableCities.assignAll(cinemaCtrl.availableCities);
       }
 
-      // Ambil daftar bioskop yang menayangkan film ini
+      // Ambil semua bioskop dulu jika daftar kota masih kosong
+      if (availableCities.length <= 1) {
+        final allList = await _showtimeService.getCinemasForMovie(
+          movie.id,
+          userLat: lat,
+          userLng: lng,
+          city: 'Semua Kota',
+        );
+        final cities = allList
+            .map((c) => c.city)
+            .where((c) => c.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
+        availableCities.assignAll(['Semua Kota', ...cities]);
+      }
+
+      // Ambil daftar bioskop sesuai filter kota yang dipilih
       final list = await _showtimeService.getCinemasForMovie(
         movie.id,
         userLat: lat,
         userLng: lng,
-        city: city,
+        city: selectedCity.value,
       );
       cinemas.assignAll(list);
 
@@ -191,6 +211,12 @@ class BookByMovieController extends GetxController {
     final m = date.month.toString().padLeft(2, '0');
     final d = date.day.toString().padLeft(2, '0');
     return '$y-$m-$d';
+  }
+
+  /// Mengubah filter kota saat memesan tiket
+  Future<void> setCity(String city) async {
+    selectedCity.value = city;
+    await _loadCinemasAndShowtimes();
   }
 
   /// Apakah pengguna siap lanjut ke alur pemilihan kursi

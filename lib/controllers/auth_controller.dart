@@ -9,6 +9,7 @@ import '../repositories/auth_repository.dart';
 import '../services/biometric_service.dart';
 import '../services/storage_service.dart';
 import '../utils/constants.dart';
+import 'profile_controller.dart';
 
 class AuthController extends GetxController {
   final AuthRepository _repository;
@@ -88,12 +89,24 @@ class AuthController extends GetxController {
 
   // ── CHECK SESSION (PB-007) ────────────────────────────────────────────────
 
+  void _syncProfileAvatar() {
+    if (Get.isRegistered<ProfileController>()) {
+      final profileCtrl = Get.find<ProfileController>();
+      if (currentUser.value == null) {
+        profileCtrl.avatarPath.value = null;
+      } else {
+        profileCtrl.loadAvatar();
+      }
+    }
+  }
+
   Future<UserModel?> checkSession() async {
     isLoading.value = true;
     try {
       final user = await _repository.checkSession();
       if (user != null) {
         currentUser.value = user;
+        _syncProfileAvatar();
         return user;
       }
       return null;
@@ -160,6 +173,7 @@ class AuthController extends GetxController {
     try {
       final result = await _repository.login(email: email, password: password);
       currentUser.value = result.user;
+      _syncProfileAvatar();
       _resetLockout();
       return true;
     } catch (e) {
@@ -185,9 +199,11 @@ class AuthController extends GetxController {
     try {
       await _repository.logout();
       currentUser.value = null;
+      _syncProfileAvatar();
     } catch (_) {
       // Tetap logout lokal meskipun server gagal
       currentUser.value = null;
+      _syncProfileAvatar();
     } finally {
       isLoading.value = false;
     }

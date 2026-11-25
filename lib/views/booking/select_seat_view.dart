@@ -99,8 +99,12 @@ class SelectSeatView extends GetView<BookingSeatController> {
 
                     const SizedBox(height: 36),
 
-                    // Grid Kursi Multi-Studio
-                    _buildSeatsGrid(),
+                    // Grid Kursi Multi-Studio (dapat digeser ke kiri/kanan agar tidak overflow)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: _buildSeatsGrid(),
+                    ),
 
                     const SizedBox(height: 36),
 

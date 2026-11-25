@@ -34,7 +34,7 @@ class MovieService {
     int page = 1,
     bool forceRefresh = false,
   }) async {
-    const cacheKey = 'now_playing_public_v1';
+    const cacheKey = 'now_playing_public_v2';
 
     // 1. Cek cache Hive jika tidak dipaksa refresh
     if (!forceRefresh) {
@@ -50,11 +50,10 @@ class MovieService {
       }
     }
 
-    // 2. Fetch online dari Public API (https://api.tvmaze.com/shows?page=0) - Tanpa API Key!
+    // 2. Fetch online dari Public API TVmaze (schedule/web berisi rilisan terbaru 2024-2026, tanpa API Key)
     try {
       final response = await _http.get(
-        '$_publicApiUrl/shows',
-        queryParameters: {'page': page - 1},
+        '$_publicApiUrl/schedule/web',
         options: Options(
           receiveTimeout: const Duration(seconds: 10),
         ),
@@ -62,12 +61,21 @@ class MovieService {
 
       if (response.statusCode == 200 && response.data is List) {
         final List rawList = response.data as List;
-        final list = rawList
-            .whereType<Map<String, dynamic>>()
-            .map((e) => MovieModel.fromTvMazeJson(e))
-            .where((m) => m.posterUrl.isNotEmpty)
-            .toList()
-          ..sort((a, b) => b.voteAverage.compareTo(a.voteAverage));
+        final seenIds = <int>{};
+        final list = <MovieModel>[];
+        for (final item in rawList.whereType<Map<String, dynamic>>()) {
+          final showJson = (item['_embedded'] as Map<String, dynamic>?)?['show']
+                  as Map<String, dynamic>? ??
+              item['show'] as Map<String, dynamic>? ??
+              item;
+          final movie = MovieModel.fromTvMazeJson(showJson);
+          if (movie.id != 0 &&
+              movie.posterUrl.isNotEmpty &&
+              seenIds.add(movie.id)) {
+            list.add(movie);
+          }
+        }
+        list.sort((a, b) => b.voteAverage.compareTo(a.voteAverage));
 
         final topMovies = list.take(20).toList();
         if (topMovies.isNotEmpty) {
@@ -124,7 +132,7 @@ class MovieService {
     int page = 1,
     bool forceRefresh = false,
   }) async {
-    const cacheKey = 'upcoming_public_v1';
+    const cacheKey = 'upcoming_public_v2';
 
     // 1. Cek cache Hive jika tidak dipaksa refresh
     if (!forceRefresh) {
@@ -140,11 +148,11 @@ class MovieService {
       }
     }
 
-    // 2. Fetch online dari Public API (https://api.tvmaze.com/shows?page=1) - Tanpa API Key!
+    // 2. Fetch online dari Public API TVmaze (schedule US berisi rilisan terbaru 2024-2026, tanpa API Key)
     try {
       final response = await _http.get(
-        '$_publicApiUrl/shows',
-        queryParameters: {'page': page},
+        '$_publicApiUrl/schedule',
+        queryParameters: {'country': 'US'},
         options: Options(
           receiveTimeout: const Duration(seconds: 10),
         ),
@@ -152,12 +160,21 @@ class MovieService {
 
       if (response.statusCode == 200 && response.data is List) {
         final List rawList = response.data as List;
-        final list = rawList
-            .whereType<Map<String, dynamic>>()
-            .map((e) => MovieModel.fromTvMazeJson(e))
-            .where((m) => m.posterUrl.isNotEmpty)
-            .toList()
-          ..sort((a, b) => b.popularity.compareTo(a.popularity));
+        final seenIds = <int>{};
+        final list = <MovieModel>[];
+        for (final item in rawList.whereType<Map<String, dynamic>>()) {
+          final showJson = item['show'] as Map<String, dynamic>? ??
+              (item['_embedded'] as Map<String, dynamic>?)?['show']
+                  as Map<String, dynamic>? ??
+              item;
+          final movie = MovieModel.fromTvMazeJson(showJson);
+          if (movie.id != 0 &&
+              movie.posterUrl.isNotEmpty &&
+              seenIds.add(movie.id)) {
+            list.add(movie);
+          }
+        }
+        list.sort((a, b) => (b.releaseDate ?? '').compareTo(a.releaseDate ?? ''));
 
         final upcomingMovies = list.take(15).toList();
         if (upcomingMovies.isNotEmpty) {
@@ -207,7 +224,7 @@ class MovieService {
   Future<({List<MovieModel> movies, bool fromCache})> getBannerMovies({
     bool forceRefresh = false,
   }) async {
-    const cacheKey = 'banner_public_v1';
+    const cacheKey = 'banner_public_v2';
 
     if (!forceRefresh) {
       final cached = await _storage.getCachedMovies(cacheKey);

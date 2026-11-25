@@ -2,6 +2,7 @@
 // Halaman form edit profil pengguna: nama, nomor telepon & foto profil kamera/galeri (PB-061, PB-062)
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -62,9 +63,17 @@ class _EditProfileViewState extends State<EditProfileView> {
   @override
   void initState() {
     super.initState();
+    _profileCtrl.loadAvatar();
     final user = _authCtrl.currentUser.value;
-    _nameCtrl = TextEditingController(text: user?.fullName ?? '');
-    _phoneCtrl = TextEditingController(text: user?.phone ?? '081234567890');
+    final initialName = (user?.fullName.isNotEmpty == true)
+        ? user!.fullName
+        : (user?.email.split('@').first ?? '');
+    _nameCtrl = TextEditingController(text: initialName);
+    _phoneCtrl = TextEditingController(
+      text: (user?.phone != null && user!.phone!.isNotEmpty)
+          ? user.phone!
+          : '081234567890',
+    );
   }
 
   @override
@@ -87,7 +96,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Pilih Foto Profil (PB-061)',
+              'Pilih Foto Profil',
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 16,
@@ -141,13 +150,16 @@ class _EditProfileViewState extends State<EditProfileView> {
     final current = _authCtrl.currentUser.value;
     if (current != null) {
       final avatar = _profileCtrl.avatarPath.value ?? current.avatarUrl;
+      final effectiveName = _nameCtrl.text.trim().isNotEmpty
+          ? _nameCtrl.text.trim()
+          : current.fullName;
       final updated = current.copyWith(
-        fullName: _nameCtrl.text.trim(),
+        fullName: effectiveName,
         phone: _phoneCtrl.text.trim(),
         avatarUrl: avatar,
       );
       _authCtrl.currentUser.value = updated;
-      if (avatar != null) {
+      if (avatar != null && avatar.isNotEmpty) {
         StorageService().setAvatarPath(avatar, current.id);
       }
     }
@@ -201,8 +213,14 @@ class _EditProfileViewState extends State<EditProfileView> {
                       children: [
                         Obx(() {
                           final path = _profileCtrl.avatarPath.value;
-                          final hasCustomImage =
-                              path != null && File(path).existsSync();
+                          final isNetworkOrBlob = path != null &&
+                              (kIsWeb ||
+                                  path.startsWith('http') ||
+                                  path.startsWith('blob:') ||
+                                  path.startsWith('data:'));
+                          final hasCustomImage = path != null &&
+                              path.isNotEmpty &&
+                              (isNetworkOrBlob || File(path).existsSync());
 
                           if (hasCustomImage) {
                             return CircleAvatar(
@@ -210,7 +228,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                               backgroundColor: AppColors.gold,
                               child: CircleAvatar(
                                 radius: 45,
-                                backgroundImage: FileImage(File(path)),
+                                backgroundImage: isNetworkOrBlob
+                                    ? NetworkImage(path) as ImageProvider
+                                    : FileImage(File(path)),
                               ),
                             );
                           }
@@ -254,7 +274,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                       onPressed: _showImagePickerModal,
                       icon: const Icon(Icons.photo_camera_rounded, size: 14),
                       label: const Text(
-                        'Unggah Foto Profil (PB-061)',
+                        'Unggah Foto Profil',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -347,6 +367,10 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
+                    // Izinkan tetap simpan jika hanya ingin ganti foto dan nama awal sudah ada
+                    if (_authCtrl.currentUser.value?.fullName.isNotEmpty == true) {
+                      return null;
+                    }
                     return 'Nama tidak boleh kosong';
                   }
                   if (val.trim().length < 3) {

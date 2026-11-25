@@ -36,7 +36,7 @@ class PaymentView extends GetView<PaymentController> {
             ),
             SizedBox(height: 2),
             Text(
-              'Simulasi Pembayaran (PB-021)',
+              'Pilih Metode Pembayaran',
               style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
             ),
           ],
