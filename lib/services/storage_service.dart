@@ -244,27 +244,37 @@ class StorageService {
     _prefs.write('biometric_enabled', enabled);
   }
 
-  /// Path foto profil lokal pengguna (PB-061)
-  String? get avatarPath {
+  /// Path foto profil lokal pengguna (PB-061) - scoped per user ID
+  String? get avatarPath => getAvatarPath();
+
+  set avatarPath(String? path) => setAvatarPath(path);
+
+  String? getAvatarPath([String? userId]) {
+    final key = (userId != null && userId.isNotEmpty)
+        ? 'avatar_path_$userId'
+        : 'avatar_path';
     if (_isTestEnvironment) {
-      return _memoryFallback['avatar_path'] as String?;
+      return _memoryFallback[key] as String?;
     }
-    return _prefs.read<String>('avatar_path');
+    return _prefs.read<String>(key);
   }
 
-  set avatarPath(String? path) {
+  void setAvatarPath(String? path, [String? userId]) {
+    final key = (userId != null && userId.isNotEmpty)
+        ? 'avatar_path_$userId'
+        : 'avatar_path';
     if (_isTestEnvironment) {
       if (path == null) {
-        _memoryFallback.remove('avatar_path');
+        _memoryFallback.remove(key);
       } else {
-        _memoryFallback['avatar_path'] = path;
+        _memoryFallback[key] = path;
       }
       return;
     }
     if (path == null) {
-      _prefs.remove('avatar_path');
+      _prefs.remove(key);
     } else {
-      _prefs.write('avatar_path', path);
+      _prefs.write(key, path);
     }
   }
 
@@ -467,21 +477,31 @@ class StorageService {
   }
 
   // ================================================================
-  // HIVE — Cache data E-Ticket (PB-023, PB-024)
+  // HIVE — Cache data E-Ticket (PB-023, PB-024) - Terisolasi per User
   // ================================================================
 
-  /// Menyimpan daftar tiket bioskop ke Hive box 'tickets_cache'
-  Future<void> cacheTickets(List<Map<String, dynamic>> ticketsJson) async {
+  /// Menyimpan daftar tiket bioskop ke Hive box 'tickets_cache' per pengguna
+  Future<void> cacheTickets(List<Map<String, dynamic>> ticketsJson,
+      {String? userId}) async {
     final box = await _openBox(AppConstants.boxTickets);
-    await box.put('user_tickets', {
+    final key = (userId != null && userId.isNotEmpty)
+        ? 'user_tickets_$userId'
+        : 'user_tickets';
+    final payload = {
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'data': ticketsJson,
-    });
+    };
+    await box.put(key, payload);
+    if (key != 'user_tickets') {
+      await box.put('user_tickets', payload);
+    }
   }
 
-  /// Menambahkan satu tiket baru ke Hive box 'tickets_cache'
-  Future<void> addTicketToCache(Map<String, dynamic> ticketJson) async {
-    final current = await getCachedTickets() ?? [];
+  /// Menambahkan satu tiket baru ke Hive box 'tickets_cache' per pengguna
+  Future<void> addTicketToCache(Map<String, dynamic> ticketJson,
+      {String? userId}) async {
+    final effectiveUserId = userId ?? ticketJson['user_id']?.toString();
+    final current = await getCachedTickets(userId: effectiveUserId) ?? [];
     // Cek apakah tiket sudah ada (update atau tambahkan di awal list)
     final existingIndex =
         current.indexWhere((t) => t['id'] == ticketJson['id']);
@@ -490,20 +510,29 @@ class StorageService {
     } else {
       current.insert(0, ticketJson);
     }
-    await cacheTickets(current);
+    await cacheTickets(current, userId: effectiveUserId);
   }
 
-  /// Mengambil daftar tiket bioskop dari Hive box 'tickets_cache'
-  Future<List<Map<String, dynamic>>?> getCachedTickets() async {
-    final meta = await getCachedTicketsWithMeta();
+  /// Mengambil daftar tiket bioskop dari Hive box 'tickets_cache' per pengguna
+  Future<List<Map<String, dynamic>>?> getCachedTickets({String? userId}) async {
+    final meta = await getCachedTicketsWithMeta(userId: userId);
     return meta.data;
   }
 
-  /// Mengambil tiket beserta metadata timestamp cache (PB-024)
+  /// Mengambil tiket beserta metadata timestamp cache (PB-024) per pengguna
   Future<({List<Map<String, dynamic>>? data, DateTime? timestamp})>
-      getCachedTicketsWithMeta() async {
+      getCachedTicketsWithMeta({String? userId}) async {
     final box = await _openBox(AppConstants.boxTickets);
-    final cached = box.get('user_tickets');
+    final key = (userId != null && userId.isNotEmpty)
+        ? 'user_tickets_$userId'
+        : 'user_tickets';
+    var cached = box.get(key);
+
+    // Fallback: Jika key spesifik user belum ada, cek key legacy dan filter by userId
+    if (cached == null && userId != null && userId.isNotEmpty) {
+      cached = box.get('user_tickets');
+    }
+
     if (cached == null || cached is! Map) return (data: null, timestamp: null);
 
     final timestampMs = cached['timestamp'] as int? ?? 0;
@@ -511,8 +540,14 @@ class StorageService {
     final rawData = cached['data'];
     if (rawData is! List) return (data: null, timestamp: cachedTime);
 
-    final list =
+    var list =
         rawData.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
+    // Filter ketat agar akun lain tidak melihat tiket pengguna ini
+    if (userId != null && userId.isNotEmpty) {
+      list = list.where((t) => t['user_id']?.toString() == userId).toList();
+    }
+
     return (data: list, timestamp: cachedTime);
   }
 

@@ -333,7 +333,7 @@ class MovieService {
       title: 'Wicked',
       overview:
           'Kisah Elphaba, wanita muda berkulit hijau yang disalahpahami, dan Glinda, wanita populer penuh keistimewaan di Negeri Oz.',
-      posterPath: '/dfa6kK3yP1N99WfJ7eX85L5m89q.jpg',
+      posterPath: '/2E1mvQHytPvIq2sqTIIraDbu2vx.jpg',
       backdropPath: '/uKB22E5kyQE9wf4GEZe9oMcflvg.jpg',
       releaseDate: '2024-11-27',
       voteAverage: 7.7,
@@ -346,7 +346,7 @@ class MovieService {
       title: 'Moana 2',
       overview:
           'Moana menerima panggilan mendadak dari leluhurnya untuk berlayar ke perairan jauh Oseania dalam petualangan berbahaya.',
-      posterPath: '/4YZpsylmjHbqeWzjKpUEF8gcLUV.jpg',
+      posterPath: '/yh64qw9mgXBvlaWDi7Q9tpUBAvH.jpg',
       backdropPath: '/tElnmtQ6yz1PjN1kePNl8yMSb59.jpg',
       releaseDate: '2024-11-27',
       voteAverage: 7.8,

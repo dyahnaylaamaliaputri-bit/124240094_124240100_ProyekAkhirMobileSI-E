@@ -17,7 +17,9 @@ class EditProfileView extends StatefulWidget {
 }
 
 class _EditProfileViewState extends State<EditProfileView> {
-  final AuthController _authCtrl = Get.find<AuthController>();
+  final AuthController _authCtrl = Get.isRegistered<AuthController>()
+      ? Get.find<AuthController>()
+      : Get.put(AuthController());
   final ProfileController _profileCtrl = Get.isRegistered<ProfileController>()
       ? Get.find<ProfileController>()
       : Get.put(ProfileController());
@@ -137,12 +139,16 @@ class _EditProfileViewState extends State<EditProfileView> {
 
     final current = _authCtrl.currentUser.value;
     if (current != null) {
+      final avatar = _profileCtrl.avatarPath.value ?? current.avatarUrl;
       final updated = current.copyWith(
         fullName: _nameCtrl.text.trim(),
         phone: _phoneCtrl.text.trim(),
-        avatarUrl: _profileCtrl.avatarPath.value ?? current.avatarUrl,
+        avatarUrl: avatar,
       );
       _authCtrl.currentUser.value = updated;
+      if (avatar != null) {
+        StorageService().setAvatarPath(avatar, current.id);
+      }
     }
 
     Get.back();

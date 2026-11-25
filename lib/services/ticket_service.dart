@@ -86,9 +86,9 @@ class TicketService {
 
     // 1. Simpan ke Hive cache lokal (PB-023, PB-024)
     try {
-      await _storage.addTicketToCache(ticket.toJson());
+      await _storage.addTicketToCache(ticket.toJson(), userId: userId);
       debugPrint(
-          '[TicketService] Berhasil menyimpan tiket ${ticket.bookingCode} ke Hive cache.');
+          '[TicketService] Berhasil menyimpan tiket ${ticket.bookingCode} ke Hive cache user $userId.');
     } catch (e) {
       debugPrint('[TicketService] Hive caching error: $e');
     }
@@ -150,10 +150,13 @@ class TicketService {
     // 1. Periksa cache Hive terlebih dahulu jika tidak force refresh
     if (!forceRefresh) {
       try {
-        final cached = await _storage.getCachedTicketsWithMeta();
+        final cached = await _storage.getCachedTicketsWithMeta(userId: userId);
         if (cached.data != null && cached.data!.isNotEmpty) {
-          final list =
+          var list =
               cached.data!.map((e) => TicketModel.fromJson(e)).toList();
+          if (userId != null && userId.isNotEmpty) {
+            list = list.where((t) => t.userId == userId).toList();
+          }
           return (tickets: list, isOffline: true, cachedAt: cached.timestamp);
         }
       } catch (e) {
@@ -165,12 +168,17 @@ class TicketService {
     final client = _supabaseClient;
     if (client != null) {
       try {
-        final response = await client
+        var query = client
             .from('bookings')
-            .select('*, booking_seats(seat_label)')
-            .order('created_at', ascending: false);
+            .select('*, booking_seats(seat_label)');
+        if (userId != null && userId.isNotEmpty) {
+          query = query.eq('user_id', userId);
+        }
+        final response = await query.order('created_at', ascending: false);
 
         if (response.isNotEmpty) {
+          final todayStr =
+              DateTime.now().toIso8601String().substring(0, 10);
           final tickets = response.map((row) {
             final seatsList = (row['booking_seats'] as List<dynamic>?)
                     ?.map((s) => s['seat_label']?.toString() ?? '')
@@ -178,20 +186,24 @@ class TicketService {
                     .toList() ??
                 [];
 
+            final ticketUserId = row['user_id']?.toString() ?? '';
+
             return TicketModel(
               id: row['id']?.toString() ?? '',
               bookingCode: row['booking_code']?.toString() ?? 'CNM-00000',
-              userId: row['user_id']?.toString() ?? '',
+              userId: ticketUserId,
               showtimeId: row['showtime_id']?.toString() ?? '',
-              movieId: 1,
-              movieTitle: 'Bioskop Cinemate',
-              cinemaId: 'cin-1',
-              cinemaName: 'Metro Cinema Senayan',
-              cinemaAddress: 'Jakarta Selatan',
-              hallName: 'Studio 1',
-              experience: 'Regular 2D',
-              showDate: '2026-11-07',
-              showTime: '14:00',
+              movieId: row['movie_id'] as int? ?? 1,
+              movieTitle: row['movie_title']?.toString() ?? 'Film Bioskop',
+              cinemaId: row['cinema_id']?.toString() ?? 'cin-1',
+              cinemaName:
+                  row['cinema_name']?.toString() ?? 'Metro Cinema Senayan',
+              cinemaAddress:
+                  row['cinema_address']?.toString() ?? 'Jakarta Selatan',
+              hallName: row['hall_name']?.toString() ?? 'Studio 1',
+              experience: row['experience']?.toString() ?? 'Regular 2D',
+              showDate: row['show_date']?.toString() ?? todayStr,
+              showTime: row['show_time']?.toString() ?? '19:00',
               seats: seatsList,
               totalPrice: row['total_price'] as int? ?? 50000,
               qrData: row['qr_data']?.toString() ?? '',
@@ -202,8 +214,11 @@ class TicketService {
             );
           }).toList();
 
-          // Simpan ke Hive cache
-          await _storage.cacheTickets(tickets.map((t) => t.toJson()).toList());
+          // Simpan ke Hive cache khusus user ini
+          await _storage.cacheTickets(
+            tickets.map((t) => t.toJson()).toList(),
+            userId: userId,
+          );
           return (tickets: tickets, isOffline: false, cachedAt: DateTime.now());
         }
       } catch (e) {
@@ -213,9 +228,12 @@ class TicketService {
 
     // 3. Fallback cache Hive saat koneksi internet / server bermasalah
     try {
-      final cached = await _storage.getCachedTicketsWithMeta();
+      final cached = await _storage.getCachedTicketsWithMeta(userId: userId);
       if (cached.data != null && cached.data!.isNotEmpty) {
-        final list = cached.data!.map((e) => TicketModel.fromJson(e)).toList();
+        var list = cached.data!.map((e) => TicketModel.fromJson(e)).toList();
+        if (userId != null && userId.isNotEmpty) {
+          list = list.where((t) => t.userId == userId).toList();
+        }
         return (tickets: list, isOffline: true, cachedAt: cached.timestamp);
       }
     } catch (e) {

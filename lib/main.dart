@@ -14,6 +14,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'services/supabase_service.dart';
+import 'services/notification_service.dart';
 import 'app.dart';
 
 Future<void> main() async {
@@ -21,7 +22,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 2. Load variabel lingkungan dari assets/.env (PB-003, R-07)
-  await dotenv.load(fileName: 'assets/.env');
+  try {
+    await dotenv.load(fileName: 'assets/.env');
+  } catch (e) {
+    debugPrint('.env load info: $e');
+  }
 
   // 3. Inisialisasi GetStorage (PB-004)
   await GetStorage.init();
@@ -29,7 +34,14 @@ Future<void> main() async {
   // 4. Inisialisasi Hive (PB-004, referensi modul 6)
   await Hive.initFlutter();
 
-  // 5. Inisialisasi Supabase (PB-002)
+  // 5. Inisialisasi Notifikasi Lokal & Pengingat (Modul VII)
+  try {
+    await NotificationService.instance.initialize();
+  } catch (e) {
+    debugPrint('Notification init warning: $e');
+  }
+
+  // 6. Inisialisasi Supabase (PB-002)
   try {
     await SupabaseService.initialize();
   } catch (e) {

@@ -23,9 +23,21 @@ class ShowtimeService {
     int movieId, {
     double userLat = -6.2000,
     double userLng = 106.8167,
+    String? city,
   }) async {
     final all = await _cinemaService.getAllCinemas();
-    final listWithDistance = all.cinemas.map((c) {
+    var cinemaList = all.cinemas;
+
+    if (city != null && city != 'Semua Kota' && city.isNotEmpty) {
+      final filtered = cinemaList
+          .where((c) => c.city.toLowerCase() == city.toLowerCase())
+          .toList();
+      if (filtered.isNotEmpty) {
+        cinemaList = filtered;
+      }
+    }
+
+    final listWithDistance = cinemaList.map((c) {
       final dist = c.calculateDistanceFrom(userLat, userLng);
       return c.copyWith(distanceKm: dist);
     }).toList();

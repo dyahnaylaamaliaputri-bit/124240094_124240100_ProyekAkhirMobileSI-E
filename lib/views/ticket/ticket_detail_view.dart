@@ -44,19 +44,9 @@ class TicketDetailView extends GetView<TicketDetailController> {
           ],
         ),
         actions: [
-          Obx(() {
-            final isTicketActive = controller.ticket.value.isTicketActive;
-            if (!isTicketActive) return const SizedBox.shrink();
-            return IconButton(
-              icon: const Icon(Icons.sensor_occupied_rounded,
-                  color: AppColors.gold),
-              tooltip: 'Simulasi Check-in Studio (PB-025)',
-              onPressed: () => _showCheckInDialog(context),
-            );
-          }),
           IconButton(
             icon: const Icon(Icons.share_rounded, color: Colors.white70),
-            tooltip: 'Bagikan Tiket (PB-026C)',
+            tooltip: 'Bagikan Tiket',
             onPressed: controller.shareTicket,
           ),
         ],
@@ -262,50 +252,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  /// Dialog Konfirmasi Simulasi Check-in
-  void _showCheckInDialog(BuildContext context) {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: AppColors.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.qr_code_scanner_rounded, color: AppColors.gold),
-            SizedBox(width: 10),
-            Text('Simulasi Check-in',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: Text(
-          'Tandai tiket ${controller.ticket.value.bookingCode} telah dipindai di pintu studio? Tiket akan otomatis dipindahkan ke tab Riwayat (PB-025).',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Batal', style: TextStyle(color: Colors.white70)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () {
-              Get.back();
-              controller.simulateCheckIn();
-            },
-            child: const Text('Pindai & Masuk'),
-          ),
-        ],
       ),
     );
   }

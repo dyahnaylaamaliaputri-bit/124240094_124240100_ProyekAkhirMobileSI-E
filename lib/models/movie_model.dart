@@ -78,6 +78,68 @@ class MovieModel {
     return names.isNotEmpty ? names.join(' • ') : 'Bioskop';
   }
 
+  /// Batasan usia penonton bioskop
+  String get ageRating {
+    if (genreIds.contains(27)) return '17+ (Dewasa)';
+    if (genreIds.contains(10751) || genreIds.contains(16)) return 'SU (Semua Umur)';
+    return '13+ (Remaja)';
+  }
+
+  /// Sutradara film
+  String get director {
+    switch (id) {
+      case 693134:
+        return 'Denis Villeneuve';
+      case 533535:
+        return 'Shawn Levy';
+      case 1022789:
+        return 'Kelsey Mann';
+      case 519182:
+        return 'Chris Renaud';
+      case 573435:
+        return 'Adil & Bilall';
+      case 558449:
+        return 'Ridley Scott';
+      case 402431:
+        return 'Jon M. Chu';
+      case 1241982:
+        return 'David G. Derrick Jr.';
+      case 933260:
+        return 'Coralie Fargeat';
+      default:
+        return 'Cinemate International Studio';
+    }
+  }
+
+  /// Daftar aktor / pemain utama film
+  List<String> get cast {
+    switch (id) {
+      case 693134:
+        return ['Timothée Chalamet', 'Zendaya', 'Rebecca Ferguson', 'Javier Bardem'];
+      case 533535:
+        return ['Ryan Reynolds', 'Hugh Jackman', 'Emma Corrin', 'Matthew Macfadyen'];
+      case 1022789:
+        return ['Amy Poehler', 'Maya Hawke', 'Kensington Tallman', 'Liza Lapira'];
+      case 519182:
+        return ['Steve Carell', 'Kristen Wiig', 'Will Ferrell', 'Sofia Vergara'];
+      case 573435:
+        return ['Will Smith', 'Martin Lawrence', 'Vanessa Hudgens', 'Alexander Ludwig'];
+      case 558449:
+        return ['Paul Mescal', 'Pedro Pascal', 'Denzel Washington', 'Connie Nielsen'];
+      case 402431:
+        return ['Cynthia Erivo', 'Ariana Grande', 'Jonathan Bailey', 'Jeff Goldblum'];
+      case 1241982:
+        return ["Auli'i Cravalho", 'Dwayne Johnson', 'Alan Tudyk', 'Rachel House'];
+      case 933260:
+        return ['Demi Moore', 'Margaret Qualley', 'Dennis Quaid', 'Hugo Diego Garcia'];
+      default:
+        return ['Pemeran Utama', 'Aktor Pendukung', 'Bintang Tamu'];
+    }
+  }
+
+  /// Format studio bioskop yang tersedia
+  List<String> get availableFormats => const ['2D', '3D', 'IMAX', 'Premiere'];
+
   factory MovieModel.fromJson(Map<String, dynamic> json) {
     return MovieModel(
       id: json['id'] as int? ?? 0,

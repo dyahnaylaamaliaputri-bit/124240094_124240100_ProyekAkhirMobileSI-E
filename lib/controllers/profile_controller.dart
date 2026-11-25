@@ -57,6 +57,24 @@ class ProfileController extends GetxController {
         _fnbService = fnbService ?? FnbService(),
         _imagePicker = imagePicker ?? ImagePicker();
 
+  String? get _currentUserId {
+    if (Get.isRegistered<AuthController>()) {
+      return Get.find<AuthController>().currentUser.value?.id;
+    }
+    return null;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadAvatar();
+  }
+
+  void loadAvatar() {
+    final userId = _currentUserId;
+    avatarPath.value = _storage.getAvatarPath(userId);
+  }
+
   // =========================================================================
   // 1. PB-061: UNGGAH FOTO PROFIL (KAMERA / GALERI / PRESET FALLBACK)
   // =========================================================================
@@ -78,7 +96,8 @@ class ProfileController extends GetxController {
 
       final path = pickedFile.path;
       avatarPath.value = path;
-      _storage.avatarPath = path;
+      final userId = _currentUserId;
+      _storage.setAvatarPath(path, userId);
 
       // Update di AuthController jika terdaftar
       if (Get.isRegistered<AuthController>()) {
@@ -99,7 +118,8 @@ class ProfileController extends GetxController {
   /// Menghapus foto profil kustom dan kembali ke avatar bawaan
   Future<void> removeCustomAvatar() async {
     avatarPath.value = null;
-    _storage.avatarPath = null;
+    final userId = _currentUserId;
+    _storage.setAvatarPath(null, userId);
     if (Get.isRegistered<AuthController>()) {
       final authCtrl = Get.find<AuthController>();
       final current = authCtrl.currentUser.value;

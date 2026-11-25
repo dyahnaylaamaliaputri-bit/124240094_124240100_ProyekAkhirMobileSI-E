@@ -67,20 +67,16 @@ class TicketsController extends GetxController {
     final now = DateTime.now();
     final toExpire = <TicketModel>[];
 
-    // Cek tiket aktif yang jadwal tayangnya telah lewat
+    // Cek tiket aktif yang jadwal tayangnya telah lewat (lebih dari 24 jam)
     for (final ticket in List<TicketModel>.from(activeTickets)) {
-      final sdt = ticket.showDateTime;
-      final isPassed = ticket.isShowPassed || (sdt != null && now.isAfter(sdt));
-      if (isPassed && ticket.isActive) {
+      if (ticket.isShowPassed && ticket.isActive) {
         toExpire.add(ticket);
       }
     }
 
     // Cek juga tiket di riwayat yang statusnya masih 'paid'/'active' tapi jadwalnya telah lewat
     for (final ticket in List<TicketModel>.from(historyTickets)) {
-      final sdt = ticket.showDateTime;
-      final isPassed = ticket.isShowPassed || (sdt != null && now.isAfter(sdt));
-      if (isPassed && ticket.isActive) {
+      if (ticket.isShowPassed && ticket.isActive) {
         toExpire.add(ticket);
       }
     }

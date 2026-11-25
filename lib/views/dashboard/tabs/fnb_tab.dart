@@ -223,93 +223,6 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
       onRefresh: () => fnbCtrl.fetchFnbCatalog(forceRefresh: true),
       child: Column(
         children: [
-          // Banner Offline-First Hive Cache (PB-026)
-          Obx(() {
-            final cached = fnbCtrl.lastCacheTime.value;
-            final timeStr = cached != null
-                ? '${cached.hour.toString().padLeft(2, '0')}:${cached.minute.toString().padLeft(2, '0')} WIB'
-                : 'Tersimpan';
-
-            return Container(
-              margin: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1F1C12),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: AppColors.gold.withValues(alpha: 0.4), width: 1),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.gold.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.offline_bolt_rounded,
-                      color: AppColors.gold,
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Text(
-                              'Katalog F&B Offline-First',
-                              style: TextStyle(
-                                color: AppColors.gold,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                'Hive Local Cache',
-                                style: TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${fnbCtrl.items.length} menu tersimpan di Hive ($timeStr). Tanpa koneksi database online.',
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh_rounded,
-                        color: AppColors.gold, size: 18),
-                    tooltip: 'Segarkan Cache Hive',
-                    onPressed: () =>
-                        fnbCtrl.fetchFnbCatalog(forceRefresh: true),
-                  ),
-                ],
-              ),
-            );
-          }),
-
           // Search & Filter Bar
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
@@ -490,24 +403,22 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon / Foto Kategori
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
+            // Foto Makanan & Minuman / Icon Kategori
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 72,
+                height: 72,
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                item.category == 'drink'
-                    ? Icons.local_drink_rounded
-                    : item.category == 'combo'
-                        ? Icons.fastfood_rounded
-                        : item.category == 'food'
-                            ? Icons.dinner_dining_rounded
-                            : Icons.lunch_dining_rounded,
-                color: AppColors.gold,
-                size: 32,
+                child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+                    ? Image.network(
+                        item.imageUrl!,
+                        width: 72,
+                        height: 72,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _buildCategoryIcon(item),
+                      )
+                    : _buildCategoryIcon(item),
               ),
             ),
             const SizedBox(width: 12),
@@ -787,5 +698,21 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
         ),
       );
     });
+  }
+
+  Widget _buildCategoryIcon(FnbItemModel item) {
+    return Center(
+      child: Icon(
+        item.category == 'drink'
+            ? Icons.local_drink_rounded
+            : item.category == 'combo'
+                ? Icons.fastfood_rounded
+                : item.category == 'food'
+                    ? Icons.dinner_dining_rounded
+                    : Icons.lunch_dining_rounded,
+        color: AppColors.gold,
+        size: 32,
+      ),
+    );
   }
 }

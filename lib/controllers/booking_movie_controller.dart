@@ -95,13 +95,15 @@ class BookByMovieController extends GetxController {
       selectedShowtime.value = null;
       selectedCinema.value = null;
 
-      // Ambil koordinat pengguna saat ini jika CinemaController terdaftar
+      // Ambil koordinat pengguna & filter kota saat ini jika CinemaController terdaftar
       double lat = -6.2000;
       double lng = 106.8167;
+      String? city;
       if (Get.isRegistered<CinemaController>()) {
         final cinemaCtrl = Get.find<CinemaController>();
         lat = cinemaCtrl.userLat.value;
         lng = cinemaCtrl.userLng.value;
+        city = cinemaCtrl.selectedCity.value;
       }
 
       // Ambil daftar bioskop yang menayangkan film ini
@@ -109,6 +111,7 @@ class BookByMovieController extends GetxController {
         movie.id,
         userLat: lat,
         userLng: lng,
+        city: city,
       );
       cinemas.assignAll(list);
 

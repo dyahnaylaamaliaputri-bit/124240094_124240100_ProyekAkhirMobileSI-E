@@ -14,6 +14,7 @@
 // OFFLINE MODE: Jika Supabase tidak dapat dihubungi (paused/offline),
 //   auth akan jatuh ke penyimpanan lokal (GetStorage) secara transparan.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
@@ -46,17 +47,19 @@ class AuthService {
   // Helper: cek apakah error terkait koneksi (Supabase paused/offline)
   // ================================================================
   bool _isConnectionError(Object e) {
+    if (e is TimeoutException || e is SocketException) return true;
     final msg = e.toString().toLowerCase();
-    return e is SocketException ||
-        msg.contains('socket') ||
+    return msg.contains('socket') ||
         msg.contains('failed host lookup') ||
         msg.contains('clientexception') ||
         msg.contains('connection refused') ||
         msg.contains('network') ||
         msg.contains('host lookup') ||
         msg.contains('timeout') ||
+        msg.contains('timed out') ||
         msg.contains('no address associated') ||
         msg.contains('os error') ||
+        msg.contains('handshake') ||
         msg.contains('does not exist') ||
         msg.contains('42p01') ||
         msg.contains('relation');
@@ -98,12 +101,13 @@ class AuthService {
     required String password,
   }) async {
     try {
-      // Cek duplikat email di Supabase
+      // Cek duplikat email di Supabase (timeout 3 detik agar responsif)
       final existing = await _db
           .from('users')
           .select('id')
           .eq('email', email.toLowerCase().trim())
-          .maybeSingle();
+          .maybeSingle()
+          .timeout(const Duration(seconds: 3));
 
       if (existing != null) {
         throw Exception('Email sudah terdaftar. Silakan gunakan email lain.');
@@ -122,7 +126,8 @@ class AuthService {
             'full_name': fullName.trim(),
           })
           .select()
-          .single();
+          .single()
+          .timeout(const Duration(seconds: 3));
 
       return UserModel.fromMap(row);
     } catch (e) {
@@ -192,12 +197,13 @@ class AuthService {
     required String password,
   }) async {
     try {
-      // Ambil user by email dari Supabase
+      // Ambil user by email dari Supabase (timeout 3 detik)
       final row = await _db
           .from('users')
           .select()
           .eq('email', email.toLowerCase().trim())
-          .maybeSingle();
+          .maybeSingle()
+          .timeout(const Duration(seconds: 3));
 
       if (row == null) {
         throw Exception('Email atau password salah.');
@@ -218,12 +224,12 @@ class AuthService {
           .toUtc()
           .add(const Duration(days: AppConstants.sessionDurationDays));
 
-      // Simpan session ke Supabase
+      // Simpan session ke Supabase (timeout 3 detik)
       await _db.from('sessions').insert({
         'user_id': user.id,
         'token_hash': tokenHash,
         'expires_at': expiresAt.toIso8601String(),
-      });
+      }).timeout(const Duration(seconds: 3));
 
       // Simpan token & user info ke secure storage
       await _storage.saveSessionToken(rawToken);
@@ -362,12 +368,13 @@ class AuthService {
     try {
       final tokenHash = _hashToken(rawToken);
 
-      // Validasi ke tabel sessions
+      // Validasi ke tabel sessions (timeout 3 detik)
       final sessionRow = await _db
           .from('sessions')
           .select()
           .eq('token_hash', tokenHash)
-          .maybeSingle();
+          .maybeSingle()
+          .timeout(const Duration(seconds: 3));
 
       if (sessionRow == null) {
         await _storage.clearSession();
@@ -390,8 +397,12 @@ class AuthService {
         return null;
       }
 
-      final userRow =
-          await _db.from('users').select().eq('id', userId).maybeSingle();
+      final userRow = await _db
+          .from('users')
+          .select()
+          .eq('id', userId)
+          .maybeSingle()
+          .timeout(const Duration(seconds: 3));
 
       if (userRow == null) {
         await _storage.clearSession();

@@ -22,9 +22,9 @@ class HttpService {
   bool _isInitialized = false;
   final _storage = StorageService();
 
-  static const int _defaultTimeout = 15;
-  static const int _llmTimeout = 30;
-  static const int _maxRetries = 2;
+  static const int _defaultTimeout = 3;
+  static const int _llmTimeout = 10;
+  static const int _maxRetries = 1;
 
   void initialize() {
     if (_isInitialized) return;

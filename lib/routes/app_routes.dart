@@ -24,11 +24,4 @@ abstract class Routes {
   static const cinemaMap = '/cinema-map';
   static const editProfile = '/edit-profile';
   static const search = '/search';
-  static const myCinemate = '/my-cinemate';
-  static const settings = '/settings';
-  static const changePassword = '/change-password';
-  static const splitBill = '/split-bill';
-  static const voucherCatalog = '/voucher-catalog';
-  static const cinemaRewind = '/cinema-rewind';
-  static const inTheaterMode = '/in-theater-mode';
 }

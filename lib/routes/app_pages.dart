@@ -21,14 +21,7 @@ import '../views/fnb/fnb_checkout_view.dart';
 import '../views/fnb/fnb_order_detail_view.dart';
 import '../views/cinema/cinema_map_view.dart';
 import '../views/profile/edit_profile_view.dart';
-import '../views/profile/my_cinemate_view.dart';
-import '../views/profile/settings_view.dart';
 import '../views/search/search_view.dart';
-import '../views/auth/change_password_view.dart';
-import '../views/booking/split_bill_view.dart';
-import '../views/profile/voucher_catalog_view.dart';
-import '../views/profile/cinema_rewind_view.dart';
-import '../views/ticket/in_theater_mode_view.dart';
 import '../bindings/profile_binding.dart';
 import '../bindings/search_binding.dart';
 import 'app_routes.dart';
@@ -108,49 +101,12 @@ class AppPages {
     GetPage(
       name: Routes.editProfile,
       page: () => const EditProfileView(),
+      binding: AuthBinding(),
     ),
     GetPage(
       name: Routes.search,
       page: () => const SearchView(),
       binding: SearchBinding(),
-    ),
-    GetPage(
-      name: Routes.myCinemate,
-      page: () => const MyCinemateView(),
-      binding: ProfileBinding(),
-    ),
-    GetPage(
-      name: Routes.settings,
-      page: () => const SettingsView(),
-      binding: ProfileBinding(),
-    ),
-    GetPage(
-      name: Routes.changePassword,
-      page: () => const ChangePasswordView(),
-    ),
-    GetPage(
-      name: Routes.splitBill,
-      page: () => const SplitBillView(),
-    ),
-    GetPage(
-      name: Routes.voucherCatalog,
-      page: () => const VoucherCatalogView(),
-      binding: ProfileBinding(),
-    ),
-    GetPage(
-      name: Routes.cinemaRewind,
-      page: () => const CinemaRewindView(),
-      binding: ProfileBinding(),
-    ),
-    GetPage(
-      name: Routes.inTheaterMode,
-      page: () => const InTheaterModeView(
-        movieTitle: 'Film Bioskop',
-        cinemaName: 'CGV Cinema',
-        hallName: 'Studio 1',
-        seats: ['A1', 'A2'],
-        showTime: '19:00',
-      ),
     ),
   ];
 }

@@ -1,17 +1,14 @@
 // lib/views/dashboard/tabs/profile_tab.dart
-// Tab Profil: Informasi pengguna, Edit Profil, My Cinemate & Selector Preferensi (PB-011, PB-048, PB-049, PB-050, PB-058, PB-061, PB-063, PB-064)
+// Tab Profil Pengguna yang Disederhanakan Sesuai Modul II - VIII
+// Menampilkan data yang diinput saat registrasi, avatar per akun, edit profil, dan tombol keluar.
 
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter/services.dart';
 import '../../../controllers/auth_controller.dart';
-import '../../../controllers/preference_controller.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/notification_service.dart';
+import '../../../services/storage_service.dart';
 import '../../../utils/app_colors.dart';
-import '../../../utils/currency_helper.dart';
-import '../../../utils/timezone_helper.dart';
 
 class ProfileTab extends StatelessWidget {
   final VoidCallback onLogoutRequested;
@@ -23,8 +20,10 @@ class ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authCtrl = Get.find<AuthController>();
-    final prefCtrl = Get.find<PreferenceController>();
+    final authCtrl = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>()
+        : Get.put(AuthController());
+    final storage = StorageService();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -44,791 +43,363 @@ class ProfileTab extends StatelessWidget {
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          children: [
-            // 1. KARTU PROFIL USER & TOMBOL EDIT PROFIL (PB-062)
-            Obx(() {
-              final user = authCtrl.currentUser.value;
-              final name = user?.fullName.isNotEmpty == true
-                  ? user!.fullName
-                  : 'Pengguna Cinemate';
-              final email = user?.email ?? '-';
-              final phone = user?.phone ?? '081234567890';
+        child: Obx(() {
+          final user = authCtrl.currentUser.value;
+          final name = user?.fullName.isNotEmpty == true
+              ? user!.fullName
+              : 'Pengguna Cinemate';
+          final email = user?.email ?? '-';
+          final phone = (user?.phone != null && user!.phone!.isNotEmpty)
+              ? user.phone!
+              : '081234567890';
+          final userId = user?.id ?? '-';
 
-              return Container(
+          // Format tanggal bergabung
+          String joinedDate = '24 November 2026';
+          if (user?.createdAt != null) {
+            final dt = user!.createdAt;
+            final months = [
+              '',
+              'Januari',
+              'Februari',
+              'Maret',
+              'April',
+              'Mei',
+              'Juni',
+              'Juli',
+              'Agustus',
+              'September',
+              'Oktober',
+              'November',
+              'Desember'
+            ];
+            joinedDate = '${dt.day} ${months[dt.month]} ${dt.year}';
+          }
+
+          // Cek avatar lokal khusus user ID aktif
+          final localAvatarPath = storage.getAvatarPath(user?.id);
+          final effectiveAvatar = localAvatarPath ?? user?.avatarUrl;
+          final hasAvatarImage = effectiveAvatar != null &&
+              effectiveAvatar.isNotEmpty &&
+              File(effectiveAvatar).existsSync();
+
+          return Column(
+            children: [
+              // ── 1. HEADER AVATAR & NAMA PENGGUNA ──────────────────────────
+              Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: AppColors.cardGradient,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: AppColors.border),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 10,
+                      color: Colors.black.withValues(alpha: 0.35),
+                      blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: Column(
                   children: [
-                    Row(
+                    Stack(
+                      alignment: Alignment.bottomRight,
                       children: [
                         CircleAvatar(
-                          radius: 30,
+                          radius: 44,
                           backgroundColor: AppColors.primary,
-                          backgroundImage: user?.avatarUrl != null &&
-                                  File(user!.avatarUrl!).existsSync()
-                              ? FileImage(File(user.avatarUrl!))
+                          backgroundImage: hasAvatarImage
+                              ? FileImage(File(effectiveAvatar))
                               : null,
-                          child: user?.avatarUrl != null &&
-                                  File(user!.avatarUrl!).existsSync()
+                          child: hasAvatarImage
                               ? null
                               : Text(
                                   name.isNotEmpty ? name[0].toUpperCase() : 'U',
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 24,
+                                    fontSize: 36,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: const TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                email,
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                phone,
-                                style: const TextStyle(
-                                  color: AppColors.gold,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.gold,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: AppColors.card, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.check,
+                            color: Colors.black,
+                            size: 14,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 14),
-                    const Divider(color: AppColors.divider, height: 1),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.verified_user_rounded,
-                                  color: AppColors.gold, size: 14),
-                              SizedBox(width: 4),
-                              Text(
-                                'Member Aktif',
-                                style: TextStyle(
-                                  color: AppColors.gold,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => Get.toNamed(Routes.editProfile),
-                          icon: const Icon(Icons.edit_outlined, size: 14),
-                          label: const Text(
-                            'Edit Profil',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primaryLight,
-                            side:
-                                const BorderSide(color: AppColors.primaryLight),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }),
-
-            const SizedBox(height: 16),
-
-            // 1B. BANNER DASHBOARD "MY CINEMATE" (PB-064)
-            InkWell(
-              onTap: () => Get.toNamed(Routes.myCinemate),
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2A1B4E), Color(0xFF16213E)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  border:
-                      Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.gold.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
+                    Text(
+                      name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                      child: const Icon(Icons.stars_rounded,
-                          color: AppColors.gold, size: 26),
                     ),
-                    const SizedBox(width: 14),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 4),
+                    Text(
+                      email,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                            color: AppColors.gold.withValues(alpha: 0.4)),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
+                          Icon(Icons.verified_rounded,
+                              color: AppColors.gold, size: 14),
+                          SizedBox(width: 5),
                           Text(
-                            'My Cinemate Dashboard',
+                            'Akun Terverifikasi',
                             style: TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Statistik tontonan, badge loyalitas & preferensi genre (PB-064)',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
+                              color: AppColors.gold,
                               fontSize: 11,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios_rounded,
-                        color: AppColors.gold, size: 16),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // 2. KARTU PREVIEW CONVERTED RATES & TIME (PB-048, PB-049)
-            Obx(() {
-              final curr = prefCtrl.selectedCurrency.value;
-              final tz = prefCtrl.selectedTimezone.value;
-              final samplePrice = prefCtrl.formatPrice(50000);
-              final sampleTime = prefCtrl.formatShowtime('19:30');
-
-              return Container(
+              // ── 2. CARD DATA PENDAFTARAN PENGGUNA ─────────────────────────
+              Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border:
-                      Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.language_rounded,
-                            color: AppColors.gold, size: 18),
-                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.badge_outlined,
+                            color: AppColors.primary,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
                         const Text(
-                          'PREVIEW KONVERSI AKTIF',
+                          'DATA AKUN SAYA',
                           style: TextStyle(
-                            color: AppColors.gold,
-                            fontSize: 11,
+                            color: AppColors.textPrimary,
                             fontWeight: FontWeight.bold,
+                            fontSize: 14,
                             letterSpacing: 0.8,
                           ),
                         ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.card,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '$curr â€¢ $tz',
-                            style: const TextStyle(
-                              color: AppColors.primaryLight,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Simulasi Tiket Rp 50.000:',
-                                style: TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 11,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                samplePrice,
-                                style: const TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Jadwal 19:30 WIB:',
-                                style: TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 11,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                sampleTime,
-                                style: const TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 16),
+                    const Divider(color: AppColors.divider, height: 1),
+                    const SizedBox(height: 12),
+
+                    _buildInfoRow(
+                      icon: Icons.person_outline_rounded,
+                      label: 'Nama Lengkap',
+                      value: name,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sumber Kurs: ${CurrencyHelper.rateSource}',
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 10,
-                      ),
+                    const SizedBox(height: 12),
+
+                    _buildInfoRow(
+                      icon: Icons.email_outlined,
+                      label: 'Email Terdaftar',
+                      value: email,
+                    ),
+                    const SizedBox(height: 12),
+
+                    _buildInfoRow(
+                      icon: Icons.phone_outlined,
+                      label: 'Nomor Telepon',
+                      value: phone,
+                    ),
+                    const SizedBox(height: 12),
+
+                    _buildInfoRow(
+                      icon: Icons.fingerprint_rounded,
+                      label: 'ID Pengguna',
+                      value: userId.length > 20
+                          ? '${userId.substring(0, 18)}...'
+                          : userId,
+                    ),
+                    const SizedBox(height: 12),
+
+                    _buildInfoRow(
+                      icon: Icons.calendar_today_rounded,
+                      label: 'Member Sejak',
+                      value: joinedDate,
                     ),
                   ],
                 ),
-              );
-            }),
-
-            const SizedBox(height: 20),
-
-            // 3. PENGATURAN PREFERENSI (MATA UANG & ZONA WAKTU) (PB-050)
-            _buildSectionHeader('Preferensi Wisatawan & Format'),
-            const SizedBox(height: 8),
-            _buildSettingsCard([
-              Obx(() {
-                final curr = prefCtrl.selectedCurrency.value;
-                final info = CurrencyHelper.getInfo(curr);
-                return _buildInteractiveSettingTile(
-                  icon: Icons.monetization_on_outlined,
-                  title: 'Mata Uang',
-                  subtitle:
-                      '${info.flag} ${info.code} (${info.symbol}) - ${info.name}',
-                  onTap: () => _showCurrencyPicker(context, prefCtrl),
-                );
-              }),
-              const Divider(color: AppColors.divider, height: 1),
-              Obx(() {
-                final tz = prefCtrl.selectedTimezone.value;
-                final info = TimezoneHelper.getInfo(tz);
-                return _buildInteractiveSettingTile(
-                  icon: Icons.access_time_rounded,
-                  title: 'Zona Waktu Jadwal Tayang',
-                  subtitle: '${info.code} - ${info.name}',
-                  onTap: () => _showTimezonePicker(context, prefCtrl),
-                );
-              }),
-              const Divider(color: AppColors.divider, height: 1),
-              _buildInteractiveSettingTile(
-                icon: Icons.lock_reset_rounded,
-                title: 'Ubah Kata Sandi',
-                subtitle:
-                    'Perbarui kata sandi akun dengan enkripsi SHA-256 (PB-010)',
-                onTap: () => Get.toNamed(Routes.changePassword),
               ),
-              const Divider(color: AppColors.divider, height: 1),
-              _buildInteractiveSettingTile(
-                icon: Icons.tune_rounded,
-                title: 'Pengaturan Aplikasi Lanjutan',
-                subtitle: 'Tema aplikasi, biometrik & manajemen data (PB-063)',
-                onTap: () => Get.toNamed(Routes.settings),
-              ),
-            ]),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-            // 4. PREFERENSI NOTIFIKASI & PENGINGAT (PB-058)
-            _buildSectionHeader('Preferensi Notifikasi & Pengingat (PB-058)'),
-            const SizedBox(height: 8),
-            _buildSettingsCard([
-              Obx(() => _buildSwitchTile(
-                    icon: Icons.confirmation_number_outlined,
-                    title: 'Konfirmasi Pemesanan Tiket & F&B',
-                    subtitle:
-                        'Notifikasi instan saat checkout berhasil (PB-056)',
-                    value: prefCtrl.notifBooking.value,
-                    onChanged: (val) => prefCtrl.setNotifBooking(val),
-                  )),
-              const Divider(color: AppColors.divider, height: 1),
-              Obx(() => _buildSwitchTile(
-                    icon: Icons.alarm_rounded,
-                    title: 'Pengingat Jadwal Tayang',
-                    subtitle: 'Alarm otomatis H-2 jam & H-30 menit (PB-057)',
-                    value: prefCtrl.notifReminder.value,
-                    onChanged: (val) => prefCtrl.setNotifReminder(val),
-                  )),
-              const Divider(color: AppColors.divider, height: 1),
-              Obx(() => _buildSwitchTile(
-                    icon: Icons.fastfood_outlined,
-                    title: 'Status Pesanan F&B Siap Diambil',
-                    subtitle:
-                        'Pemberitahuan saat makanan siap di counter (PB-059)',
-                    value: prefCtrl.notifFnb.value,
-                    onChanged: (val) => prefCtrl.setNotifFnb(val),
-                  )),
-              const Divider(color: AppColors.divider, height: 1),
-              Obx(() => _buildSwitchTile(
-                    icon: Icons.local_offer_outlined,
-                    title: 'Penawaran Promo & Film Mingguan',
-                    subtitle:
-                        'Diskon F&B & rekomendasi promo mingguan (PB-060)',
-                    value: prefCtrl.notifPromo.value,
-                    onChanged: (val) => prefCtrl.setNotifPromo(val),
-                  )),
-              const Divider(color: AppColors.divider, height: 1),
-              ListTile(
-                leading: const Icon(Icons.send_rounded,
-                    color: AppColors.gold, size: 20),
-                title: const Text(
-                  'Kirim Notifikasi Uji Coba',
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+              // ── 3. TOMBOL EDIT PROFIL ──────────────────────────────────────
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => Get.toNamed(Routes.editProfile),
+                  icon: const Icon(Icons.edit_rounded, size: 18),
+                  label: const Text(
+                    'Edit Profil & Ganti Foto',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
                   ),
                 ),
-                subtitle: const Text(
-                  'Simulasikan notifikasi promo mingguan ke perangkat',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
+              ),
+
+              const SizedBox(height: 12),
+
+              // ── 4. TOMBOL KELUAR / LOGOUT ─────────────────────────────────
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: () => _showLogoutConfirmDialog(context),
+                  icon: const Icon(Icons.logout_rounded, size: 18),
+                  label: const Text(
+                    'Keluar dari Akun',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                    side: BorderSide(
+                      color: AppColors.error.withValues(alpha: 0.6),
+                      width: 1.2,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
-                trailing: const Icon(
-                  Icons.arrow_forward_ios_rounded,
+              ),
+
+              const SizedBox(height: 20),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: AppColors.textSecondary),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
                   color: AppColors.textSecondary,
-                  size: 14,
-                ),
-                onTap: () async {
-                  await NotificationService.instance.showWeeklyPromo(
-                    promoTitle: '🍿 Promo Spesial Akhir Pekan Cinemate!',
-                    promoBody:
-                        'Dapatkan diskon 30% untuk Combo Popcorn & Soft Drink sekarang!',
-                  );
-                  Get.snackbar(
-                    'Notifikasi Terkirim',
-                    'Notifikasi promo mingguan berhasil disimulasikan.',
-                    backgroundColor: AppColors.surface,
-                    colorText: AppColors.textPrimary,
-                    snackPosition: SnackPosition.BOTTOM,
-                    duration: const Duration(seconds: 2),
-                    margin: const EdgeInsets.all(16),
-                  );
-                },
-              ),
-            ]),
-
-            const SizedBox(height: 24),
-
-            // 5. INFORMASI APLIKASI
-            _buildSectionHeader('Tentang Aplikasi'),
-            const SizedBox(height: 8),
-            _buildSettingsCard([
-              _buildSettingTile(
-                icon: Icons.info_outline_rounded,
-                title: 'Versi Aplikasi',
-                subtitle: 'Cinemate v1.0.0 (GetX OOP)',
-              ),
-              const Divider(color: AppColors.divider, height: 1),
-              _buildSettingTile(
-                icon: Icons.cloud_done_outlined,
-                title: 'Database Cloud',
-                subtitle: 'Supabase PostgreSQL (Aktif)',
-              ),
-              const Divider(color: AppColors.divider, height: 1),
-              _buildSettingTile(
-                icon: Icons.offline_pin_rounded,
-                title: 'Penyimpanan Offline',
-                subtitle: 'Hive NoSQL Cache',
-              ),
-            ]),
-
-            const SizedBox(height: 28),
-
-            // 5. TOMBOL LOGOUT
-            OutlinedButton.icon(
-              onPressed: onLogoutRequested,
-              icon: const Icon(Icons.logout_rounded, color: AppColors.primary),
-              label: const Text('Keluar dari Akun'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  fontSize: 11,
                 ),
               ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showLogoutConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Konfirmasi Keluar',
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Apakah Anda yakin ingin keluar dari akun Cinemate?',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal', style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              onLogoutRequested();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsCard(List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(children: children),
-    );
-  }
-
-  Widget _buildSettingTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: AppColors.gold, size: 22),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      trailing: Text(
-        subtitle,
-        style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-      ),
-    );
-  }
-
-  Widget _buildInteractiveSettingTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      onTap: onTap,
-      leading: Icon(icon, color: AppColors.gold, size: 22),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(color: AppColors.primaryLight, fontSize: 12),
-      ),
-      trailing: const Icon(
-        Icons.chevron_right_rounded,
-        color: AppColors.textSecondary,
-        size: 20,
-      ),
-    );
-  }
-
-  Widget _buildSwitchTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return SwitchListTile(
-      value: value,
-      onChanged: (v) {
-        // PB-072: Haptic feedback lightImpact saat toggle switch di profil
-        HapticFeedback.lightImpact();
-        onChanged(v);
-      },
-      secondary: Icon(icon, color: AppColors.gold, size: 22),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 11,
-        ),
-      ),
-      activeThumbColor: AppColors.gold,
-      activeTrackColor: AppColors.gold.withValues(alpha: 0.3),
-      inactiveThumbColor: AppColors.textSecondary,
-      inactiveTrackColor: AppColors.surface,
-    );
-  }
-
-  /// Modal Selector Mata Uang Dinamis (PB-048, PB-050)
-  void _showCurrencyPicker(
-      BuildContext context, PreferenceController prefCtrl) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.border,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'PILIH MATA UANG',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Harga tiket dan F&B akan otomatis dikonversi secara real-time (PB-048).',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              ),
-              const SizedBox(height: 14),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children:
-                      CurrencyHelper.supportedCurrencies.values.map((cur) {
-                    return Obx(() {
-                      final isSelected =
-                          prefCtrl.selectedCurrency.value == cur.code;
-                      return ListTile(
-                        leading: Text(cur.flag,
-                            style: const TextStyle(fontSize: 24)),
-                        title: Text(
-                          '${cur.code} (${cur.symbol})',
-                          style: TextStyle(
-                            color: isSelected
-                                ? AppColors.primaryLight
-                                : AppColors.textPrimary,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                        subtitle: Text(
-                          cur.name,
-                          style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 11),
-                        ),
-                        trailing: isSelected
-                            ? const Icon(Icons.check_circle_rounded,
-                                color: AppColors.primaryLight)
-                            : null,
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          prefCtrl.setCurrency(cur.code);
-                        },
-                      );
-                    });
-                  }).toList(),
-                ),
-              ),
-            ],
+            child: const Text('Keluar'),
           ),
-        );
-      },
-    );
-  }
-
-  /// Modal Selector Zona Waktu Jadwal Tayang (PB-049, PB-050)
-  void _showTimezonePicker(
-      BuildContext context, PreferenceController prefCtrl) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ],
       ),
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.border,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'PILIH ZONA WAKTU JADWAL TAYANG',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Jam tayang bioskop otomatis disesuaikan dengan zona waktu pilihan Anda (PB-049).',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              ),
-              const SizedBox(height: 14),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: TimezoneHelper.supportedZones.values.map((tz) {
-                    return Obx(() {
-                      final isSelected =
-                          prefCtrl.selectedTimezone.value == tz.code;
-                      return ListTile(
-                        leading: const Icon(Icons.access_time_rounded,
-                            color: AppColors.gold),
-                        title: Text(
-                          tz.code,
-                          style: TextStyle(
-                            color: isSelected
-                                ? AppColors.primaryLight
-                                : AppColors.textPrimary,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                        subtitle: Text(
-                          '${tz.name} â€¢ ${tz.city}',
-                          style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 11),
-                        ),
-                        trailing: isSelected
-                            ? const Icon(Icons.check_circle_rounded,
-                                color: AppColors.primaryLight)
-                            : null,
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          prefCtrl.setTimezone(tz.code);
-                        },
-                      );
-                    });
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

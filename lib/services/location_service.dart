@@ -92,6 +92,20 @@ class LocationService {
       longitude: 110.4011,
     ),
     LocationPreset(
+      name: 'Semarang (Simpang Lima)',
+      city: 'Semarang',
+      description: 'Pusat kota Semarang & Mall Paragon',
+      latitude: -6.9822,
+      longitude: 110.4172,
+    ),
+    LocationPreset(
+      name: 'Solo (Slamet Riyadi)',
+      city: 'Solo',
+      description: 'Kawasan Solo Paragon & The Park',
+      latitude: -7.5612,
+      longitude: 110.8118,
+    ),
+    LocationPreset(
       name: 'Medan (Centre Point)',
       city: 'Medan',
       description: 'Pusat kota Medan & Mall Centre Point',

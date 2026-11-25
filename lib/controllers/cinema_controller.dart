@@ -42,6 +42,22 @@ class CinemaController extends GetxController {
   final userLng = (106.8272).obs;
   final selectedLocationName = 'Jakarta Pusat (Monas)'.obs;
 
+  /// Filter kota aktif (default: 'Semua Kota')
+  final selectedCity = 'Semua Kota'.obs;
+
+  /// Daftar kota yang didukung
+  List<String> get availableCities => const [
+        'Semua Kota',
+        'Jakarta',
+        'Yogyakarta',
+        'Bandung',
+        'Surabaya',
+        'Semarang',
+        'Solo',
+        'Bali',
+        'Medan',
+      ];
+
   /// Filter radius yang dipilih (null = Semua, 1.0, 3.0, 5.0, 10.0, 25.0) (PB-045)
   final Rxn<double> selectedRadiusKm = Rxn<double>();
 
@@ -88,9 +104,21 @@ class CinemaController extends GetxController {
       return;
     }
 
+    // Filter berdasarkan kota terpilih jika bukan 'Semua Kota'
+    var baseList = allCinemas.toList();
+    if (selectedCity.value != 'Semua Kota' && selectedCity.value.isNotEmpty) {
+      final cityFiltered = allCinemas
+          .where((c) =>
+              c.city.toLowerCase() == selectedCity.value.toLowerCase())
+          .toList();
+      if (cityFiltered.isNotEmpty) {
+        baseList = cityFiltered;
+      }
+    }
+
     // 1. Hitung seluruh bioskop terurut jarak
     final allSorted = _cinemaService.getCinemasSortedByDistance(
-      allCinemas,
+      baseList,
       userLat: userLat.value,
       userLng: userLng.value,
     );
@@ -98,7 +126,7 @@ class CinemaController extends GetxController {
 
     // 2. Filter berdasarkan radius aktif (PB-045)
     final filtered = _cinemaService.getCinemasSortedByDistance(
-      allCinemas,
+      baseList,
       userLat: userLat.value,
       userLng: userLng.value,
       maxRadiusKm: selectedRadiusKm.value,
@@ -171,6 +199,7 @@ class CinemaController extends GetxController {
   /// Mengatur titik lokasi acuan manual secara fleksibel (PB-047)
   void setManualLocation(LocationPreset preset) {
     selectedLocationName.value = preset.name;
+    selectedCity.value = preset.city;
     userLat.value = preset.latitude;
     userLng.value = preset.longitude;
     _locationService.saveLastKnownLocation(
@@ -178,6 +207,21 @@ class CinemaController extends GetxController {
       preset.longitude,
       preset.name,
     );
+    _recalculateDistances();
+  }
+
+  /// Mengubah filter kota dan otomatis menyesuaikan koordinat acuan jika ada
+  void setCity(String city) {
+    selectedCity.value = city;
+    if (city != 'Semua Kota') {
+      final preset = presets.firstWhereOrNull(
+          (p) => p.city.toLowerCase() == city.toLowerCase());
+      if (preset != null) {
+        userLat.value = preset.latitude;
+        userLng.value = preset.longitude;
+        selectedLocationName.value = preset.name;
+      }
+    }
     _recalculateDistances();
   }
 

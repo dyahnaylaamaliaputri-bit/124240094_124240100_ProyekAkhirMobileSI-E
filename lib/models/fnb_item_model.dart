@@ -111,6 +111,8 @@ class FnbItemModel {
               'Popcorn butter klasik ukuran regular dengan rasa gurih mentega renyah.',
           price: 35000,
           category: 'snack',
+          imageUrl:
+              'https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-popcorn-lrg',
@@ -119,6 +121,8 @@ class FnbItemModel {
               'Popcorn butter ukuran besar, cocok dinikmati berdua saat menonton.',
           price: 50000,
           category: 'snack',
+          imageUrl:
+              'https://images.unsplash.com/photo-1585647347483-22b66260dfff?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-popcorn-caramel',
@@ -127,6 +131,8 @@ class FnbItemModel {
               'Popcorn renyah berbalut karamel manis gurih khas bioskop.',
           price: 55000,
           category: 'snack',
+          imageUrl:
+              'https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-nachos',
@@ -135,6 +141,8 @@ class FnbItemModel {
               'Keripik jagung nachos renyah disajikan dengan saus keju hangat gurih.',
           price: 45000,
           category: 'snack',
+          imageUrl:
+              'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-coke-reg',
@@ -142,6 +150,8 @@ class FnbItemModel {
           description: 'Minuman soda dingin segar 400ml pelepas dahaga.',
           price: 25000,
           category: 'drink',
+          imageUrl:
+              'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-coke-lrg',
@@ -149,6 +159,8 @@ class FnbItemModel {
           description: 'Minuman soda dingin segar ukuran jumbo 600ml.',
           price: 35000,
           category: 'drink',
+          imageUrl:
+              'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-lemon-tea',
@@ -157,6 +169,8 @@ class FnbItemModel {
               'Teh lemon segar dingin dengan perasan lemon asli ukuran jumbo 600ml.',
           price: 28000,
           category: 'drink',
+          imageUrl:
+              'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-mineral',
@@ -164,6 +178,8 @@ class FnbItemModel {
           description: 'Air mineral murni dingin dan menyegarkan.',
           price: 15000,
           category: 'drink',
+          imageUrl:
+              'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-combo-1',
@@ -171,6 +187,8 @@ class FnbItemModel {
           description: 'Paket hemat 1 Popcorn Regular + 1 Coca-Cola Regular.',
           price: 55000,
           category: 'combo',
+          imageUrl:
+              'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-combo-2',
@@ -179,6 +197,8 @@ class FnbItemModel {
               'Paket seru berdua: 1 Popcorn Large + 2 Coca-Cola Regular.',
           price: 95000,
           category: 'combo',
+          imageUrl:
+              'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-hotdog',
@@ -187,6 +207,8 @@ class FnbItemModel {
               'Roti lembut dengan sosis sapi panggang premium, mustard, dan saus tomat.',
           price: 40000,
           category: 'food',
+          imageUrl:
+              'https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=400&q=80',
         ),
         FnbItemModel(
           id: 'fnb-pretzel',
@@ -195,6 +217,8 @@ class FnbItemModel {
               'Kue pretzel hangat gurih disajikan dengan saus keju cheddar leleh.',
           price: 38000,
           category: 'food',
+          imageUrl:
+              'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400&q=80',
         ),
       ];
 }

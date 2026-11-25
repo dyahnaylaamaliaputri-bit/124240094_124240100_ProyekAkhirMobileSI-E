@@ -101,16 +101,16 @@ class TicketModel {
     return null;
   }
 
-  /// Jadwal telah terlewati jika waktu selesai tayang (+3 jam) telah lewat waktu saat ini
+  /// Jadwal telah terlewati jika sudah lewat 24 jam dari waktu jadwal tayang
   bool get isShowPassed {
     final sdt = showDateTime;
     if (sdt == null) return false;
-    final endDateTime = sdt.add(const Duration(hours: 3));
+    final endDateTime = sdt.add(const Duration(hours: 24));
     return DateTime.now().isAfter(endDateTime);
   }
 
   /// Evaluasi untuk Tab Tiket Aktif (PB-025):
-  /// Tiket berstatus 'paid'/'active' dan jadwal belum lewat
+  /// Tiket berstatus 'paid'/'active' dan belum dibatalkan/kadaluarsa
   bool get isTicketActive {
     if (status == 'used' || status == 'expired' || status == 'cancelled') {
       return false;
