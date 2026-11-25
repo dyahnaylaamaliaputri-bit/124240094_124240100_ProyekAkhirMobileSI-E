@@ -17,7 +17,8 @@ class MovieService {
   final StorageService _storage = StorageService();
 
   String get _publicApiUrl =>
-      dotenv.env['PUBLIC_MOVIE_API_URL'] ?? 'https://api.tvmaze.com';
+      (dotenv.isInitialized ? dotenv.env['PUBLIC_MOVIE_API_URL'] : null) ??
+      'https://api.tvmaze.com';
 
   // =========================================================================
   // 1. NOW PLAYING dengan Hive Cache (TTL 6 jam)

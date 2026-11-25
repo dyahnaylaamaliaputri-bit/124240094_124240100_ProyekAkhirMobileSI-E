@@ -468,4 +468,84 @@ class AuthService {
   Future<void> _deleteSession(String tokenHash) async {
     await _db.from('sessions').delete().eq('token_hash', tokenHash);
   }
+
+  // ================================================================
+  // UPDATE PROFIL PENGGUNA (MODUL 5 HTTP PATCH + MODUL 6 LOCAL)
+  // ================================================================
+
+  /// Memperbarui data profil (nomor telepon dan/atau avatar_url) ke Supabase
+  /// serta menyinkronkannya ke penyimpanan lokal `_local_users`.
+  Future<void> updateUserProfile({
+    required String userId,
+    required String email,
+    String? phone,
+    String? avatarUrl,
+    bool clearAvatar = false,
+  }) async {
+    final normalizedEmail = email.toLowerCase().trim();
+    if (normalizedEmail.isEmpty) return;
+
+    // 1. Selalu perbarui cache akun lokal agar tetap persisten saat offline
+    _updateLocalUserProfile(
+      email: normalizedEmail,
+      phone: phone,
+      avatarUrl: avatarUrl,
+      clearAvatar: clearAvatar,
+    );
+
+    // 2. Sinkronkan ke tabel public.users Supabase (PATCH sebagian field)
+    final Map<String, dynamic> payload = {
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    };
+    if (phone != null) {
+      payload['phone'] = phone;
+    }
+    if (clearAvatar) {
+      payload['avatar_url'] = null;
+    } else if (avatarUrl != null) {
+      payload['avatar_url'] = avatarUrl;
+    }
+
+    try {
+      await _db
+          .from('users')
+          .update(payload)
+          .eq('email', normalizedEmail)
+          .timeout(const Duration(seconds: 4));
+    } catch (e) {
+      if (_isConnectionError(e)) {
+        debugPrint(
+            '[AuthService] Supabase offline, profil diperbarui lokal: $e');
+        return;
+      }
+      debugPrint('[AuthService] Gagal update profil ke Supabase: $e');
+    }
+  }
+
+  void _updateLocalUserProfile({
+    required String email,
+    String? phone,
+    String? avatarUrl,
+    bool clearAvatar = false,
+  }) {
+    try {
+      final localUsers = _getLocalUsers();
+      final rawUser = localUsers[email];
+      if (rawUser is! Map) return;
+
+      final updated = Map<String, dynamic>.from(rawUser);
+      if (phone != null) {
+        updated['phone'] = phone;
+      }
+      if (clearAvatar) {
+        updated.remove('avatar_url');
+      } else if (avatarUrl != null) {
+        updated['avatar_url'] = avatarUrl;
+      }
+      localUsers[email] = updated;
+      _localStore.write(_localUsersKey, jsonEncode(localUsers));
+    } catch (e) {
+      debugPrint('[AuthService] Gagal update _local_users: $e');
+    }
+  }
 }

@@ -96,11 +96,37 @@ class StorageService {
   void clearPrefs() => _prefs.erase();
 
   // Login attempt helpers (PB-006 — lockout)
-  int get loginAttempts => _prefs.read<int>('login_attempts') ?? 0;
-  set loginAttempts(int v) => _prefs.write('login_attempts', v);
+  int get loginAttempts {
+    if (_isTestEnvironment) {
+      return (_memoryFallback['login_attempts'] as int?) ?? 0;
+    }
+    return _prefs.read<int>('login_attempts') ?? 0;
+  }
 
-  String? get lockoutUntil => _prefs.read<String>('lockout_until');
+  set loginAttempts(int v) {
+    if (_isTestEnvironment) {
+      _memoryFallback['login_attempts'] = v;
+      return;
+    }
+    _prefs.write('login_attempts', v);
+  }
+
+  String? get lockoutUntil {
+    if (_isTestEnvironment) {
+      return _memoryFallback['lockout_until'] as String?;
+    }
+    return _prefs.read<String>('lockout_until');
+  }
+
   set lockoutUntil(String? v) {
+    if (_isTestEnvironment) {
+      if (v == null) {
+        _memoryFallback.remove('lockout_until');
+      } else {
+        _memoryFallback['lockout_until'] = v;
+      }
+      return;
+    }
     if (v == null) {
       _prefs.remove('lockout_until');
     } else {
@@ -244,7 +270,7 @@ class StorageService {
     _prefs.write('biometric_enabled', enabled);
   }
 
-  /// Path foto profil lokal pengguna (PB-061) - scoped per user ID
+  /// Path foto profil lokal pengguna (PB-061) - scoped per user ID / email
   String? get avatarPath => getAvatarPath();
 
   set avatarPath(String? path) => setAvatarPath(path);
@@ -258,7 +284,7 @@ class StorageService {
     return _prefs.read<String>(key);
   }
 
-  void setAvatarPath(String? path, [String? userId]) {
+  Future<void> setAvatarPath(String? path, [String? userId]) async {
     if (userId == null || userId.isEmpty) return;
     final key = 'avatar_path_$userId';
     if (_isTestEnvironment) {
@@ -270,9 +296,24 @@ class StorageService {
       return;
     }
     if (path == null) {
-      _prefs.remove(key);
+      await _prefs.remove(key);
     } else {
-      _prefs.write(key, path);
+      await _prefs.write(key, path);
+    }
+  }
+
+  /// Simpan atau hapus avatar berdasarkan userId dan email agar konsisten
+  /// antara sesi online (Supabase UUID) dan offline/lokal.
+  Future<void> saveAvatarForUser({
+    String? userId,
+    String? email,
+    String? avatarData,
+  }) async {
+    if (userId != null && userId.isNotEmpty) {
+      await setAvatarPath(avatarData, userId);
+    }
+    if (email != null && email.trim().isNotEmpty) {
+      await setAvatarPath(avatarData, email.trim().toLowerCase());
     }
   }
 

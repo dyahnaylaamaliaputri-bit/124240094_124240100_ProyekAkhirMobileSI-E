@@ -23,7 +23,7 @@ Future<void> main() async {
 
   // 2. Load variabel lingkungan dari assets/.env (PB-003, R-07)
   try {
-    await dotenv.load(fileName: 'assets/.env');
+    await dotenv.load(fileName: 'assets/.env', isOptional: true);
   } catch (e) {
     debugPrint('.env load info: $e');
   }

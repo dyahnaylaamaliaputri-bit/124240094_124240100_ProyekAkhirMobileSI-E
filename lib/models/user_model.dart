@@ -49,6 +49,7 @@ class UserModel {
     String? fullName,
     String? phone,
     String? avatarUrl,
+    bool clearAvatarUrl = false,
     DateTime? createdAt,
   }) {
     return UserModel(
@@ -56,7 +57,7 @@ class UserModel {
       email: email ?? this.email,
       fullName: fullName ?? this.fullName,
       phone: phone ?? this.phone,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
+      avatarUrl: clearAvatarUrl ? null : (avatarUrl ?? this.avatarUrl),
       createdAt: createdAt ?? this.createdAt,
     );
   }

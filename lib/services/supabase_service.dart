@@ -23,14 +23,15 @@ class SupabaseService {
 
   /// Inisialisasi Supabase dari .env atau default constant
   static Future<void> initialize() async {
-    final rawUrl =
-        dotenv.env['SUPABASE_URL'] ?? AppConstants.defaultSupabaseUrl;
+    final rawUrl = (dotenv.isInitialized ? dotenv.env['SUPABASE_URL'] : null) ??
+        AppConstants.defaultSupabaseUrl;
     // Bersihkan path trailing /rest/v1/ jika tercantum agar SDK Supabase bekerja normal
     final url = rawUrl
         .replaceAll(RegExp(r'/rest/v1/?$'), '')
         .replaceAll(RegExp(r'/+$'), '');
     final anonKey =
-        dotenv.env['SUPABASE_ANON_KEY'] ?? AppConstants.defaultSupabaseAnonKey;
+        (dotenv.isInitialized ? dotenv.env['SUPABASE_ANON_KEY'] : null) ??
+            AppConstants.defaultSupabaseAnonKey;
 
     try {
       await Supabase.initialize(

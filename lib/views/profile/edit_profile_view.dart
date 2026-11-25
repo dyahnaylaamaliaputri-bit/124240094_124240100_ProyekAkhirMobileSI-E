@@ -1,15 +1,11 @@
 // lib/views/profile/edit_profile_view.dart
 // Halaman form edit profil pengguna: nama, nomor telepon & foto profil kamera/galeri (PB-061, PB-062)
 
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/profile_controller.dart';
-import '../../services/storage_service.dart';
 import '../../utils/app_colors.dart';
 
 class EditProfileView extends StatefulWidget {
@@ -22,7 +18,7 @@ class EditProfileView extends StatefulWidget {
 class _EditProfileViewState extends State<EditProfileView> {
   final AuthController _authCtrl = Get.isRegistered<AuthController>()
       ? Get.find<AuthController>()
-      : Get.put(AuthController());
+      : Get.put(AuthController(), permanent: true);
   final ProfileController _profileCtrl = Get.isRegistered<ProfileController>()
       ? Get.find<ProfileController>()
       : Get.put(ProfileController());
@@ -35,16 +31,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   void initState() {
     super.initState();
     final user = _authCtrl.currentUser.value;
-    final storage = StorageService();
-    final savedAvatar = user != null
-        ? (storage.getAvatarPath(user.id) ??
-            storage.getAvatarPath(user.email.toLowerCase()))
-        : null;
-    if (savedAvatar != null && savedAvatar.isNotEmpty) {
-      _profileCtrl.avatarPath.value = savedAvatar;
-    } else {
-      _profileCtrl.loadAvatar();
-    }
+    _profileCtrl.loadAvatar();
     _phoneCtrl = TextEditingController(
       text: (user?.phone != null && user!.phone!.isNotEmpty)
           ? user.phone!
@@ -59,33 +46,8 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Future<void> _pickAndSaveAvatar(ImageSource source) async {
-    try {
-      final picker = ImagePicker();
-      final picked = await picker.pickImage(
-        source: source,
-        imageQuality: 75,
-        maxWidth: 600,
-      );
-      if (picked == null) return;
-
-      String storedValue;
-      if (kIsWeb) {
-        final bytes = await picked.readAsBytes();
-        storedValue = 'data:image/jpeg;base64,${base64Encode(bytes)}';
-      } else {
-        storedValue = picked.path;
-      }
-
-      _profileCtrl.avatarPath.value = storedValue;
-      final current = _authCtrl.currentUser.value;
-      if (current != null) {
-        final storage = StorageService();
-        storage.setAvatarPath(storedValue, current.id);
-        storage.setAvatarPath(storedValue, current.email.toLowerCase());
-        _authCtrl.currentUser.value = current.copyWith(avatarUrl: storedValue);
-      }
-      if (mounted) setState(() {});
-    } catch (e) {
+    final success = await _profileCtrl.pickProfileImage(source);
+    if (!success && mounted) {
       Get.snackbar(
         'Gagal Memilih Foto',
         'Pastikan izin kamera/galeri tersedia.',
@@ -97,15 +59,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Future<void> _removeAvatar() async {
-    _profileCtrl.avatarPath.value = null;
-    final current = _authCtrl.currentUser.value;
-    if (current != null) {
-      final storage = StorageService();
-      storage.setAvatarPath(null, current.id);
-      storage.setAvatarPath(null, current.email.toLowerCase());
-      _authCtrl.currentUser.value = current.copyWith(avatarUrl: null);
-    }
-    if (mounted) setState(() {});
+    await _profileCtrl.removeCustomAvatar();
   }
 
   void _showImagePickerModal() {
@@ -149,7 +103,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                 await _pickAndSaveAvatar(ImageSource.gallery);
               },
             ),
-            if (_profileCtrl.avatarPath.value != null)
+            if (_profileCtrl
+                    .resolveEffectiveAvatar(_authCtrl.currentUser.value) !=
+                null)
               ListTile(
                 leading: const Icon(Icons.delete_outline_rounded,
                     color: AppColors.primary),
@@ -166,28 +122,16 @@ class _EditProfileViewState extends State<EditProfileView> {
     );
   }
 
-  void _saveProfile() {
+  Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final current = _authCtrl.currentUser.value;
-    if (current != null) {
-      final avatar = _profileCtrl.avatarPath.value ?? current.avatarUrl;
-      final updated = current.copyWith(
-        phone: _phoneCtrl.text.trim(),
-        avatarUrl: avatar,
-      );
-      _authCtrl.currentUser.value = updated;
-      if (avatar != null && avatar.isNotEmpty) {
-        final storage = StorageService();
-        storage.setAvatarPath(avatar, current.id);
-        storage.setAvatarPath(avatar, current.email.toLowerCase());
-      }
-    }
+    await _profileCtrl.saveProfileChanges(phone: _phoneCtrl.text.trim());
 
+    if (!mounted) return;
     Get.back();
     Get.snackbar(
       'Profil Diperbarui',
-      'Perubahan profil berhasil disimpan ke sesi lokal.',
+      'Perubahan profil dan foto berhasil disimpan.',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: AppColors.card,
       colorText: Colors.white,
@@ -232,26 +176,17 @@ class _EditProfileViewState extends State<EditProfileView> {
                     Stack(
                       children: [
                         Obx(() {
-                          final path = _profileCtrl.avatarPath.value;
-                          final userName =
-                              _authCtrl.currentUser.value?.fullName ?? 'U';
+                          final user = _authCtrl.currentUser.value;
+                          final effectivePath =
+                              _profileCtrl.resolveEffectiveAvatar(user);
+                          final userName = user?.fullName ?? 'U';
                           final initial = userName.isNotEmpty
                               ? userName[0].toUpperCase()
                               : 'U';
 
-                          ImageProvider? imageProvider;
-                          if (path != null && path.isNotEmpty) {
-                            if (path.startsWith('data:image')) {
-                              final b64 = path.split(',').last;
-                              imageProvider = MemoryImage(base64Decode(b64));
-                            } else if (kIsWeb ||
-                                path.startsWith('http') ||
-                                path.startsWith('blob:')) {
-                              imageProvider = NetworkImage(path);
-                            } else if (File(path).existsSync()) {
-                              imageProvider = FileImage(File(path));
-                            }
-                          }
+                          final imageProvider =
+                              ProfileController.resolveAvatarImageProvider(
+                                  effectivePath);
 
                           if (imageProvider != null) {
                             return CircleAvatar(

@@ -1,12 +1,17 @@
 // lib/controllers/profile_controller.dart
 // Controller untuk modul Profil Lanjutan, My Cinemate, Pengaturan & Riwayat AI (PB-061, PB-063, PB-064, PB-065)
 
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/loyalty_badge_model.dart';
+import '../models/user_model.dart';
+import '../services/auth_service.dart';
 import '../services/fnb_service.dart';
 import '../services/storage_service.dart';
 import '../services/ticket_service.dart';
@@ -46,20 +51,25 @@ class ProfileController extends GetxController {
   final TicketService _ticketService;
   final FnbService _fnbService;
   final ImagePicker _imagePicker;
+  final AuthService _authService;
+
+  static final Map<String, Uint8List> _decodedAvatarCache = {};
 
   ProfileController({
     StorageService? storage,
     TicketService? ticketService,
     FnbService? fnbService,
     ImagePicker? imagePicker,
+    AuthService? authService,
   })  : _storage = storage ?? StorageService(),
         _ticketService = ticketService ?? TicketService(),
         _fnbService = fnbService ?? FnbService(),
-        _imagePicker = imagePicker ?? ImagePicker();
+        _imagePicker = imagePicker ?? ImagePicker(),
+        _authService = authService ?? AuthService();
 
-  String? get _currentUserId {
+  UserModel? get _currentUser {
     if (Get.isRegistered<AuthController>()) {
-      return Get.find<AuthController>().currentUser.value?.id;
+      return Get.find<AuthController>().currentUser.value;
     }
     return null;
   }
@@ -74,42 +84,133 @@ class ProfileController extends GetxController {
     loadProfileStats();
   }
 
+  /// Memvalidasi apakah path/URI avatar tersedia untuk dirender
+  static bool isValidAvatarSource(String? source) {
+    if (source == null || source.isEmpty) return false;
+    if (source.startsWith('data:image') ||
+        source.startsWith('http') ||
+        source.startsWith('blob:')) {
+      return true;
+    }
+    if (kIsWeb) return false;
+    try {
+      return File(source).existsSync();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Mengonversi sumber avatar (Data URI, URL, atau file lokal) ke ImageProvider
+  static ImageProvider? resolveAvatarImageProvider(String? source) {
+    if (source == null || source.isEmpty) return null;
+    if (source.startsWith('data:image')) {
+      try {
+        final b64 = source.split(',').last;
+        final cached = _decodedAvatarCache[source];
+        if (cached != null) return MemoryImage(cached);
+        final bytes = base64Decode(b64);
+        if (_decodedAvatarCache.length >= 8) {
+          _decodedAvatarCache.remove(_decodedAvatarCache.keys.first);
+        }
+        _decodedAvatarCache[source] = bytes;
+        return MemoryImage(bytes);
+      } catch (_) {
+        return null;
+      }
+    }
+    if (kIsWeb || source.startsWith('http') || source.startsWith('blob:')) {
+      return NetworkImage(source);
+    }
+    try {
+      final file = File(source);
+      if (file.existsSync()) return FileImage(file);
+    } catch (_) {}
+    return null;
+  }
+
+  /// Menentukan sumber avatar efektif milik pengguna dari state, local storage, atau cloud
+  String? resolveEffectiveAvatar(UserModel? user) {
+    final currentAvatar = avatarPath.value;
+    if (user == null) {
+      return isValidAvatarSource(currentAvatar) ? currentAvatar : null;
+    }
+
+    final candidates = <String?>[
+      _storage.getAvatarPath(user.id),
+      _storage.getAvatarPath(user.email.toLowerCase()),
+      user.avatarUrl,
+      currentAvatar,
+    ];
+    for (final candidate in candidates) {
+      if (isValidAvatarSource(candidate)) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+
   void loadAvatar() {
-    final userId = _currentUserId;
-    avatarPath.value = _storage.getAvatarPath(userId);
+    final user = _currentUser;
+    if (user == null) {
+      avatarPath.value = null;
+      return;
+    }
+
+    final resolved = resolveEffectiveAvatar(user);
+    avatarPath.value = resolved;
+    if (resolved != null && resolved.isNotEmpty) {
+      _storage.saveAvatarForUser(
+        userId: user.id,
+        email: user.email,
+        avatarData: resolved,
+      );
+    }
   }
 
   // =========================================================================
   // 1. PB-061: UNGGAH FOTO PROFIL (KAMERA / GALERI / PRESET FALLBACK)
   // =========================================================================
 
-  /// Path file foto avatar lokal di perangkat
+  /// Data URI atau path foto avatar pengguna
   final avatarPath = RxnString();
 
-  /// Mengambil foto profil baru dari kamera atau galeri
+  /// Mengambil foto profil baru dari kamera atau galeri lalu menyimpannya secara persisten
   Future<bool> pickProfileImage(ImageSource source) async {
     try {
       final pickedFile = await _imagePicker.pickImage(
         source: source,
-        imageQuality: 85,
-        maxWidth: 800,
-        maxHeight: 800,
+        imageQuality: 70,
+        maxWidth: 400,
+        maxHeight: 400,
       );
 
       if (pickedFile == null) return false;
 
-      final path = pickedFile.path;
-      avatarPath.value = path;
-      final userId = _currentUserId;
-      _storage.setAvatarPath(path, userId);
+      // Simpan sebagai Data URI terkompresi agar persisten lintas logout,
+      // pembersihan cache perangkat, dan sinkronisasi ke Supabase (Modul 5 & 6).
+      final bytes = await pickedFile.readAsBytes();
+      final isPng = pickedFile.path.toLowerCase().endsWith('.png');
+      final mime = isPng ? 'image/png' : 'image/jpeg';
+      final storedValue = 'data:$mime;base64,${base64Encode(bytes)}';
 
-      // Update di AuthController jika terdaftar
-      if (Get.isRegistered<AuthController>()) {
-        final authCtrl = Get.find<AuthController>();
-        final current = authCtrl.currentUser.value;
-        if (current != null) {
-          authCtrl.currentUser.value = current.copyWith(avatarUrl: path);
+      avatarPath.value = storedValue;
+
+      final current = _currentUser;
+      if (current != null) {
+        await _storage.saveAvatarForUser(
+          userId: current.id,
+          email: current.email,
+          avatarData: storedValue,
+        );
+        if (Get.isRegistered<AuthController>()) {
+          Get.find<AuthController>().currentUser.value =
+              current.copyWith(avatarUrl: storedValue);
         }
+        await _authService.updateUserProfile(
+          userId: current.id,
+          email: current.email,
+          avatarUrl: storedValue,
+        );
       }
 
       return true;
@@ -122,15 +223,53 @@ class ProfileController extends GetxController {
   /// Menghapus foto profil kustom dan kembali ke avatar bawaan
   Future<void> removeCustomAvatar() async {
     avatarPath.value = null;
-    final userId = _currentUserId;
-    _storage.setAvatarPath(null, userId);
-    if (Get.isRegistered<AuthController>()) {
-      final authCtrl = Get.find<AuthController>();
-      final current = authCtrl.currentUser.value;
-      if (current != null) {
-        authCtrl.currentUser.value = current.copyWith(avatarUrl: null);
+    final current = _currentUser;
+    if (current != null) {
+      await _storage.saveAvatarForUser(
+        userId: current.id,
+        email: current.email,
+        avatarData: null,
+      );
+      if (Get.isRegistered<AuthController>()) {
+        Get.find<AuthController>().currentUser.value =
+            current.copyWith(clearAvatarUrl: true);
       }
+      await _authService.updateUserProfile(
+        userId: current.id,
+        email: current.email,
+        clearAvatar: true,
+      );
     }
+  }
+
+  /// Menyimpan perubahan nomor telepon dan foto profil ke lokal serta Supabase
+  Future<void> saveProfileChanges({required String phone}) async {
+    final current = _currentUser;
+    if (current == null) return;
+
+    final trimmedPhone = phone.trim();
+    final effectiveAvatar = resolveEffectiveAvatar(current);
+    final updated = current.copyWith(
+      phone: trimmedPhone,
+      avatarUrl: effectiveAvatar,
+    );
+
+    if (Get.isRegistered<AuthController>()) {
+      Get.find<AuthController>().currentUser.value = updated;
+    }
+    if (effectiveAvatar != null && effectiveAvatar.isNotEmpty) {
+      await _storage.saveAvatarForUser(
+        userId: current.id,
+        email: current.email,
+        avatarData: effectiveAvatar,
+      );
+    }
+    await _authService.updateUserProfile(
+      userId: current.id,
+      email: current.email,
+      phone: trimmedPhone,
+      avatarUrl: effectiveAvatar,
+    );
   }
 
   // =========================================================================

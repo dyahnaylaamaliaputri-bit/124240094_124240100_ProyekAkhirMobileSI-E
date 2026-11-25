@@ -3,6 +3,7 @@
 // Referensi: PB-001, PB-003, PB-004
 
 import 'package:get/get.dart';
+import '../controllers/auth_controller.dart';
 import '../controllers/preference_controller.dart';
 import '../services/http_service.dart';
 import '../services/storage_service.dart';
@@ -22,5 +23,8 @@ class InitialBinding extends Bindings {
 
     // AuthService — singleton permanen
     Get.put<AuthService>(AuthService(), permanent: true);
+
+    // AuthController — state sesi global permanen lintas rute (Modul 8)
+    Get.put<AuthController>(AuthController(), permanent: true);
   }
 }

@@ -2,15 +2,11 @@
 // Tab Profil Pengguna yang Disederhanakan Sesuai Modul II - VIII
 // Menampilkan data yang diinput saat registrasi, avatar per akun, edit profil, dan tombol keluar.
 
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/profile_controller.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/storage_service.dart';
 import '../../../utils/app_colors.dart';
 
 class ProfileTab extends StatelessWidget {
@@ -25,11 +21,10 @@ class ProfileTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final authCtrl = Get.isRegistered<AuthController>()
         ? Get.find<AuthController>()
-        : Get.put(AuthController());
+        : Get.put(AuthController(), permanent: true);
     final profileCtrl = Get.isRegistered<ProfileController>()
         ? Get.find<ProfileController>()
         : Get.put(ProfileController());
-    final storage = StorageService();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -82,31 +77,10 @@ class ProfileTab extends StatelessWidget {
             joinedDate = '${dt.day} ${months[dt.month]} ${dt.year}';
           }
 
-          // Cek avatar lokal khusus user ID / email aktif (persisten di Web & Mobile)
-          final savedByUser = user != null
-              ? (storage.getAvatarPath(user.id) ??
-                  storage.getAvatarPath(user.email.toLowerCase()))
-              : null;
-          final effectiveAvatar =
-              (savedByUser != null && savedByUser.isNotEmpty)
-                  ? savedByUser
-                  : (profileCtrl.avatarPath.value?.isNotEmpty == true
-                      ? profileCtrl.avatarPath.value
-                      : user?.avatarUrl);
-
-          ImageProvider? avatarProvider;
-          if (effectiveAvatar != null && effectiveAvatar.isNotEmpty) {
-            if (effectiveAvatar.startsWith('data:image')) {
-              final b64 = effectiveAvatar.split(',').last;
-              avatarProvider = MemoryImage(base64Decode(b64));
-            } else if (kIsWeb ||
-                effectiveAvatar.startsWith('http') ||
-                effectiveAvatar.startsWith('blob:')) {
-              avatarProvider = NetworkImage(effectiveAvatar);
-            } else if (File(effectiveAvatar).existsSync()) {
-              avatarProvider = FileImage(File(effectiveAvatar));
-            }
-          }
+          // Resolusi avatar persisten per akun melalui ProfileController (Modul 6 & 8)
+          final effectiveAvatar = profileCtrl.resolveEffectiveAvatar(user);
+          final avatarProvider =
+              ProfileController.resolveAvatarImageProvider(effectiveAvatar);
           final hasAvatarImage = avatarProvider != null;
 
           return Column(

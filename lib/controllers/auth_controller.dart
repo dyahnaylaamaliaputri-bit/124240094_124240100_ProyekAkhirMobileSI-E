@@ -90,12 +90,21 @@ class AuthController extends GetxController {
   // ── CHECK SESSION (PB-007) ────────────────────────────────────────────────
 
   void _syncProfileAvatar() {
+    final user = currentUser.value;
+    if (user != null && user.avatarUrl != null && user.avatarUrl!.isNotEmpty) {
+      _storage.saveAvatarForUser(
+        userId: user.id,
+        email: user.email,
+        avatarData: user.avatarUrl,
+      );
+    }
     if (Get.isRegistered<ProfileController>()) {
       final profileCtrl = Get.find<ProfileController>();
-      if (currentUser.value == null) {
+      if (user == null) {
         profileCtrl.avatarPath.value = null;
       } else {
         profileCtrl.loadAvatar();
+        profileCtrl.loadProfileStats();
       }
     }
   }

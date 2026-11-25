@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/booking_binding.dart';
 import '../bindings/dashboard_binding.dart';
+import '../controllers/profile_controller.dart';
 import '../views/booking/book_by_cinema_view.dart';
 import '../views/booking/book_by_movie_view.dart';
 import '../views/booking/order_summary_view.dart';
@@ -100,7 +101,11 @@ class AppPages {
     GetPage(
       name: Routes.editProfile,
       page: () => const EditProfileView(),
-      binding: AuthBinding(),
+      binding: BindingsBuilder(() {
+        if (!Get.isRegistered<ProfileController>()) {
+          Get.lazyPut<ProfileController>(() => ProfileController());
+        }
+      }),
     ),
     GetPage(
       name: Routes.search,
