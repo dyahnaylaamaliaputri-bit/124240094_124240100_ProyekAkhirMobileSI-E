@@ -1,5 +1,5 @@
 // lib/views/profile/edit_profile_view.dart
-// Halaman form edit profil pengguna: nama, nomor telepon & foto profil kamera/galeri (PB-061, PB-062)
+// Halaman edit profil pengguna & unggah foto profil kamera/galeri (PB-061)
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,26 +23,11 @@ class _EditProfileViewState extends State<EditProfileView> {
       ? Get.find<ProfileController>()
       : Get.put(ProfileController());
 
-  final _formKey = GlobalKey<FormState>();
-
-  late TextEditingController _phoneCtrl;
-
   @override
   void initState() {
     super.initState();
-    final user = _authCtrl.currentUser.value;
     _profileCtrl.loadAvatar();
-    _phoneCtrl = TextEditingController(
-      text: (user?.phone != null && user!.phone!.isNotEmpty)
-          ? user.phone!
-          : '081234567890',
-    );
-  }
-
-  @override
-  void dispose() {
-    _phoneCtrl.dispose();
-    super.dispose();
+    _profileCtrl.loadAvatarAsync();
   }
 
   Future<void> _pickAndSaveAvatar(ImageSource source) async {
@@ -123,15 +108,13 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Future<void> _saveProfile() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    await _profileCtrl.saveProfileChanges(phone: _phoneCtrl.text.trim());
+    await _profileCtrl.saveProfileChanges();
 
     if (!mounted) return;
     Get.back();
     Get.snackbar(
       'Profil Diperbarui',
-      'Perubahan profil dan foto berhasil disimpan.',
+      'Foto profil berhasil disimpan.',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: AppColors.card,
       colorText: Colors.white,
@@ -164,223 +147,213 @@ class _EditProfileViewState extends State<EditProfileView> {
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Selector Badge Avatar & Unggah Foto (PB-061)
-              Center(
-                child: Column(
-                  children: [
-                    Stack(
-                      children: [
-                        Obx(() {
-                          final user = _authCtrl.currentUser.value;
-                          final effectivePath =
-                              _profileCtrl.resolveEffectiveAvatar(user);
-                          final userName = user?.fullName ?? 'U';
-                          final initial = userName.isNotEmpty
-                              ? userName[0].toUpperCase()
-                              : 'U';
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Selector Badge Avatar & Unggah Foto (PB-061)
+            Center(
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      Obx(() {
+                        final user = _authCtrl.currentUser.value;
+                        final effectivePath =
+                            _profileCtrl.resolveEffectiveAvatar(user);
+                        final userName = user?.fullName ?? 'U';
+                        final initial = userName.isNotEmpty
+                            ? userName[0].toUpperCase()
+                            : 'U';
 
-                          final imageProvider =
-                              ProfileController.resolveAvatarImageProvider(
-                                  effectivePath);
+                        final imageProvider =
+                            ProfileController.resolveAvatarImageProvider(
+                                effectivePath);
 
-                          if (imageProvider != null) {
-                            return CircleAvatar(
-                              radius: 48,
-                              backgroundColor: AppColors.border,
-                              child: CircleAvatar(
-                                radius: 46,
-                                backgroundImage: imageProvider,
-                              ),
-                            );
-                          }
-
+                        if (imageProvider != null) {
                           return CircleAvatar(
-                            radius: 45,
-                            backgroundColor: AppColors.primary,
-                            child: Text(
-                              initial,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            radius: 48,
+                            backgroundColor: AppColors.border,
+                            child: CircleAvatar(
+                              radius: 46,
+                              backgroundImage: imageProvider,
                             ),
                           );
-                        }),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: GestureDetector(
-                            onTap: _showImagePickerModal,
-                            child: Container(
-                              padding: const EdgeInsets.all(7),
-                              decoration: BoxDecoration(
-                                color: AppColors.cardLight,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: AppColors.background, width: 2),
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt_rounded,
-                                size: 16,
-                                color: AppColors.textPrimary,
-                              ),
+                        }
+
+                        return CircleAvatar(
+                          radius: 45,
+                          backgroundColor: AppColors.primary,
+                          child: Text(
+                            initial,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: _showImagePickerModal,
+                          child: Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardLight,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: AppColors.background, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              size: 16,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: _showImagePickerModal,
-                      icon: const Icon(Icons.photo_camera_rounded, size: 14),
-                      label: const Text(
-                        'Unggah Foto Profil',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
                       ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.textPrimary,
-                        side: const BorderSide(color: AppColors.border),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: _showImagePickerModal,
+                    icon: const Icon(Icons.photo_camera_rounded, size: 14),
+                    label: const Text(
+                      'Unggah Foto Profil',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // 2. Nama Lengkap (Otomatis dari data registrasi, tidak perlu input ulang)
-              const Text(
-                'Nama Lengkap',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                decoration: BoxDecoration(
-                  color: AppColors.card.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.person_outline,
-                        color: AppColors.textSecondary),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _authCtrl.currentUser.value?.fullName.isNotEmpty == true
-                            ? _authCtrl.currentUser.value!.fullName
-                            : (_authCtrl.currentUser.value?.email
-                                    .split('@')
-                                    .first ??
-                                'Pengguna Cinemate'),
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.textPrimary,
+                      side: const BorderSide(color: AppColors.border),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    const Icon(Icons.lock_outline_rounded,
-                        color: AppColors.textDisabled, size: 16),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 28),
 
-              // 3. Field Nomor Telepon
-              const Text(
-                'Nomor Telepon / WhatsApp',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
+            // 2. Nama Lengkap (Otomatis dari data registrasi, tidak perlu input ulang)
+            const Text(
+              'Nama Lengkap',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _phoneCtrl,
-                keyboardType: TextInputType.phone,
-                style: const TextStyle(color: AppColors.textPrimary),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: AppColors.card,
-                  hintText: 'Contoh: 081234567890',
-                  hintStyle: const TextStyle(color: AppColors.textSecondary),
-                  prefixIcon: const Icon(Icons.phone_outlined,
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.card.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.person_outline,
                       color: AppColors.textSecondary),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Nomor telepon tidak boleh kosong';
-                  }
-                  if (val.trim().length < 10) {
-                    return 'Nomor telepon minimal 10 digit';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 32),
-
-              // 4. Tombol Simpan
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _authCtrl.currentUser.value?.fullName.isNotEmpty == true
+                          ? _authCtrl.currentUser.value!.fullName
+                          : (_authCtrl.currentUser.value?.email
+                                  .split('@')
+                                  .first ??
+                              'Pengguna Cinemate'),
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                  icon: const Icon(Icons.check_rounded, color: Colors.white),
-                  label: const Text(
-                    'Simpan Perubahan',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                  const Icon(Icons.lock_outline_rounded,
+                      color: AppColors.textDisabled, size: 16),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // 3. Email Terdaftar (Otomatis dari akun aktif)
+            const Text(
+              'Email Terdaftar',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.card.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.email_outlined,
+                      color: AppColors.textSecondary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _authCtrl.currentUser.value?.email ?? '-',
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                  onPressed: _saveProfile,
-                ),
+                  const Icon(Icons.lock_outline_rounded,
+                      color: AppColors.textDisabled, size: 16),
+                ],
               ),
-            ],
-          ),
+            ),
+
+            const SizedBox(height: 32),
+
+            // 4. Tombol Simpan
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.check_rounded, color: Colors.white),
+                label: const Text(
+                  'Simpan Perubahan',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                onPressed: _saveProfile,
+              ),
+            ),
+          ],
         ),
       ),
     );

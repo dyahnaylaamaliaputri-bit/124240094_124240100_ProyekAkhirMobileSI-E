@@ -215,7 +215,24 @@ class AuthService {
         throw Exception('Email atau password salah.');
       }
 
-      final user = UserModel.fromMap(row);
+      var user = UserModel.fromMap(row);
+
+      // Pastikan avatar lokal tetap dipertahankan bila Supabase belum/gagal menyimpan avatar_url
+      if (user.avatarUrl == null || user.avatarUrl!.isEmpty) {
+        final localAvatar = await _storage.getAvatarForUser(
+          userId: user.id,
+          email: user.email,
+        );
+        if (localAvatar != null && localAvatar.isNotEmpty) {
+          user = user.copyWith(avatarUrl: localAvatar);
+        }
+      } else {
+        await _storage.saveAvatarForUser(
+          userId: user.id,
+          email: user.email,
+          avatarData: user.avatarUrl,
+        );
+      }
 
       // Buat session token
       final rawToken = _uuid.v4();
@@ -264,7 +281,22 @@ class AuthService {
       throw Exception('Email atau password salah.');
     }
 
-    final user = UserModel.fromMap(Map<String, dynamic>.from(userData as Map));
+    var user = UserModel.fromMap(Map<String, dynamic>.from(userData as Map));
+    if (user.avatarUrl == null || user.avatarUrl!.isEmpty) {
+      final localAvatar = await _storage.getAvatarForUser(
+        userId: user.id,
+        email: user.email,
+      );
+      if (localAvatar != null && localAvatar.isNotEmpty) {
+        user = user.copyWith(avatarUrl: localAvatar);
+      }
+    } else {
+      await _storage.saveAvatarForUser(
+        userId: user.id,
+        email: user.email,
+        avatarData: user.avatarUrl,
+      );
+    }
     final rawToken = _uuid.v4();
 
     // Simpan token & user info ke secure storage lokal
@@ -409,7 +441,23 @@ class AuthService {
         return null;
       }
 
-      return UserModel.fromMap(userRow);
+      var user = UserModel.fromMap(userRow);
+      if (user.avatarUrl == null || user.avatarUrl!.isEmpty) {
+        final localAvatar = await _storage.getAvatarForUser(
+          userId: user.id,
+          email: user.email,
+        );
+        if (localAvatar != null && localAvatar.isNotEmpty) {
+          user = user.copyWith(avatarUrl: localAvatar);
+        }
+      } else {
+        await _storage.saveAvatarForUser(
+          userId: user.id,
+          email: user.email,
+          avatarData: user.avatarUrl,
+        );
+      }
+      return user;
     } catch (e) {
       if (_isConnectionError(e)) {
         debugPrint('[AuthService] Supabase tidak tersedia, cek sesi lokal: $e');
@@ -439,7 +487,17 @@ class AuthService {
     final userData = localUsers[userEmail];
     if (userData == null) return null;
 
-    return UserModel.fromMap(Map<String, dynamic>.from(userData as Map));
+    var user = UserModel.fromMap(Map<String, dynamic>.from(userData as Map));
+    if (user.avatarUrl == null || user.avatarUrl!.isEmpty) {
+      final localAvatar = await _storage.getAvatarForUser(
+        userId: user.id,
+        email: user.email,
+      );
+      if (localAvatar != null && localAvatar.isNotEmpty) {
+        user = user.copyWith(avatarUrl: localAvatar);
+      }
+    }
+    return user;
   }
 
   // ================================================================
@@ -511,7 +569,7 @@ class AuthService {
           .from('users')
           .update(payload)
           .eq('email', normalizedEmail)
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 8));
     } catch (e) {
       if (_isConnectionError(e)) {
         debugPrint(

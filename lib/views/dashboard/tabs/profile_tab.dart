@@ -50,10 +50,6 @@ class ProfileTab extends StatelessWidget {
               ? user!.fullName
               : 'Pengguna Cinemate';
           final email = user?.email ?? '-';
-          final phone = (user?.phone != null && user!.phone!.isNotEmpty)
-              ? user.phone!
-              : '081234567890';
-          final userId = user?.id ?? '-';
 
           // Format tanggal bergabung
           String joinedDate = '24 November 2026';
@@ -234,22 +230,6 @@ class ProfileTab extends StatelessWidget {
                       icon: Icons.email_outlined,
                       label: 'Email Terdaftar',
                       value: email,
-                    ),
-                    const SizedBox(height: 12),
-
-                    _buildInfoRow(
-                      icon: Icons.phone_outlined,
-                      label: 'Nomor Telepon',
-                      value: phone,
-                    ),
-                    const SizedBox(height: 12),
-
-                    _buildInfoRow(
-                      icon: Icons.fingerprint_rounded,
-                      label: 'ID Pengguna',
-                      value: userId.length > 20
-                          ? '${userId.substring(0, 18)}...'
-                          : userId,
                     ),
                     const SizedBox(height: 12),
 

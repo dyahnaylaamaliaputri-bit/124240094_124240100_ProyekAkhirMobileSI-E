@@ -11,6 +11,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../controllers/auth_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../services/supabase_service.dart';
@@ -25,10 +26,12 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey =
+      GlobalKey<FormState>(); // digunakan untuk memvalidasi seluruh input
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  bool _obscurePassword = true;
+  bool _obscurePassword =
+      true; // buat penentu apakah pw nya mau dibintang-bintang
   Timer? _lockoutTimer;
   String _lockoutCountdown = '';
 
@@ -39,11 +42,12 @@ class _LoginViewState extends State<LoginView> {
   @override
   void initState() {
     super.initState();
-    _startLockoutTimerIfNeeded();
+    _startLockoutTimerIfNeeded(); // cek apakah akun sedang dalam kondisi terkunci
   }
 
   @override
   void didChangeDependencies() {
+    // fungsi ini untuk mengambil email apabila pengguna registrasi terlebih dahulu
     super.didChangeDependencies();
     if (!_initializedArgs) {
       _initializedArgs = true;
@@ -62,6 +66,7 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void _startCountdown() {
+    // menghitung waktu setiap detik dan memperbarui tampilan teks
     _lockoutTimer?.cancel();
     _lockoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
@@ -82,20 +87,23 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
-    _passwordCtrl.dispose();
-    _lockoutTimer?.cancel();
+    _emailCtrl.dispose(); // menghapus cntrler input email dari RAM
+    _passwordCtrl.dispose(); // menghapus cntrler input pw dari RAM
+    _lockoutTimer?.cancel(); // menghentikan timer hitung mundur
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (_ctrl.isLockedOut) {
+      // cek apakah akun di lock
       _startCountdown();
       return;
     }
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate())
+      return; // validasi input (semua input)
 
     final success = await _ctrl.login(
+      // ambil email sama pw
       email: _emailCtrl.text.trim(),
       password: _passwordCtrl.text,
     );
@@ -160,8 +168,8 @@ class _LoginViewState extends State<LoginView> {
               if (!SupabaseService.isInitialized)
                 Container(
                   margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: AppColors.card,
                     borderRadius: BorderRadius.circular(10),

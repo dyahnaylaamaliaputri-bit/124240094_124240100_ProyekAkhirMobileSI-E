@@ -271,17 +271,34 @@ class StorageService {
   }
 
   /// Path foto profil lokal pengguna (PB-061) - scoped per user ID / email
+  /// Menggunakan dual storage: GetStorage (sinkron cepat) + Hive Box (persisten NoSQL Modul 6)
   String? get avatarPath => getAvatarPath();
 
   set avatarPath(String? path) => setAvatarPath(path);
+
+  String? _readHiveAvatarSync(String key) {
+    try {
+      if (Hive.isBoxOpen(AppConstants.hiveBoxUser)) {
+        final val = Hive.box(AppConstants.hiveBoxUser).get(key);
+        if (val is String && val.isNotEmpty) return val;
+      }
+    } catch (_) {}
+    return null;
+  }
 
   String? getAvatarPath([String? userId]) {
     if (userId == null || userId.isEmpty) return null;
     final key = 'avatar_path_$userId';
     if (_isTestEnvironment) {
-      return _memoryFallback[key] as String?;
+      final mem = _memoryFallback[key] as String?;
+      if (mem != null && mem.isNotEmpty) return mem;
+      return _readHiveAvatarSync(key);
     }
-    return _prefs.read<String>(key);
+    try {
+      final prefVal = _prefs.read<String>(key);
+      if (prefVal != null && prefVal.isNotEmpty) return prefVal;
+    } catch (_) {}
+    return _readHiveAvatarSync(key);
   }
 
   Future<void> setAvatarPath(String? path, [String? userId]) async {
@@ -293,17 +310,34 @@ class StorageService {
       } else {
         _memoryFallback[key] = path;
       }
+      try {
+        final box = await _openBox(AppConstants.hiveBoxUser);
+        if (path == null) {
+          await box.delete(key);
+        } else {
+          await box.put(key, path);
+        }
+      } catch (_) {}
       return;
     }
     if (path == null) {
       await _prefs.remove(key);
     } else {
       await _prefs.write(key, path);
+      await _prefs.save();
     }
+    try {
+      final box = await _openBox(AppConstants.hiveBoxUser);
+      if (path == null) {
+        await box.delete(key);
+      } else {
+        await box.put(key, path);
+      }
+    } catch (_) {}
   }
 
   /// Simpan atau hapus avatar berdasarkan userId dan email agar konsisten
-  /// antara sesi online (Supabase UUID) dan offline/lokal.
+  /// antara sesi online (Supabase UUID), offline/lokal, GetStorage, dan Hive.
   Future<void> saveAvatarForUser({
     String? userId,
     String? email,
@@ -315,6 +349,46 @@ class StorageService {
     if (email != null && email.trim().isNotEmpty) {
       await setAvatarPath(avatarData, email.trim().toLowerCase());
     }
+  }
+
+  /// Mengambil avatar secara asynchronous dari GetStorage maupun Hive Box user_cache
+  Future<String?> getAvatarForUser({
+    String? userId,
+    String? email,
+  }) async {
+    final normalizedEmail = email?.trim().toLowerCase();
+    final syncId = getAvatarPath(userId);
+    if (syncId != null && syncId.isNotEmpty) return syncId;
+
+    final syncEmail = getAvatarPath(normalizedEmail);
+    if (syncEmail != null && syncEmail.isNotEmpty) return syncEmail;
+
+    try {
+      final box = await _openBox(AppConstants.hiveBoxUser);
+      if (userId != null && userId.isNotEmpty) {
+        final val = box.get('avatar_path_$userId');
+        if (val is String && val.isNotEmpty) {
+          if (!_isTestEnvironment) {
+            await _prefs.write('avatar_path_$userId', val);
+          } else {
+            _memoryFallback['avatar_path_$userId'] = val;
+          }
+          return val;
+        }
+      }
+      if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
+        final val = box.get('avatar_path_$normalizedEmail');
+        if (val is String && val.isNotEmpty) {
+          if (!_isTestEnvironment) {
+            await _prefs.write('avatar_path_$normalizedEmail', val);
+          } else {
+            _memoryFallback['avatar_path_$normalizedEmail'] = val;
+          }
+          return val;
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   /// Preferensi genre film favorit penonton (PB-064)

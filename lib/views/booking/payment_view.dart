@@ -555,9 +555,9 @@ class PaymentView extends GetView<PaymentController> {
                       color: AppColors.textSecondary, size: 20),
                   filled: true,
                   fillColor: AppColors.card,
-                  hintText: '08xx-xxxx-xxxx',
-                  hintStyle: const TextStyle(
-                      color: AppColors.textHint, fontSize: 13),
+                  hintText: 'Masukkan nomor HP (contoh: 081234567890)',
+                  hintStyle:
+                      const TextStyle(color: AppColors.textHint, fontSize: 13),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   border: OutlineInputBorder(
@@ -697,49 +697,56 @@ class PaymentView extends GetView<PaymentController> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border),
       ),
-      child: Theme(
-        data: ThemeData(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: true,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-          leading: const Icon(Icons.info_outline_rounded,
-              color: AppColors.textSecondary, size: 18),
-          title: const Text(
-            'Petunjuk Pembayaran',
-            style: TextStyle(
-                color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-              child: Column(
-                children: instructions.asMap().entries.map((entry) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${entry.key + 1}. ',
-                          style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Expanded(
-                          child: Text(
-                            entry.value,
-                            style: const TextStyle(
-                                color: AppColors.textSecondary, fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: Theme(
+          data: ThemeData(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            initiallyExpanded: true,
+            tilePadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+            leading: const Icon(Icons.info_outline_rounded,
+                color: AppColors.textSecondary, size: 18),
+            title: const Text(
+              'Petunjuk Pembayaran',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold),
             ),
-          ],
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                child: Column(
+                  children: instructions.asMap().entries.map((entry) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 3),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${entry.key + 1}. ',
+                            style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Expanded(
+                            child: Text(
+                              entry.value,
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

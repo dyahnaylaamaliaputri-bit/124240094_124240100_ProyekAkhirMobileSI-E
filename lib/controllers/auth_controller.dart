@@ -89,10 +89,10 @@ class AuthController extends GetxController {
 
   // ── CHECK SESSION (PB-007) ────────────────────────────────────────────────
 
-  void _syncProfileAvatar() {
+  Future<void> _syncProfileAvatar() async {
     final user = currentUser.value;
     if (user != null && user.avatarUrl != null && user.avatarUrl!.isNotEmpty) {
-      _storage.saveAvatarForUser(
+      await _storage.saveAvatarForUser(
         userId: user.id,
         email: user.email,
         avatarData: user.avatarUrl,
@@ -103,7 +103,7 @@ class AuthController extends GetxController {
       if (user == null) {
         profileCtrl.avatarPath.value = null;
       } else {
-        profileCtrl.loadAvatar();
+        await profileCtrl.loadAvatarAsync();
         profileCtrl.loadProfileStats();
       }
     }
@@ -115,7 +115,7 @@ class AuthController extends GetxController {
       final user = await _repository.checkSession();
       if (user != null) {
         currentUser.value = user;
-        _syncProfileAvatar();
+        await _syncProfileAvatar();
         return user;
       }
       return null;
@@ -182,7 +182,7 @@ class AuthController extends GetxController {
     try {
       final result = await _repository.login(email: email, password: password);
       currentUser.value = result.user;
-      _syncProfileAvatar();
+      await _syncProfileAvatar();
       _resetLockout();
       return true;
     } catch (e) {
@@ -208,11 +208,11 @@ class AuthController extends GetxController {
     try {
       await _repository.logout();
       currentUser.value = null;
-      _syncProfileAvatar();
+      await _syncProfileAvatar();
     } catch (_) {
       // Tetap logout lokal meskipun server gagal
       currentUser.value = null;
-      _syncProfileAvatar();
+      await _syncProfileAvatar();
     } finally {
       isLoading.value = false;
     }

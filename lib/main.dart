@@ -15,6 +15,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'services/supabase_service.dart';
 import 'services/notification_service.dart';
+import 'utils/constants.dart';
 import 'app.dart';
 
 Future<void> main() async {
@@ -33,6 +34,7 @@ Future<void> main() async {
 
   // 4. Inisialisasi Hive (PB-004, referensi modul 6)
   await Hive.initFlutter();
+  await Hive.openBox(AppConstants.hiveBoxUser);
 
   // 5. Inisialisasi Notifikasi Lokal & Pengingat (Modul VII)
   try {

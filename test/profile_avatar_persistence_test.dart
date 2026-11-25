@@ -14,6 +14,8 @@ import 'package:cinemate/models/user_model.dart';
 import 'package:cinemate/repositories/auth_repository.dart';
 import 'package:cinemate/services/auth_service.dart';
 import 'package:cinemate/services/storage_service.dart';
+import 'package:cinemate/views/dashboard/tabs/profile_tab.dart';
+import 'package:cinemate/views/profile/edit_profile_view.dart';
 
 class _FakeAuthRepository implements AuthRepository {
   final Map<String, UserModel> usersByEmail = {};
@@ -289,5 +291,108 @@ void main() {
 
     final resolved = profileCtrl.resolveEffectiveAvatar(userWithCloudAvatar);
     expect(resolved, equals(userWithCloudAvatar.avatarUrl));
+  });
+
+  test(
+      'Foto profil tetap pulih via Hive ketika ProfileController dibuat ulang setelah logout-login',
+      () async {
+    final userA = UserModel(
+      id: 'usr-hive-a',
+      email: 'hive.a@cinemate.id',
+      fullName: 'Hive User A',
+      createdAt: DateTime(2026, 11, 25),
+    );
+    repo.usersByEmail['hive.a@cinemate.id'] = userA;
+
+    final authCtrl = Get.put(
+      AuthController(repository: repo, storage: storage),
+      permanent: true,
+    );
+    final firstProfileCtrl = Get.put(
+      ProfileController(
+        storage: storage,
+        imagePicker: _FakeImagePicker(sampleImage.path),
+        authService: authService,
+      ),
+    );
+
+    await authCtrl.login(email: 'hive.a@cinemate.id', password: 'Password1');
+    await firstProfileCtrl.pickProfileImage(ImageSource.gallery);
+    expect(firstProfileCtrl.avatarPath.value,
+        startsWith('data:image/png;base64,'));
+
+    // Simulasi logout + hapus ProfileController dari memori (seperti teardown DashboardBinding)
+    await authCtrl.logout();
+    await Get.delete<ProfileController>(force: true);
+
+    // Login ulang -> ProfileController baru dibuat ulang oleh DashboardBinding
+    await authCtrl.login(email: 'hive.a@cinemate.id', password: 'Password1');
+    final secondProfileCtrl = Get.put(
+      ProfileController(
+        storage: storage,
+        authService: authService,
+      ),
+    );
+    await secondProfileCtrl.loadAvatarAsync();
+
+    expect(secondProfileCtrl.avatarPath.value,
+        startsWith('data:image/png;base64,'));
+    expect(
+      ProfileController.resolveAvatarImageProvider(
+          secondProfileCtrl.resolveEffectiveAvatar(authCtrl.currentUser.value)),
+      isNotNull,
+    );
+  });
+
+  testWidgets(
+      'ProfileTab dan EditProfileView tidak menampilkan No WA/Telepon atau ID Pengguna',
+      (WidgetTester tester) async {
+    final userA = UserModel(
+      id: 'usr-ui-12345',
+      email: 'ui@cinemate.id',
+      fullName: 'UI Tester',
+      phone: '081234567890',
+      createdAt: DateTime(2026, 11, 25),
+    );
+
+    final authCtrl = Get.put(
+      AuthController(repository: repo, storage: storage),
+      permanent: true,
+    );
+    authCtrl.currentUser.value = userA;
+
+    Get.put(
+      ProfileController(
+        storage: storage,
+        imagePicker: _FakeImagePicker(sampleImage.path),
+        authService: authService,
+      ),
+    );
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        home: ProfileTab(onLogoutRequested: () {}),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('UI Tester'), findsWidgets);
+    expect(find.text('ui@cinemate.id'), findsWidgets);
+    expect(find.text('Nomor Telepon'), findsNothing);
+    expect(find.text('ID Pengguna'), findsNothing);
+    expect(find.text('081234567890'), findsNothing);
+    expect(find.text('usr-ui-12345'), findsNothing);
+
+    await tester.pumpWidget(
+      const GetMaterialApp(
+        home: EditProfileView(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nomor Telepon / WhatsApp'), findsNothing);
+    expect(find.text('081234567890'), findsNothing);
+    expect(find.text('UI Tester'), findsOneWidget);
+    expect(find.text('ui@cinemate.id'), findsOneWidget);
   });
 }

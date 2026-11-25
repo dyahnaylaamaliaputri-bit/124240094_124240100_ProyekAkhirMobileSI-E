@@ -16,6 +16,7 @@ import '../services/storage_service.dart';
 import '../services/ticket_service.dart';
 import '../services/notification_service.dart';
 import '../services/fnb_service.dart';
+import '../utils/app_colors.dart';
 import '../views/booking/widgets/payment_success_sheet.dart';
 import 'fnb_controller.dart';
 import 'tickets_controller.dart';
@@ -41,8 +42,8 @@ class PaymentController extends GetxController {
   final isPaymentSuccess = false.obs;
   final createdTicket = Rx<TicketModel?>(null);
 
-  /// Input nomor ponsel untuk E-Wallet
-  final phoneController = TextEditingController(text: '081234567890');
+  /// Input nomor ponsel untuk E-Wallet (diisi manual oleh pengguna)
+  final phoneController = TextEditingController();
 
   @override
   void onInit() {
@@ -197,9 +198,37 @@ class PaymentController extends GetxController {
     );
   }
 
+  /// Validasi nomor HP E-Wallet sebelum memproses pembayaran
+  String? validateEWalletPhone() {
+    if (selectedCategory.value != PaymentCategory.eWallet) return null;
+    final digits = phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) {
+      return 'Masukkan nomor HP akun ${selectedMethod.value.name} Anda terlebih dahulu.';
+    }
+    if (digits.length < 10 || digits.length > 15) {
+      return 'Masukkan nomor HP yang valid (10-15 digit).';
+    }
+    return null;
+  }
+
   /// Simulasi Proses Pembayaran Menjadi "PAID" (PB-021)
   Future<void> payNow() async {
     if (isProcessing.value) return;
+
+    final ewalletError = validateEWalletPhone();
+    if (ewalletError != null) {
+      if (Get.context != null) {
+        Get.snackbar(
+          'Nomor HP Diperlukan',
+          ewalletError,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.card,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      }
+      return;
+    }
 
     isProcessing.value = true;
 

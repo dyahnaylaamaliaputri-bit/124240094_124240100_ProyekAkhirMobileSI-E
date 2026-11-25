@@ -1,12 +1,16 @@
 // test/payment_simulation_test.dart
 // Pengujian unit simulasi pembayaran tiket bioskop (PB-021)
 
+import 'package:cinemate/controllers/payment_controller.dart';
 import 'package:cinemate/models/booking_order_model.dart';
 import 'package:cinemate/models/cinema_model.dart';
 import 'package:cinemate/models/movie_model.dart';
 import 'package:cinemate/models/payment_method_model.dart';
 import 'package:cinemate/models/showtime_model.dart';
+import 'package:cinemate/views/booking/payment_view.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 
 void main() {
   group('PaymentMethodModel Tests (PB-021)', () {
@@ -142,6 +146,69 @@ void main() {
       expect(orderWithPromo.discountAmount, 10000);
       expect(orderWithPromo.totalAmount, 96000);
       expect(orderWithPromo.formattedTotalAmount, 'Rp 96.000');
+    });
+  });
+
+  group('PaymentController E-Wallet Manual Phone Tests', () {
+    setUp(() => Get.reset());
+    tearDown(() => Get.reset());
+
+    test('E-Wallet phoneController starts empty for manual input', () {
+      final controller = PaymentController();
+      controller.onInit();
+
+      expect(controller.phoneController.text, isEmpty);
+
+      controller.onClose();
+    });
+
+    test('E-Wallet payment requires valid manual phone number', () {
+      final controller = PaymentController();
+      controller.onInit();
+      controller.selectCategory(PaymentCategory.eWallet);
+
+      // Kosong -> wajib ditolak
+      expect(controller.validateEWalletPhone(), isNotNull);
+
+      // Kurang dari 10 digit -> wajib ditolak
+      controller.phoneController.text = '0812345';
+      expect(controller.validateEWalletPhone(), isNotNull);
+
+      // Input manual valid -> diterima
+      controller.phoneController.text = '081398765432';
+      expect(controller.validateEWalletPhone(), isNull);
+
+      // Virtual Account tidak memerlukan input nomor HP E-Wallet
+      controller.phoneController.clear();
+      controller.selectCategory(PaymentCategory.virtualAccount);
+      expect(controller.validateEWalletPhone(), isNull);
+
+      controller.onClose();
+    });
+
+    testWidgets(
+        'PaymentView E-Wallet renders empty phone TextField for manual entry',
+        (WidgetTester tester) async {
+      final controller = Get.put(PaymentController());
+      controller.selectCategory(PaymentCategory.eWallet);
+
+      await tester.pumpWidget(
+        const GetMaterialApp(
+          home: PaymentView(),
+        ),
+      );
+      await tester.pump();
+
+      final textFieldFinder = find.byType(TextField);
+      expect(textFieldFinder, findsOneWidget);
+      final textField = tester.widget<TextField>(textFieldFinder);
+      expect(textField.controller?.text, isEmpty);
+      expect(find.text('081234567890'), findsNothing);
+
+      await tester.enterText(textFieldFinder, '085611223344');
+      expect(controller.phoneController.text, equals('085611223344'));
+
+      await Get.delete<PaymentController>(force: true);
     });
   });
 }

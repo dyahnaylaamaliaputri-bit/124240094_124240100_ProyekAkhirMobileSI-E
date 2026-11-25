@@ -74,14 +74,30 @@ class ProfileController extends GetxController {
     return null;
   }
 
+  Worker? _userWorker;
+
   @override
   void onInit() {
     super.onInit();
     loadAvatar();
+    loadAvatarAsync();
+    if (Get.isRegistered<AuthController>()) {
+      final authCtrl = Get.find<AuthController>();
+      _userWorker = ever(authCtrl.currentUser, (_) {
+        loadAvatar();
+        loadAvatarAsync();
+      });
+    }
     themeMode.value = _storage.themeMode;
     isBiometricEnabled.value = _storage.biometricEnabled;
     favoriteGenres.assignAll(_storage.getFavoriteGenres());
     loadProfileStats();
+  }
+
+  @override
+  void onClose() {
+    _userWorker?.dispose();
+    super.onClose();
   }
 
   /// Memvalidasi apakah path/URI avatar tersedia untuk dirender
@@ -167,6 +183,41 @@ class ProfileController extends GetxController {
     }
   }
 
+  Future<void> loadAvatarAsync() async {
+    final user = _currentUser;
+    if (user == null) {
+      avatarPath.value = null;
+      return;
+    }
+
+    String? resolved = resolveEffectiveAvatar(user);
+    if (!isValidAvatarSource(resolved)) {
+      final fromHive = await _storage.getAvatarForUser(
+        userId: user.id,
+        email: user.email,
+      );
+      if (isValidAvatarSource(fromHive)) {
+        resolved = fromHive;
+      }
+    }
+
+    if (resolved != null && resolved.isNotEmpty) {
+      avatarPath.value = resolved;
+      await _storage.saveAvatarForUser(
+        userId: user.id,
+        email: user.email,
+        avatarData: resolved,
+      );
+      if (Get.isRegistered<AuthController>() &&
+          (user.avatarUrl == null || user.avatarUrl!.isEmpty)) {
+        Get.find<AuthController>().currentUser.value =
+            user.copyWith(avatarUrl: resolved);
+      }
+    } else {
+      avatarPath.value = null;
+    }
+  }
+
   // =========================================================================
   // 1. PB-061: UNGGAH FOTO PROFIL (KAMERA / GALERI / PRESET FALLBACK)
   // =========================================================================
@@ -189,7 +240,14 @@ class ProfileController extends GetxController {
       // Simpan sebagai Data URI terkompresi agar persisten lintas logout,
       // pembersihan cache perangkat, dan sinkronisasi ke Supabase (Modul 5 & 6).
       final bytes = await pickedFile.readAsBytes();
-      final isPng = pickedFile.path.toLowerCase().endsWith('.png');
+      if (bytes.isEmpty) return false;
+
+      final isPng = pickedFile.path.toLowerCase().endsWith('.png') ||
+          (bytes.length >= 4 &&
+              bytes[0] == 0x89 &&
+              bytes[1] == 0x50 &&
+              bytes[2] == 0x4E &&
+              bytes[3] == 0x47);
       final mime = isPng ? 'image/png' : 'image/jpeg';
       final storedValue = 'data:$mime;base64,${base64Encode(bytes)}';
 
@@ -242,12 +300,12 @@ class ProfileController extends GetxController {
     }
   }
 
-  /// Menyimpan perubahan nomor telepon dan foto profil ke lokal serta Supabase
-  Future<void> saveProfileChanges({required String phone}) async {
+  /// Menyimpan perubahan profil dan foto ke lokal serta Supabase
+  Future<void> saveProfileChanges({String? phone}) async {
     final current = _currentUser;
     if (current == null) return;
 
-    final trimmedPhone = phone.trim();
+    final trimmedPhone = phone?.trim();
     final effectiveAvatar = resolveEffectiveAvatar(current);
     final updated = current.copyWith(
       phone: trimmedPhone,
