@@ -159,6 +159,45 @@ class MovieModel {
     );
   }
 
+  /// Parsing data dari Public API TVmaze (https://api.tvmaze.com/shows) tanpa API Key
+  factory MovieModel.fromTvMazeJson(Map<String, dynamic> json) {
+    final imageMap = json['image'] as Map<String, dynamic>?;
+    final ratingMap = json['rating'] as Map<String, dynamic>?;
+    final rawSummary = json['summary'] as String? ?? '';
+    final cleanOverview = rawSummary
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&quot;', '"')
+        .trim();
+
+    final rawGenres = (json['genres'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [];
+    final mappedGenreIds = rawGenres
+        .map((g) => _tvMazeGenreToId[g])
+        .whereType<int>()
+        .toList();
+
+    final weight = (json['weight'] as num?)?.toDouble() ?? 70.0;
+    final avgRating = (ratingMap?['average'] as num?)?.toDouble() ?? 7.2;
+
+    return MovieModel(
+      id: json['id'] as int? ?? 0,
+      title: json['name'] as String? ?? 'Untitled',
+      overview: cleanOverview.isNotEmpty
+          ? cleanOverview
+          : 'Sinopsis film tersedia di bioskop terdekat.',
+      posterPath: imageMap?['medium'] as String? ?? imageMap?['original'] as String?,
+      backdropPath: imageMap?['original'] as String? ?? imageMap?['medium'] as String?,
+      releaseDate: json['premiered'] as String?,
+      voteAverage: avgRating,
+      voteCount: (weight * 25).round(),
+      genreIds: mappedGenreIds.isNotEmpty ? mappedGenreIds : [18],
+      popularity: weight * 4.0,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -194,5 +233,28 @@ class MovieModel {
     53: 'Thriller',
     10752: 'War',
     37: 'Western',
+  };
+
+  static const Map<String, int> _tvMazeGenreToId = {
+    'Action': 28,
+    'Adventure': 12,
+    'Animation': 16,
+    'Anime': 16,
+    'Comedy': 35,
+    'Crime': 80,
+    'Documentary': 99,
+    'Drama': 18,
+    'Family': 10751,
+    'Fantasy': 14,
+    'History': 36,
+    'Horror': 27,
+    'Music': 10402,
+    'Mystery': 9648,
+    'Romance': 10749,
+    'Science-Fiction': 878,
+    'Supernatural': 14,
+    'Thriller': 53,
+    'War': 10752,
+    'Western': 37,
   };
 }

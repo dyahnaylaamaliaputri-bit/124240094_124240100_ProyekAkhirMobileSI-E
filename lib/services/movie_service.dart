@@ -19,6 +19,9 @@ class MovieService {
   String get _baseUrl =>
       dotenv.env['TMDB_BASE_URL'] ?? 'https://api.themoviedb.org/3';
 
+  String get _publicApiUrl =>
+      dotenv.env['PUBLIC_MOVIE_API_URL'] ?? 'https://api.tvmaze.com';
+
   String? get _apiKey {
     final key = dotenv.env['TMDB_API_KEY'];
     if (key == null || key.isEmpty || key == 'YOUR_TMDB_API_KEY_HERE') {
@@ -32,7 +35,7 @@ class MovieService {
   // =========================================================================
 
   /// Mengambil daftar film yang sedang tayang (Now Playing)
-  /// Mengembalikan record: `(movies: list, fromCache: bool, isExpired: bool, timestamp: DateTime?)`
+  /// Menggunakan TMDB jika API key tersedia, atau Public API TVmaze (tanpa key).
   Future<
       ({
         List<MovieModel> movies,
@@ -43,7 +46,7 @@ class MovieService {
     int page = 1,
     bool forceRefresh = false,
   }) async {
-    const cacheKey = 'now_playing';
+    const cacheKey = 'now_playing_public_v1';
 
     // 1. Cek cache Hive jika tidak dipaksa refresh
     if (!forceRefresh) {
@@ -59,7 +62,7 @@ class MovieService {
       }
     }
 
-    // 2. Fetch online dari API TMDB
+    // 2. Fetch online dari TMDB (jika ada key) atau Public API TVmaze (tanpa key)
     final key = _apiKey;
     if (key != null) {
       try {
@@ -79,7 +82,6 @@ class MovieService {
           final List results = response.data['results'] ?? [];
           final list = results.map((e) => MovieModel.fromJson(e)).toList();
 
-          // Simpan ke Hive box 'movies_cache' dengan timestamp baru (TTL 6 jam)
           await _storage.cacheMovies(
               cacheKey, list.map((m) => m.toJson()).toList());
           return (
@@ -91,8 +93,44 @@ class MovieService {
         }
       } catch (e) {
         debugPrint(
-            '[MovieService] Error API Now Playing ($e), beralih ke cache Hive...');
+            '[MovieService] Error TMDB Now Playing ($e), beralih ke Public API...');
       }
+    }
+
+    // Public API (https://api.tvmaze.com/shows?page=0) - Tanpa API Key!
+    try {
+      final response = await _http.get(
+        '$_publicApiUrl/shows',
+        queryParameters: {'page': page - 1},
+        options: Options(
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data is List) {
+        final List rawList = response.data as List;
+        final list = rawList
+            .whereType<Map<String, dynamic>>()
+            .map((e) => MovieModel.fromTvMazeJson(e))
+            .where((m) => m.posterUrl.isNotEmpty)
+            .toList()
+          ..sort((a, b) => b.voteAverage.compareTo(a.voteAverage));
+
+        final topMovies = list.take(20).toList();
+        if (topMovies.isNotEmpty) {
+          await _storage.cacheMovies(
+              cacheKey, topMovies.map((m) => m.toJson()).toList());
+          return (
+            movies: topMovies,
+            fromCache: false,
+            isExpired: false,
+            timestamp: DateTime.now()
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint(
+          '[MovieService] Error Public API Now Playing ($e), beralih ke cache Hive...');
     }
 
     // 3. Jika offline atau API gagal, muat dari Hive cache (meskipun TTL lewat)
@@ -133,7 +171,7 @@ class MovieService {
     int page = 1,
     bool forceRefresh = false,
   }) async {
-    const cacheKey = 'upcoming';
+    const cacheKey = 'upcoming_public_v1';
 
     // 1. Cek cache Hive jika tidak dipaksa refresh
     if (!forceRefresh) {
@@ -149,7 +187,7 @@ class MovieService {
       }
     }
 
-    // 2. Fetch online dari API TMDB
+    // 2. Fetch online dari TMDB (jika ada key) atau Public API TVmaze (tanpa key)
     final key = _apiKey;
     if (key != null) {
       try {
@@ -169,7 +207,6 @@ class MovieService {
           final List results = response.data['results'] ?? [];
           final list = results.map((e) => MovieModel.fromJson(e)).toList();
 
-          // Simpan ke Hive box 'movies_cache' dengan timestamp baru (TTL 6 jam)
           await _storage.cacheMovies(
               cacheKey, list.map((m) => m.toJson()).toList());
           return (
@@ -181,8 +218,44 @@ class MovieService {
         }
       } catch (e) {
         debugPrint(
-            '[MovieService] Error API Upcoming ($e), beralih ke cache Hive...');
+            '[MovieService] Error TMDB Upcoming ($e), beralih ke Public API...');
       }
+    }
+
+    // Public API (https://api.tvmaze.com/shows?page=1) - Tanpa API Key!
+    try {
+      final response = await _http.get(
+        '$_publicApiUrl/shows',
+        queryParameters: {'page': page},
+        options: Options(
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data is List) {
+        final List rawList = response.data as List;
+        final list = rawList
+            .whereType<Map<String, dynamic>>()
+            .map((e) => MovieModel.fromTvMazeJson(e))
+            .where((m) => m.posterUrl.isNotEmpty)
+            .toList()
+          ..sort((a, b) => b.popularity.compareTo(a.popularity));
+
+        final upcomingMovies = list.take(15).toList();
+        if (upcomingMovies.isNotEmpty) {
+          await _storage.cacheMovies(
+              cacheKey, upcomingMovies.map((m) => m.toJson()).toList());
+          return (
+            movies: upcomingMovies,
+            fromCache: false,
+            isExpired: false,
+            timestamp: DateTime.now()
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint(
+          '[MovieService] Error Public API Upcoming ($e), beralih ke cache Hive...');
     }
 
     // 3. Jika offline atau API gagal, muat dari Hive cache
@@ -216,7 +289,7 @@ class MovieService {
   Future<({List<MovieModel> movies, bool fromCache})> getBannerMovies({
     bool forceRefresh = false,
   }) async {
-    const cacheKey = 'banner';
+    const cacheKey = 'banner_public_v1';
 
     if (!forceRefresh) {
       final cached = await _storage.getCachedMovies(cacheKey);
