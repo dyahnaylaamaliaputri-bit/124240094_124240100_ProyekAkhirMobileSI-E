@@ -438,6 +438,36 @@ class _BookByMovieViewState extends State<BookByMovieView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Fitur Search Bioskop di Pesan Tiket
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+          child: TextField(
+            onChanged: controller.setCinemaSearchQuery,
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+            decoration: InputDecoration(
+              hintText: 'Cari nama bioskop atau kota...',
+              hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 13),
+              prefixIcon: const Icon(Icons.search_rounded,
+                  color: AppColors.gold, size: 20),
+              filled: true,
+              fillColor: AppColors.card,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.gold),
+              ),
+            ),
+          ),
+        ),
         // Filter Kota untuk pesan tiket dari kota mana saja
         Obx(() {
           final cities = controller.availableCities;
@@ -473,13 +503,13 @@ class _BookByMovieViewState extends State<BookByMovieView> {
         }),
         const SizedBox(height: 12),
         Obx(() {
-          final cinemas = controller.cinemas;
+          final cinemas = controller.displayedCinemas;
           if (cinemas.isEmpty) {
             return const Padding(
               padding: EdgeInsets.all(24),
               child: Center(
                 child: Text(
-                  'Tidak ada bioskop yang menayangkan film ini.',
+                  'Tidak ada bioskop yang cocok dengan pencarian Anda.',
                   style: TextStyle(color: AppColors.textSecondary),
                 ),
               ),

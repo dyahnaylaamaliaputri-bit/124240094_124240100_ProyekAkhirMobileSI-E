@@ -42,6 +42,24 @@ class BookByMovieController extends GetxController {
   final selectedCity = 'Semua Kota'.obs;
   final availableCities = <String>['Semua Kota'].obs;
 
+  /// Query pencarian bioskop pada halaman pesan tiket
+  final cinemaSearchQuery = ''.obs;
+
+  /// Daftar bioskop yang ditampilkan setelah filter pencarian nama/kota
+  List<CinemaModel> get displayedCinemas {
+    final q = cinemaSearchQuery.value.trim().toLowerCase();
+    if (q.isEmpty) return cinemas;
+    return cinemas.where((c) {
+      return c.name.toLowerCase().contains(q) ||
+          c.city.toLowerCase().contains(q) ||
+          c.address.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  void setCinemaSearchQuery(String query) {
+    cinemaSearchQuery.value = query;
+  }
+
   final isLoading = false.obs;
   final isLoadingShowtimes = false.obs;
 

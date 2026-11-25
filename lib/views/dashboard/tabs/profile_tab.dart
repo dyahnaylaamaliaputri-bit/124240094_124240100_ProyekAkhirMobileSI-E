@@ -2,6 +2,7 @@
 // Tab Profil Pengguna yang Disederhanakan Sesuai Modul II - VIII
 // Menampilkan data yang diinput saat registrasi, avatar per akun, edit profil, dan tombol keluar.
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -81,21 +82,32 @@ class ProfileTab extends StatelessWidget {
             joinedDate = '${dt.day} ${months[dt.month]} ${dt.year}';
           }
 
-          // Cek avatar lokal khusus user ID aktif (mendukung Web blob/http dan Native File)
-          final localAvatarPath =
-              profileCtrl.avatarPath.value ?? storage.getAvatarPath(user?.id);
+          // Cek avatar lokal khusus user ID / email aktif (persisten di Web & Mobile)
+          final savedByUser = user != null
+              ? (storage.getAvatarPath(user.id) ??
+                  storage.getAvatarPath(user.email.toLowerCase()))
+              : null;
           final effectiveAvatar =
-              (localAvatarPath != null && localAvatarPath.isNotEmpty)
-                  ? localAvatarPath
-                  : user?.avatarUrl;
-          final isNetworkOrBlob = effectiveAvatar != null &&
-              (kIsWeb ||
-                  effectiveAvatar.startsWith('http') ||
-                  effectiveAvatar.startsWith('blob:') ||
-                  effectiveAvatar.startsWith('data:'));
-          final hasAvatarImage = effectiveAvatar != null &&
-              effectiveAvatar.isNotEmpty &&
-              (isNetworkOrBlob || File(effectiveAvatar).existsSync());
+              (savedByUser != null && savedByUser.isNotEmpty)
+                  ? savedByUser
+                  : (profileCtrl.avatarPath.value?.isNotEmpty == true
+                      ? profileCtrl.avatarPath.value
+                      : user?.avatarUrl);
+
+          ImageProvider? avatarProvider;
+          if (effectiveAvatar != null && effectiveAvatar.isNotEmpty) {
+            if (effectiveAvatar.startsWith('data:image')) {
+              final b64 = effectiveAvatar.split(',').last;
+              avatarProvider = MemoryImage(base64Decode(b64));
+            } else if (kIsWeb ||
+                effectiveAvatar.startsWith('http') ||
+                effectiveAvatar.startsWith('blob:')) {
+              avatarProvider = NetworkImage(effectiveAvatar);
+            } else if (File(effectiveAvatar).existsSync()) {
+              avatarProvider = FileImage(File(effectiveAvatar));
+            }
+          }
+          final hasAvatarImage = avatarProvider != null;
 
           return Column(
             children: [
@@ -123,12 +135,7 @@ class ProfileTab extends StatelessWidget {
                         CircleAvatar(
                           radius: 44,
                           backgroundColor: AppColors.primary,
-                          backgroundImage: hasAvatarImage
-                              ? (isNetworkOrBlob
-                                  ? NetworkImage(effectiveAvatar)
-                                      as ImageProvider
-                                  : FileImage(File(effectiveAvatar)))
-                              : null,
+                          backgroundImage: avatarProvider,
                           child: hasAvatarImage
                               ? null
                               : Text(

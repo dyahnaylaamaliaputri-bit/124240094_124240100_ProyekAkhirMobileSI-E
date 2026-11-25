@@ -1,6 +1,7 @@
 // lib/views/profile/edit_profile_view.dart
 // Halaman form edit profil pengguna: nama, nomor telepon & foto profil kamera/galeri (PB-061, PB-062)
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,47 +29,22 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _nameCtrl;
   late TextEditingController _phoneCtrl;
-  int _selectedAvatarIndex = 0;
-
-  final List<Map<String, dynamic>> _presetAvatars = [
-    {
-      'label': 'Cinephile',
-      'icon': Icons.movie_filter_rounded,
-      'color': AppColors.primary,
-    },
-    {
-      'label': 'VIP Gold',
-      'icon': Icons.workspace_premium_rounded,
-      'color': AppColors.gold,
-    },
-    {
-      'label': 'Director',
-      'icon': Icons.videocam_rounded,
-      'color': Colors.deepPurpleAccent,
-    },
-    {
-      'label': 'Popcorn Fan',
-      'icon': Icons.fastfood_rounded,
-      'color': Colors.amber,
-    },
-    {
-      'label': 'Sci-Fi Star',
-      'icon': Icons.rocket_launch_rounded,
-      'color': Colors.cyanAccent,
-    },
-  ];
 
   @override
   void initState() {
     super.initState();
-    _profileCtrl.loadAvatar();
     final user = _authCtrl.currentUser.value;
-    final initialName = (user?.fullName.isNotEmpty == true)
-        ? user!.fullName
-        : (user?.email.split('@').first ?? '');
-    _nameCtrl = TextEditingController(text: initialName);
+    final storage = StorageService();
+    final savedAvatar = user != null
+        ? (storage.getAvatarPath(user.id) ??
+            storage.getAvatarPath(user.email.toLowerCase()))
+        : null;
+    if (savedAvatar != null && savedAvatar.isNotEmpty) {
+      _profileCtrl.avatarPath.value = savedAvatar;
+    } else {
+      _profileCtrl.loadAvatar();
+    }
     _phoneCtrl = TextEditingController(
       text: (user?.phone != null && user!.phone!.isNotEmpty)
           ? user.phone!
@@ -78,9 +54,58 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
     _phoneCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickAndSaveAvatar(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        imageQuality: 75,
+        maxWidth: 600,
+      );
+      if (picked == null) return;
+
+      String storedValue;
+      if (kIsWeb) {
+        final bytes = await picked.readAsBytes();
+        storedValue = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+      } else {
+        storedValue = picked.path;
+      }
+
+      _profileCtrl.avatarPath.value = storedValue;
+      final current = _authCtrl.currentUser.value;
+      if (current != null) {
+        final storage = StorageService();
+        storage.setAvatarPath(storedValue, current.id);
+        storage.setAvatarPath(storedValue, current.email.toLowerCase());
+        _authCtrl.currentUser.value = current.copyWith(avatarUrl: storedValue);
+      }
+      if (mounted) setState(() {});
+    } catch (e) {
+      Get.snackbar(
+        'Gagal Memilih Foto',
+        'Pastikan izin kamera/galeri tersedia.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.card,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> _removeAvatar() async {
+    _profileCtrl.avatarPath.value = null;
+    final current = _authCtrl.currentUser.value;
+    if (current != null) {
+      final storage = StorageService();
+      storage.setAvatarPath(null, current.id);
+      storage.setAvatarPath(null, current.email.toLowerCase());
+      _authCtrl.currentUser.value = current.copyWith(avatarUrl: null);
+    }
+    if (mounted) setState(() {});
   }
 
   void _showImagePickerModal() {
@@ -111,8 +136,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                   style: TextStyle(color: AppColors.textPrimary)),
               onTap: () async {
                 Get.back();
-                await _profileCtrl.pickProfileImage(ImageSource.camera);
-                setState(() {});
+                await _pickAndSaveAvatar(ImageSource.camera);
               },
             ),
             ListTile(
@@ -122,20 +146,18 @@ class _EditProfileViewState extends State<EditProfileView> {
                   style: TextStyle(color: AppColors.textPrimary)),
               onTap: () async {
                 Get.back();
-                await _profileCtrl.pickProfileImage(ImageSource.gallery);
-                setState(() {});
+                await _pickAndSaveAvatar(ImageSource.gallery);
               },
             ),
             if (_profileCtrl.avatarPath.value != null)
               ListTile(
                 leading: const Icon(Icons.delete_outline_rounded,
                     color: AppColors.primary),
-                title: const Text('Hapus Foto Kustom (Kembali ke Lencana)',
+                title: const Text('Hapus Foto Profil',
                     style: TextStyle(color: AppColors.primary)),
                 onTap: () async {
                   Get.back();
-                  await _profileCtrl.removeCustomAvatar();
-                  setState(() {});
+                  await _removeAvatar();
                 },
               ),
           ],
@@ -150,17 +172,15 @@ class _EditProfileViewState extends State<EditProfileView> {
     final current = _authCtrl.currentUser.value;
     if (current != null) {
       final avatar = _profileCtrl.avatarPath.value ?? current.avatarUrl;
-      final effectiveName = _nameCtrl.text.trim().isNotEmpty
-          ? _nameCtrl.text.trim()
-          : current.fullName;
       final updated = current.copyWith(
-        fullName: effectiveName,
         phone: _phoneCtrl.text.trim(),
         avatarUrl: avatar,
       );
       _authCtrl.currentUser.value = updated;
       if (avatar != null && avatar.isNotEmpty) {
-        StorageService().setAvatarPath(avatar, current.id);
+        final storage = StorageService();
+        storage.setAvatarPath(avatar, current.id);
+        storage.setAvatarPath(avatar, current.email.toLowerCase());
       }
     }
 
@@ -213,38 +233,47 @@ class _EditProfileViewState extends State<EditProfileView> {
                       children: [
                         Obx(() {
                           final path = _profileCtrl.avatarPath.value;
-                          final isNetworkOrBlob = path != null &&
-                              (kIsWeb ||
-                                  path.startsWith('http') ||
-                                  path.startsWith('blob:') ||
-                                  path.startsWith('data:'));
-                          final hasCustomImage = path != null &&
-                              path.isNotEmpty &&
-                              (isNetworkOrBlob || File(path).existsSync());
+                          final userName =
+                              _authCtrl.currentUser.value?.fullName ?? 'U';
+                          final initial = userName.isNotEmpty
+                              ? userName[0].toUpperCase()
+                              : 'U';
 
-                          if (hasCustomImage) {
+                          ImageProvider? imageProvider;
+                          if (path != null && path.isNotEmpty) {
+                            if (path.startsWith('data:image')) {
+                              final b64 = path.split(',').last;
+                              imageProvider = MemoryImage(base64Decode(b64));
+                            } else if (kIsWeb ||
+                                path.startsWith('http') ||
+                                path.startsWith('blob:')) {
+                              imageProvider = NetworkImage(path);
+                            } else if (File(path).existsSync()) {
+                              imageProvider = FileImage(File(path));
+                            }
+                          }
+
+                          if (imageProvider != null) {
                             return CircleAvatar(
                               radius: 48,
                               backgroundColor: AppColors.gold,
                               child: CircleAvatar(
                                 radius: 45,
-                                backgroundImage: isNetworkOrBlob
-                                    ? NetworkImage(path) as ImageProvider
-                                    : FileImage(File(path)),
+                                backgroundImage: imageProvider,
                               ),
                             );
                           }
 
                           return CircleAvatar(
                             radius: 45,
-                            backgroundColor:
-                                _presetAvatars[_selectedAvatarIndex]['color']
-                                    as Color,
-                            child: Icon(
-                              _presetAvatars[_selectedAvatarIndex]['icon']
-                                  as IconData,
-                              size: 40,
-                              color: Colors.white,
+                            backgroundColor: AppColors.primary,
+                            child: Text(
+                              initial,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           );
                         }),
@@ -290,49 +319,13 @@ class _EditProfileViewState extends State<EditProfileView> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Atau Pilih Lencana Avatar Anggota:',
-                      style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 12),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_presetAvatars.length, (idx) {
-                        final isSelected = _selectedAvatarIndex == idx;
-                        return GestureDetector(
-                          onTap: () =>
-                              setState(() => _selectedAvatarIndex = idx),
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 6),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _presetAvatars[idx]['color'] as Color,
-                              border: Border.all(
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.transparent,
-                                width: 2.5,
-                              ),
-                            ),
-                            child: Icon(
-                              _presetAvatars[idx]['icon'] as IconData,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
                   ],
                 ),
               ),
 
               const SizedBox(height: 28),
 
-              // 2. Field Nama Lengkap
+              // 2. Nama Lengkap (Otomatis dari data registrasi, tidak perlu input ulang)
               const Text(
                 'Nama Lengkap',
                 style: TextStyle(
@@ -342,42 +335,38 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
               ),
               const SizedBox(height: 8),
-              TextFormField(
-                controller: _nameCtrl,
-                style: const TextStyle(color: AppColors.textPrimary),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: AppColors.card,
-                  hintText: 'Masukkan nama lengkap',
-                  hintStyle: const TextStyle(color: AppColors.textSecondary),
-                  prefixIcon:
-                      const Icon(Icons.person_outline, color: AppColors.gold),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.card.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
                 ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    // Izinkan tetap simpan jika hanya ingin ganti foto dan nama awal sudah ada
-                    if (_authCtrl.currentUser.value?.fullName.isNotEmpty == true) {
-                      return null;
-                    }
-                    return 'Nama tidak boleh kosong';
-                  }
-                  if (val.trim().length < 3) {
-                    return 'Nama minimal 3 karakter';
-                  }
-                  return null;
-                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.person_outline, color: AppColors.gold),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _authCtrl.currentUser.value?.fullName.isNotEmpty == true
+                            ? _authCtrl.currentUser.value!.fullName
+                            : (_authCtrl.currentUser.value?.email
+                                    .split('@')
+                                    .first ??
+                                'Pengguna Cinemate'),
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.lock_outline_rounded,
+                        color: AppColors.textDisabled, size: 16),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 20),

@@ -22,14 +22,6 @@ import '../routes/app_routes.dart';
 
 enum SearchEntityType { all, movie, cinema, fnb }
 
-enum SearchSortOption {
-  relevance,
-  ratingDesc,
-  priceAsc,
-  distanceAsc,
-  nameAsc,
-}
-
 class AppSearchController extends GetxController {
   final MovieService _movieService;
   final CinemaService _cinemaService;
@@ -70,44 +62,8 @@ class AppSearchController extends GetxController {
   // Search History (PB-054) - Maksimal 5 riwayat pencarian
   final searchHistory = <String>[].obs;
 
-  // Filter Criteria (PB-052)
+  // Tab Entitas Aktif
   final selectedEntity = SearchEntityType.all.obs;
-  final selectedGenre = Rxn<String>();
-  final isHighRatingOnly = false.obs; // Rating >= 7.0
-  final maxPrice = Rxn<int>(); // Batas harga maksimal
-  final selectedCity = Rxn<String>(); // Kota bioskop
-
-  // Sorting Option (PB-053)
-  final selectedSort = SearchSortOption.relevance.obs;
-
-  // Opsi Filter Statis
-  final List<String> availableGenres = [
-    'Action',
-    'Adventure',
-    'Animation',
-    'Comedy',
-    'Drama',
-    'Horror',
-    'Romance',
-    'Sci-Fi',
-    'Thriller',
-    'Family',
-  ];
-
-  final List<String> availableCities = [
-    'Semua Kota',
-    'Jakarta',
-    'Depok',
-    'Bandung',
-    'Surabaya',
-  ];
-
-  final List<int> availablePrices = [
-    30000,
-    50000,
-    75000,
-    100000,
-  ];
 
   @override
   void onInit() {
@@ -238,8 +194,8 @@ class AppSearchController extends GetxController {
         Validators.sanitizeSearchQuery(searchQuery.value).toLowerCase();
     final hasQuery = query.isNotEmpty;
 
-    // Jika tidak ada query dan tidak ada filter aktif, kosongkan hasil
-    if (!hasQuery && !hasActiveFilters) {
+    // Jika tidak ada query, kosongkan hasil
+    if (!hasQuery) {
       hasSearched.value = false;
       filteredMovies.clear();
       filteredCinemas.clear();
@@ -254,125 +210,38 @@ class AppSearchController extends GetxController {
     try {
       final entity = selectedEntity.value;
 
-      // ── Filter Film ───────────────────────────────────────────────────────
+      // ── Pencarian Film ────────────────────────────────────────────────────
       List<MovieModel> movies = [];
       if (entity == SearchEntityType.all || entity == SearchEntityType.movie) {
         movies = allMovies.where((m) {
-          // Pencarian teks (Judul, Sinopsis, atau Genre)
-          if (hasQuery) {
-            final matchTitle = m.title.toLowerCase().contains(query);
-            final matchOverview = m.overview.toLowerCase().contains(query);
-            final matchGenre =
-                m.genreNames.any((g) => g.toLowerCase().contains(query));
-            if (!matchTitle && !matchOverview && !matchGenre) return false;
-          }
-
-          // Filter Genre spesifik (PB-052)
-          if (selectedGenre.value != null && selectedGenre.value!.isNotEmpty) {
-            final target = selectedGenre.value!.toLowerCase();
-            final hasTargetGenre =
-                m.genreNames.any((g) => g.toLowerCase() == target);
-            if (!hasTargetGenre) return false;
-          }
-
-          // Filter Rating (>= 7.0) (PB-052)
-          if (isHighRatingOnly.value) {
-            if (m.voteAverage < 7.0) return false;
-          }
-
-          return true;
+          final matchTitle = m.title.toLowerCase().contains(query);
+          final matchOverview = m.overview.toLowerCase().contains(query);
+          final matchGenre =
+              m.genreNames.any((g) => g.toLowerCase().contains(query));
+          return matchTitle || matchOverview || matchGenre;
         }).toList();
-
-        // Pengurutan Film (PB-053)
-        switch (selectedSort.value) {
-          case SearchSortOption.ratingDesc:
-            movies.sort((a, b) => b.voteAverage.compareTo(a.voteAverage));
-            break;
-          case SearchSortOption.nameAsc:
-            movies.sort((a, b) => a.title.compareTo(b.title));
-            break;
-          case SearchSortOption.relevance:
-          default:
-            movies.sort((a, b) => b.popularity.compareTo(a.popularity));
-            break;
-        }
       }
 
-      // ── Filter Bioskop ────────────────────────────────────────────────────
+      // ── Pencarian Bioskop ─────────────────────────────────────────────────
       List<CinemaModel> cinemas = [];
       if (entity == SearchEntityType.all || entity == SearchEntityType.cinema) {
         cinemas = allCinemas.where((c) {
-          // Pencarian teks (Nama bioskop, Kota, Alamat)
-          if (hasQuery) {
-            final matchName = c.name.toLowerCase().contains(query);
-            final matchCity = c.city.toLowerCase().contains(query);
-            final matchAddress = c.address.toLowerCase().contains(query);
-            if (!matchName && !matchCity && !matchAddress) return false;
-          }
-
-          // Filter Kota Bioskop (PB-052)
-          if (selectedCity.value != null &&
-              selectedCity.value != 'Semua Kota' &&
-              selectedCity.value!.isNotEmpty) {
-            if (c.city.toLowerCase() != selectedCity.value!.toLowerCase()) {
-              return false;
-            }
-          }
-
-          return true;
+          final matchName = c.name.toLowerCase().contains(query);
+          final matchCity = c.city.toLowerCase().contains(query);
+          final matchAddress = c.address.toLowerCase().contains(query);
+          return matchName || matchCity || matchAddress;
         }).toList();
-
-        // Pengurutan Bioskop (PB-053)
-        switch (selectedSort.value) {
-          case SearchSortOption.distanceAsc:
-            cinemas.sort((a, b) =>
-                (a.distanceKm ?? 999.0).compareTo(b.distanceKm ?? 999.0));
-            break;
-          case SearchSortOption.nameAsc:
-            cinemas.sort((a, b) => a.name.compareTo(b.name));
-            break;
-          case SearchSortOption.ratingDesc:
-          case SearchSortOption.relevance:
-          default:
-            // Urutan default bioskop
-            break;
-        }
       }
 
-      // ── Filter F&B ────────────────────────────────────────────────────────
+      // ── Pencarian F&B ─────────────────────────────────────────────────────
       List<FnbItemModel> fnb = [];
       if (entity == SearchEntityType.all || entity == SearchEntityType.fnb) {
         fnb = allFnb.where((f) {
-          // Pencarian teks (Nama menu, Deskripsi, Kategori)
-          if (hasQuery) {
-            final matchName = f.name.toLowerCase().contains(query);
-            final matchDesc = f.description.toLowerCase().contains(query);
-            final matchCategory = f.category.toLowerCase().contains(query);
-            if (!matchName && !matchDesc && !matchCategory) return false;
-          }
-
-          // Filter Rentang Harga (PB-052)
-          if (maxPrice.value != null) {
-            if (f.price > maxPrice.value!) return false;
-          }
-
-          return true;
+          final matchName = f.name.toLowerCase().contains(query);
+          final matchDesc = f.description.toLowerCase().contains(query);
+          final matchCategory = f.category.toLowerCase().contains(query);
+          return matchName || matchDesc || matchCategory;
         }).toList();
-
-        // Pengurutan F&B (PB-053)
-        switch (selectedSort.value) {
-          case SearchSortOption.priceAsc:
-            fnb.sort((a, b) => a.price.compareTo(b.price));
-            break;
-          case SearchSortOption.nameAsc:
-            fnb.sort((a, b) => a.name.compareTo(b.name));
-            break;
-          case SearchSortOption.ratingDesc:
-          case SearchSortOption.relevance:
-          default:
-            // Default popullar
-            break;
-        }
       }
 
       filteredMovies.assignAll(movies);
@@ -395,72 +264,9 @@ class AppSearchController extends GetxController {
     performSearch();
   }
 
-  void setGenre(String? genre) {
-    if (selectedGenre.value == genre) {
-      selectedGenre.value = null;
-    } else {
-      selectedGenre.value = genre;
-    }
-    performSearch();
-  }
-
-  void toggleHighRating() {
-    isHighRatingOnly.value = !isHighRatingOnly.value;
-    performSearch();
-  }
-
-  void setMaxPrice(int? price) {
-    if (maxPrice.value == price) {
-      maxPrice.value = null;
-    } else {
-      maxPrice.value = price;
-    }
-    performSearch();
-  }
-
-  void setCity(String? city) {
-    if (city == 'Semua Kota' || selectedCity.value == city) {
-      selectedCity.value = null;
-    } else {
-      selectedCity.value = city;
-    }
-    performSearch();
-  }
-
-  void setSortOption(SearchSortOption option) {
-    selectedSort.value = option;
-    performSearch();
-  }
-
   void resetFilters() {
     selectedEntity.value = SearchEntityType.all;
-    selectedGenre.value = null;
-    isHighRatingOnly.value = false;
-    maxPrice.value = null;
-    selectedCity.value = null;
-    selectedSort.value = SearchSortOption.relevance;
     performSearch();
-  }
-
-  // Getters untuk UI Filter
-  bool get hasActiveFilters {
-    return selectedEntity.value != SearchEntityType.all ||
-        selectedGenre.value != null ||
-        isHighRatingOnly.value ||
-        maxPrice.value != null ||
-        selectedCity.value != null ||
-        selectedSort.value != SearchSortOption.relevance;
-  }
-
-  int get activeFilterCount {
-    int count = 0;
-    if (selectedEntity.value != SearchEntityType.all) count++;
-    if (selectedGenre.value != null) count++;
-    if (isHighRatingOnly.value) count++;
-    if (maxPrice.value != null) count++;
-    if (selectedCity.value != null) count++;
-    if (selectedSort.value != SearchSortOption.relevance) count++;
-    return count;
   }
 
   int get totalResultCount =>
