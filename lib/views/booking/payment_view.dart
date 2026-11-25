@@ -108,13 +108,14 @@ class PaymentView extends GetView<PaymentController> {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-        color: const Color(0xFF2C1E1E),
+        color: AppColors.card,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Row(
               children: [
-                Icon(Icons.timer_rounded, color: AppColors.gold, size: 16),
+                Icon(Icons.timer_rounded,
+                    color: AppColors.textSecondary, size: 16),
                 SizedBox(width: 8),
                 Text(
                   'Batas Waktu Pembayaran',
@@ -123,19 +124,18 @@ class PaymentView extends GetView<PaymentController> {
               ],
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: AppColors.card,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(6),
-                border:
-                    Border.all(color: AppColors.gold.withValues(alpha: 0.4)),
+                border: Border.all(color: AppColors.border),
               ),
               child: Text(
                 timer,
                 style: const TextStyle(
-                  color: AppColors.gold,
+                  color: AppColors.textPrimary,
                   fontSize: 13,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: 1,
                 ),
               ),
@@ -206,7 +206,7 @@ class PaymentView extends GetView<PaymentController> {
                   Text(
                     'Kursi: ${order.seatsLabel} (${order.seatCount} Tiket)',
                     style: const TextStyle(
-                        color: AppColors.primaryLight,
+                        color: AppColors.textPrimary,
                         fontSize: 11,
                         fontWeight: FontWeight.w600),
                   ),
@@ -226,9 +226,9 @@ class PaymentView extends GetView<PaymentController> {
                 Text(
                   order.formattedTotalAmount,
                   style: const TextStyle(
-                    color: AppColors.gold,
+                    color: AppColors.textPrimary,
                     fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -345,7 +345,9 @@ class PaymentView extends GetView<PaymentController> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(method.icon,
-                            color: isSelected ? AppColors.gold : Colors.white70,
+                            color: isSelected
+                                ? AppColors.textPrimary
+                                : AppColors.textSecondary,
                             size: 20),
                       ),
                       const SizedBox(width: 12),
@@ -498,7 +500,9 @@ class PaymentView extends GetView<PaymentController> {
                 child: Row(
                   children: [
                     Icon(method.icon,
-                        color: isSelected ? AppColors.gold : Colors.white70,
+                        color: isSelected
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
                         size: 22),
                     const SizedBox(width: 8),
                     Expanded(
@@ -548,12 +552,12 @@ class PaymentView extends GetView<PaymentController> {
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.phone_android_rounded,
-                      color: AppColors.gold, size: 20),
+                      color: AppColors.textSecondary, size: 20),
                   filled: true,
                   fillColor: AppColors.card,
                   hintText: '08xx-xxxx-xxxx',
                   hintStyle: const TextStyle(
-                      color: AppColors.textDisabled, fontSize: 13),
+                      color: AppColors.textHint, fontSize: 13),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   border: OutlineInputBorder(
@@ -565,11 +569,12 @@ class PaymentView extends GetView<PaymentController> {
               const Row(
                 children: [
                   Icon(Icons.shield_outlined,
-                      color: AppColors.success, size: 14),
+                      color: AppColors.textSecondary, size: 14),
                   SizedBox(width: 6),
                   Text(
                     'Simulasi 1-Tap bayar instan tanpa OTP riil',
-                    style: TextStyle(color: AppColors.success, fontSize: 11),
+                    style:
+                        TextStyle(color: AppColors.textSecondary, fontSize: 11),
                   ),
                 ],
               ),
@@ -639,13 +644,6 @@ class PaymentView extends GetView<PaymentController> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
             child: QrImageView(
               data: qrisPayload,
@@ -668,9 +666,9 @@ class PaymentView extends GetView<PaymentController> {
           Text(
             order.formattedTotalAmount,
             style: const TextStyle(
-              color: AppColors.gold,
+              color: AppColors.textPrimary,
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 4),
@@ -705,7 +703,7 @@ class PaymentView extends GetView<PaymentController> {
           initiallyExpanded: true,
           tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
           leading: const Icon(Icons.info_outline_rounded,
-              color: AppColors.gold, size: 18),
+              color: AppColors.textSecondary, size: 18),
           title: const Text(
             'Petunjuk Pembayaran',
             style: TextStyle(
@@ -724,7 +722,7 @@ class PaymentView extends GetView<PaymentController> {
                         Text(
                           '${entry.key + 1}. ',
                           style: const TextStyle(
-                              color: AppColors.gold,
+                              color: AppColors.textPrimary,
                               fontSize: 12,
                               fontWeight: FontWeight.bold),
                         ),
@@ -753,16 +751,9 @@ class PaymentView extends GetView<PaymentController> {
       final isProcessing = controller.isProcessing.value;
       return Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.4),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          border: Border(top: BorderSide(color: AppColors.divider)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -780,9 +771,9 @@ class PaymentView extends GetView<PaymentController> {
                 Text(
                   controller.order.value.formattedTotalAmount,
                   style: const TextStyle(
-                    color: AppColors.gold,
+                    color: AppColors.textPrimary,
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],

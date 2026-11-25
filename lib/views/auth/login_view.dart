@@ -163,21 +163,20 @@ class _LoginViewState extends State<LoginView> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF9800).withAlpha(25),
+                    color: AppColors.card,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: const Color(0xFFFF9800).withAlpha(120)),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: const Row(
                     children: [
                       Icon(Icons.cloud_off_rounded,
-                          color: Color(0xFFFF9800), size: 18),
-                      SizedBox(width: 8),
+                          color: AppColors.textSecondary, size: 18),
+                      SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Mode Offline Aktif — akun tersimpan di perangkat ini. Data akan tersinkronisasi saat Supabase kembali online.',
+                          'Mode Offline Aktif: akun tersimpan di perangkat ini dan tersinkronisasi saat Supabase kembali online.',
                           style: TextStyle(
-                              color: Color(0xFFFF9800),
+                              color: AppColors.textSecondary,
                               fontSize: 11,
                               height: 1.4),
                         ),
@@ -187,12 +186,13 @@ class _LoginViewState extends State<LoginView> {
                 ),
 
               const Text(
-                'Selamat datang\nkembali 👋',
+                'Selamat datang\nkembali',
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  height: 1.3,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                  height: 1.25,
                 ),
               ),
               const SizedBox(height: 8),
@@ -257,20 +257,22 @@ class _LoginViewState extends State<LoginView> {
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.error.withAlpha(30),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.error),
+                          color: AppColors.error.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.error.withValues(alpha: 0.45),
+                          ),
                         ),
                         child: Row(
                           children: [
                             const Icon(Icons.lock_clock,
                                 color: AppColors.error, size: 20),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 'Akun dikunci. Coba lagi dalam $_lockoutCountdown',
                                 style: const TextStyle(
-                                    color: AppColors.error, fontSize: 13),
+                                    color: AppColors.textPrimary, fontSize: 13),
                               ),
                             ),
                           ],
@@ -311,19 +313,20 @@ class _LoginViewState extends State<LoginView> {
                               },
                         icon: const Icon(
                           Icons.fingerprint_rounded,
-                          color: AppColors.gold,
+                          color: AppColors.textPrimary,
                           size: 22,
                         ),
                         label: const Text(
                           'Masuk dengan Sidik Jari / Face ID',
                           style: TextStyle(
-                            color: AppColors.gold,
-                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.gold),
+                          backgroundColor: AppColors.surface,
+                          side: const BorderSide(color: AppColors.border),
                           minimumSize: const Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

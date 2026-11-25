@@ -49,7 +49,8 @@ class TicketExportDialog extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '${ticket.movieTitle} (${ticket.bookingCode})',
-              style: const TextStyle(color: AppColors.gold, fontSize: 13),
+              style:
+                  const TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 20),
 
@@ -59,11 +60,12 @@ class TicketExportDialog extends StatelessWidget {
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: const Icon(Icons.picture_as_pdf_outlined,
-                    color: AppColors.primary),
+                    color: AppColors.textPrimary),
               ),
               title: const Text(
                 'Bagikan Struk / E-Ticket',
@@ -88,11 +90,12 @@ class TicketExportDialog extends StatelessWidget {
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withValues(alpha: 0.15),
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: const Icon(Icons.event_available_outlined,
-                    color: Colors.blueAccent),
+                    color: AppColors.textPrimary),
               ),
               title: const Text(
                 'Simpan ke Kalender (.ics)',

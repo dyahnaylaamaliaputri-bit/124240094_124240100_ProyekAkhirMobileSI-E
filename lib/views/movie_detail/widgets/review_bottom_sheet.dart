@@ -78,9 +78,9 @@ class _ReviewBottomSheetState extends State<ReviewBottomSheet> {
       if (mounted) {
         Navigator.pop(context);
         Get.snackbar(
-          'Ulasan Terkirim! ⭐',
+          'Ulasan Terkirim',
           'Terima kasih telah berbagi ulasan untuk ${widget.movieTitle}',
-          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          backgroundColor: AppColors.card,
           colorText: Colors.white,
         );
       }
@@ -120,7 +120,8 @@ class _ReviewBottomSheetState extends State<ReviewBottomSheet> {
           ),
           Text(
             widget.movieTitle,
-            style: const TextStyle(color: AppColors.gold, fontSize: 14),
+            style:
+                const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 16),
 

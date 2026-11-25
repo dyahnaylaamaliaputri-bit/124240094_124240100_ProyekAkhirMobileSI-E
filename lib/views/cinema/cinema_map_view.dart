@@ -105,18 +105,10 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: Colors.blueAccent,
+                                color: AppColors.surface,
                                 shape: BoxShape.circle,
                                 border:
                                     Border.all(color: Colors.white, width: 2.5),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.blueAccent
-                                        .withValues(alpha: 0.5),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
                               ),
                               child: const Icon(
                                 Icons.my_location_rounded,
@@ -129,7 +121,7 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                       ),
                     ),
 
-                    // MARKER LOKASI BIOSKOP (Pin Merah / Emas)
+                    // MARKER LOKASI BIOSKOP (Pin Gelap / Merah Terpilih)
                     ...cinemas.map((cinema) {
                       final isSelected = selectedCinema?.id == cinema.id;
                       return Marker(
@@ -146,29 +138,17 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                                   padding: EdgeInsets.all(isSelected ? 7 : 5),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? AppColors.gold
-                                        : AppColors.primary,
+                                        ? AppColors.primary
+                                        : AppColors.card,
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: Colors.white,
                                       width: isSelected ? 2.5 : 1.5,
                                     ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: (isSelected
-                                                ? AppColors.gold
-                                                : AppColors.primary)
-                                            .withValues(alpha: 0.6),
-                                        blurRadius: isSelected ? 12 : 6,
-                                        spreadRadius: isSelected ? 3 : 1,
-                                      ),
-                                    ],
                                   ),
                                   child: Icon(
                                     Icons.movie_creation_rounded,
-                                    color: isSelected
-                                        ? Colors.black87
-                                        : Colors.white,
+                                    color: Colors.white,
                                     size: isSelected ? 22 : 16,
                                   ),
                                 ),
@@ -227,13 +207,12 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                                   Row(
                                     children: [
                                       const Icon(Icons.location_on,
-                                          color: AppColors.primaryLight,
-                                          size: 14),
+                                          color: AppColors.primary, size: 14),
                                       const SizedBox(width: 4),
                                       const Text(
                                         'TITIK ACUAN LBS',
                                         style: TextStyle(
-                                          color: AppColors.primaryLight,
+                                          color: AppColors.textSecondary,
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
                                           letterSpacing: 0.8,
@@ -275,7 +254,7 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                                     ),
                                   )
                                 : const Icon(Icons.gps_fixed_rounded,
-                                    color: Colors.greenAccent, size: 22),
+                                    color: AppColors.textPrimary, size: 22),
                             tooltip: 'Gunakan GPS Terkini',
                             onPressed: isDetecting
                                 ? null
@@ -348,9 +327,9 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                             child: Text(
                               '$count Bioskop Ditemukan',
                               style: const TextStyle(
-                                color: AppColors.gold,
+                                color: AppColors.textPrimary,
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -391,7 +370,7 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                 const SizedBox(height: 8),
                 _buildMapControlBtn(
                   icon: Icons.my_location_rounded,
-                  color: Colors.blueAccent,
+                  color: AppColors.textPrimary,
                   onTap: _recenterToUser,
                 ),
               ],
@@ -423,7 +402,7 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                   child: Row(
                     children: [
                       const Icon(Icons.location_off_rounded,
-                          color: AppColors.gold),
+                          color: AppColors.textSecondary),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -462,12 +441,6 @@ class _CinemaMapViewState extends State<CinemaMapView> {
         color: AppColors.card.withValues(alpha: 0.95),
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 6,
-          ),
-        ],
       ),
       child: IconButton(
         icon: Icon(icon, color: color ?? AppColors.textPrimary, size: 20),
@@ -482,20 +455,13 @@ class _CinemaMapViewState extends State<CinemaMapView> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: isDefaultNearest
               ? AppColors.border
-              : AppColors.gold.withValues(alpha: 0.5),
-          width: 1.4,
+              : AppColors.textSecondary.withValues(alpha: 0.5),
+          width: 1.2,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.6),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -506,12 +472,12 @@ class _CinemaMapViewState extends State<CinemaMapView> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: AppColors.cardLight,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.theaters_rounded,
-                  color: AppColors.primary,
+                  color: AppColors.textPrimary,
                   size: 24,
                 ),
               ),
@@ -545,17 +511,16 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.gold.withValues(alpha: 0.2),
+                            color: AppColors.cardLight,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                                color: AppColors.gold.withValues(alpha: 0.5)),
+                            border: Border.all(color: AppColors.border),
                           ),
                           child: Text(
                             'Jarak: ${cinema.formattedDistance}',
                             style: const TextStyle(
-                              color: AppColors.gold,
+                              color: AppColors.textPrimary,
                               fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -583,8 +548,8 @@ class _CinemaMapViewState extends State<CinemaMapView> {
               Expanded(
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.gold,
-                    side: const BorderSide(color: AppColors.gold),
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.border),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -691,9 +656,7 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                         title: Text(
                           preset.name,
                           style: TextStyle(
-                            color: isSelected
-                                ? AppColors.primaryLight
-                                : AppColors.textPrimary,
+                            color: AppColors.textPrimary,
                             fontWeight: isSelected
                                 ? FontWeight.bold
                                 : FontWeight.normal,
@@ -709,7 +672,7 @@ class _CinemaMapViewState extends State<CinemaMapView> {
                         ),
                         trailing: isSelected
                             ? const Icon(Icons.check_circle_rounded,
-                                color: AppColors.primaryLight, size: 20)
+                                color: AppColors.primary, size: 20)
                             : null,
                         onTap: () {
                           Navigator.pop(ctx);

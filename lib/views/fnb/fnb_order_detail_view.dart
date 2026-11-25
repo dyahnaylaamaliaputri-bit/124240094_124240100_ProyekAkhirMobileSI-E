@@ -65,44 +65,31 @@ class FnbOrderDetailView extends StatelessWidget {
                   color: AppColors.card,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Column(
                   children: [
-                    // Status Badge
+                    // Status Badge (bersih tanpa rainbow pill/border)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: order.status == 'ready'
                             ? AppColors.primary
-                            : order.status == 'completed'
-                                ? Colors.green.shade800
-                                : AppColors.gold.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: order.status == 'ready'
-                              ? AppColors.primaryLight
-                              : order.status == 'completed'
-                                  ? Colors.green
-                                  : AppColors.gold,
-                        ),
+                            : AppColors.cardLight,
+                        borderRadius: BorderRadius.circular(8),
+                        border: order.status == 'ready'
+                            ? null
+                            : Border.all(color: AppColors.border),
                       ),
                       child: Text(
                         order.statusLabel,
                         style: TextStyle(
-                          color: order.status == 'completed'
+                          color: order.status == 'ready'
                               ? Colors.white
-                              : order.status == 'ready'
-                                  ? Colors.white
-                                  : AppColors.gold,
-                          fontWeight: FontWeight.bold,
+                              : order.status == 'completed'
+                                  ? AppColors.textSecondary
+                                  : AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
                           fontSize: 12,
                         ),
                       ),
@@ -155,7 +142,7 @@ class FnbOrderDetailView extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.storefront_rounded,
-                            color: AppColors.gold, size: 20),
+                            color: AppColors.textSecondary, size: 20),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -257,8 +244,8 @@ class FnbOrderDetailView extends StatelessWidget {
                   style: const TextStyle(fontSize: 13),
                 ),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.gold,
-                  side: const BorderSide(color: AppColors.gold),
+                  foregroundColor: AppColors.textPrimary,
+                  side: const BorderSide(color: AppColors.border),
                   padding:
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   shape: RoundedRectangleBorder(
@@ -281,9 +268,9 @@ class FnbOrderDetailView extends StatelessWidget {
     if (order.status == 'completed') currentStep = 2;
 
     final steps = [
-      {'title': '🍳 Disiapkan', 'desc': 'Koki meracik pesanan'},
-      {'title': '🍿 Siap Diambil', 'desc': 'Di counter concession'},
-      {'title': '✅ Selesai', 'desc': 'Pesanan diserahkan'},
+      {'title': 'Disiapkan', 'desc': 'Koki meracik pesanan'},
+      {'title': 'Siap Diambil', 'desc': 'Di counter concession'},
+      {'title': 'Selesai', 'desc': 'Pesanan diserahkan'},
     ];
 
     return Container(
@@ -309,26 +296,26 @@ class FnbOrderDetailView extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (order.status == 'ready'
-                          ? AppColors.primary
-                          : order.status == 'completed'
-                              ? Colors.green
-                              : AppColors.gold)
-                      .withValues(alpha: 0.2),
+                  color: order.status == 'ready'
+                      ? AppColors.primary.withValues(alpha: 0.16)
+                      : AppColors.surface,
                   borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: order.status == 'ready'
+                        ? AppColors.primary.withValues(alpha: 0.4)
+                        : AppColors.border,
+                  ),
                 ),
                 child: Text(
                   order.estimatedTimeRemainingLabel,
                   style: TextStyle(
                     color: order.status == 'ready'
-                        ? AppColors.primaryLight
-                        : order.status == 'completed'
-                            ? Colors.greenAccent
-                            : AppColors.gold,
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                     fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -353,10 +340,8 @@ class FnbOrderDetailView extends StatelessWidget {
                           ? Icons.notifications_active_rounded
                           : Icons.timer_outlined,
                   color: order.status == 'ready'
-                      ? AppColors.primaryLight
-                      : order.status == 'completed'
-                          ? Colors.green
-                          : AppColors.gold,
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
                   size: 20,
                 ),
                 const SizedBox(width: 10),

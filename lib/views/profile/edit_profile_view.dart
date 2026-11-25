@@ -84,8 +84,8 @@ class _EditProfileViewState extends State<EditProfileView> {
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading:
-                  const Icon(Icons.camera_alt_outlined, color: AppColors.gold),
+              leading: const Icon(Icons.camera_alt_outlined,
+                  color: AppColors.textPrimary),
               title: const Text('Ambil dari Kamera',
                   style: TextStyle(color: AppColors.textPrimary)),
               onTap: () async {
@@ -95,7 +95,7 @@ class _EditProfileViewState extends State<EditProfileView> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined,
-                  color: AppColors.gold),
+                  color: AppColors.textPrimary),
               title: const Text('Pilih dari Galeri',
                   style: TextStyle(color: AppColors.textPrimary)),
               onTap: () async {
@@ -191,9 +191,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                           if (imageProvider != null) {
                             return CircleAvatar(
                               radius: 48,
-                              backgroundColor: AppColors.gold,
+                              backgroundColor: AppColors.border,
                               child: CircleAvatar(
-                                radius: 45,
+                                radius: 46,
                                 backgroundImage: imageProvider,
                               ),
                             );
@@ -219,14 +219,16 @@ class _EditProfileViewState extends State<EditProfileView> {
                             onTap: _showImagePickerModal,
                             child: Container(
                               padding: const EdgeInsets.all(7),
-                              decoration: const BoxDecoration(
-                                color: AppColors.gold,
+                              decoration: BoxDecoration(
+                                color: AppColors.cardLight,
                                 shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: AppColors.background, width: 2),
                               ),
                               child: const Icon(
                                 Icons.camera_alt_rounded,
                                 size: 16,
-                                color: Colors.black87,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -241,16 +243,16 @@ class _EditProfileViewState extends State<EditProfileView> {
                         'Unggah Foto Profil',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.gold,
-                        side: const BorderSide(color: AppColors.gold),
+                        foregroundColor: AppColors.textPrimary,
+                        side: const BorderSide(color: AppColors.border),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 6),
+                            horizontal: 14, vertical: 8),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
@@ -281,7 +283,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.person_outline, color: AppColors.gold),
+                    const Icon(Icons.person_outline,
+                        color: AppColors.textSecondary),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -325,8 +328,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                   fillColor: AppColors.card,
                   hintText: 'Contoh: 081234567890',
                   hintStyle: const TextStyle(color: AppColors.textSecondary),
-                  prefixIcon:
-                      const Icon(Icons.phone_outlined, color: AppColors.gold),
+                  prefixIcon: const Icon(Icons.phone_outlined,
+                      color: AppColors.textSecondary),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: AppColors.border),

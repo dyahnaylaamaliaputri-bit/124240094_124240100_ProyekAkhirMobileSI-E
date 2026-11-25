@@ -382,7 +382,7 @@ class SearchView extends StatelessWidget {
   Widget _buildSectionHeader({required String title, required IconData icon}) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.primary),
+        Icon(icon, size: 16, color: AppColors.textSecondary),
         const SizedBox(width: 6),
         Text(
           title,
@@ -464,7 +464,7 @@ class SearchView extends StatelessWidget {
                           Text(
                             movie.formattedRating,
                             style: const TextStyle(
-                              color: AppColors.gold,
+                              color: AppColors.textPrimary,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -554,7 +554,7 @@ class SearchView extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.theater_comedy_rounded,
-              color: AppColors.primary, size: 24),
+              color: AppColors.textPrimary, size: 24),
         ),
         title: Text(
           cinema.name,
@@ -590,9 +590,9 @@ class SearchView extends StatelessWidget {
                   child: Text(
                     cinema.city,
                     style: const TextStyle(
-                      color: AppColors.info,
+                      color: AppColors.textSecondary,
                       fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -652,7 +652,7 @@ class SearchView extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.fastfood_rounded,
-              color: AppColors.warning, size: 22),
+              color: AppColors.textPrimary, size: 22),
         ),
         title: Text(
           item.name,
@@ -681,7 +681,7 @@ class SearchView extends StatelessWidget {
                 Text(
                   CurrencyHelper.format(item.price),
                   style: const TextStyle(
-                    color: AppColors.gold,
+                    color: AppColors.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),

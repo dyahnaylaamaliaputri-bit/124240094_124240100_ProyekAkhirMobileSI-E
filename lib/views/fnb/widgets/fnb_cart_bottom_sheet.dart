@@ -221,8 +221,8 @@ class FnbCartBottomSheet extends StatelessWidget {
                         Text(
                           fnbCtrl.formattedGrandTotal,
                           style: const TextStyle(
-                            color: AppColors.gold,
-                            fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w800,
                             fontSize: 18,
                           ),
                         ),
@@ -246,21 +246,13 @@ class FnbCartBottomSheet extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Lanjut ke Pemesanan',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward_rounded,
-                                color: Colors.white, size: 18),
-                          ],
+                        child: const Text(
+                          'Lanjut ke Pemesanan',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                     ),
@@ -305,7 +297,7 @@ class FnbCartBottomSheet extends StatelessWidget {
                           : item.category == 'food'
                               ? Icons.dinner_dining_rounded
                               : Icons.lunch_dining_rounded,
-                  color: AppColors.gold,
+                  color: AppColors.textSecondary,
                   size: 24,
                 ),
               ),
@@ -399,7 +391,7 @@ class FnbCartBottomSheet extends StatelessWidget {
                             : Icons.add_comment_outlined,
                         size: 15,
                         color: note.isNotEmpty
-                            ? AppColors.primaryLight
+                            ? AppColors.textPrimary
                             : AppColors.textSecondary,
                       ),
                       const SizedBox(width: 4),
@@ -407,7 +399,7 @@ class FnbCartBottomSheet extends StatelessWidget {
                         note.isNotEmpty ? 'Catatan: $note' : '+ Tambah Catatan',
                         style: TextStyle(
                           color: note.isNotEmpty
-                              ? AppColors.primaryLight
+                              ? AppColors.textPrimary
                               : AppColors.textSecondary,
                           fontSize: 11,
                           fontStyle: note.isNotEmpty

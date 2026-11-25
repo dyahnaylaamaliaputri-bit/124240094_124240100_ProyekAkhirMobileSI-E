@@ -60,8 +60,8 @@ class _TicketsTabState extends State<TicketsTab>
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.primary,
-          indicatorWeight: 3,
-          labelColor: AppColors.primaryLight,
+          indicatorWeight: 2.5,
+          labelColor: AppColors.textPrimary,
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle:
               const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
@@ -229,19 +229,12 @@ class _TicketsTabState extends State<TicketsTab>
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primaryDark.withValues(alpha: 0.6)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         onTap: () => Get.toNamed(Routes.ticketDetail, arguments: ticket),
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -256,11 +249,12 @@ class _TicketsTabState extends State<TicketsTab>
                     child: Container(
                       width: 62,
                       height: 88,
-                      color: AppColors.card,
+                      color: AppColors.surface,
                       child: ticket.posterUrl.isNotEmpty
                           ? Image.network(
                               ticket.posterUrl,
                               fit: BoxFit.cover,
+                              cacheWidth: 180,
                               errorBuilder: (_, __, ___) => const Icon(
                                 Icons.movie_creation_rounded,
                                 color: AppColors.textDisabled,
@@ -283,30 +277,27 @@ class _TicketsTabState extends State<TicketsTab>
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                                  horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: AppColors.primaryDark
-                                    .withValues(alpha: 0.25),
+                                color: AppColors.surface,
                                 borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.4)),
+                                border: Border.all(color: AppColors.border),
                               ),
                               child: Text(
                                 ticket.experience,
                                 style: const TextStyle(
-                                  color: AppColors.primaryLight,
+                                  color: AppColors.textPrimary,
                                   fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
                             Text(
                               ticket.bookingCode,
                               style: const TextStyle(
-                                color: AppColors.gold,
+                                color: AppColors.textPrimary,
                                 fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                                 letterSpacing: 1,
                               ),
                             ),
@@ -333,15 +324,15 @@ class _TicketsTabState extends State<TicketsTab>
                         Row(
                           children: [
                             const Icon(Icons.access_time_rounded,
-                                color: AppColors.gold, size: 12),
+                                color: AppColors.textSecondary, size: 12),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 ticket.remainingTimeLabel,
                                 style: const TextStyle(
-                                  color: AppColors.gold,
+                                  color: AppColors.textPrimary,
                                   fontSize: 11,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w600,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -392,40 +383,42 @@ class _TicketsTabState extends State<TicketsTab>
                         borderRadius: BorderRadius.circular(6),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 3),
+                              horizontal: 9, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E293B),
+                            color: AppColors.surface,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: const Color(0xFF334155)),
+                            border: Border.all(color: AppColors.border),
                           ),
                           child: const Row(
                             children: [
                               Icon(Icons.sensors_rounded,
-                                  color: Colors.white70, size: 13),
+                                  color: AppColors.textSecondary, size: 13),
                               SizedBox(width: 4),
                               Text('Check-in',
                                   style: TextStyle(
-                                      color: Colors.white70, fontSize: 11)),
+                                      color: AppColors.textPrimary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500)),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Row(
+                      const SizedBox(width: 8),
+                      const Row(
                         children: [
-                          const Icon(Icons.qr_code_2_rounded,
-                              color: AppColors.primaryLight, size: 15),
-                          const SizedBox(width: 3),
+                          Icon(Icons.qr_code_2_rounded,
+                              color: AppColors.textPrimary, size: 16),
+                          SizedBox(width: 3),
                           Text(
                             'QR',
                             style: TextStyle(
-                              color: AppColors.primaryLight,
+                              color: AppColors.textPrimary,
                               fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const Icon(Icons.chevron_right_rounded,
-                              color: AppColors.primaryLight, size: 15),
+                          Icon(Icons.chevron_right_rounded,
+                              color: AppColors.textSecondary, size: 15),
                         ],
                       ),
                     ],
@@ -444,12 +437,12 @@ class _TicketsTabState extends State<TicketsTab>
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFF141420),
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         onTap: () => Get.toNamed(Routes.ticketDetail, arguments: ticket),
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -460,7 +453,7 @@ class _TicketsTabState extends State<TicketsTab>
                 children: [
                   // Poster Mini (sedikit redup untuk riwayat)
                   Opacity(
-                    opacity: 0.8,
+                    opacity: 0.78,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
@@ -471,6 +464,7 @@ class _TicketsTabState extends State<TicketsTab>
                             ? Image.network(
                                 ticket.posterUrl,
                                 fit: BoxFit.cover,
+                                cacheWidth: 180,
                                 errorBuilder: (_, __, ___) => const Icon(
                                   Icons.movie_creation_rounded,
                                   color: AppColors.textDisabled,
@@ -494,18 +488,17 @@ class _TicketsTabState extends State<TicketsTab>
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                                  horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1E293B),
+                                color: AppColors.card,
                                 borderRadius: BorderRadius.circular(6),
-                                border:
-                                    Border.all(color: const Color(0xFF334155)),
+                                border: Border.all(color: AppColors.border),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Icon(Icons.check_circle_outline_rounded,
-                                      color: AppColors.success, size: 12),
+                                      color: AppColors.textSecondary, size: 12),
                                   const SizedBox(width: 4),
                                   Text(
                                     ticket.historyStatusLabel,
@@ -544,13 +537,13 @@ class _TicketsTabState extends State<TicketsTab>
                         Text(
                           '${ticket.cinemaName} • ${ticket.hallName}',
                           style: const TextStyle(
-                              color: AppColors.textDisabled, fontSize: 11),
+                              color: AppColors.textSecondary, fontSize: 11),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${ticket.showDate} • ${ticket.showTime} WIB',
                           style: const TextStyle(
-                              color: AppColors.textDisabled, fontSize: 11),
+                              color: AppColors.textSecondary, fontSize: 11),
                         ),
                       ],
                     ),
@@ -566,11 +559,16 @@ class _TicketsTabState extends State<TicketsTab>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Kursi: ${ticket.seatsLabel} • ${ticket.formattedPrice}',
-                    style: const TextStyle(
-                        color: AppColors.textDisabled, fontSize: 11),
+                  Expanded(
+                    child: Text(
+                      'Kursi: ${ticket.seatsLabel} • ${ticket.formattedPrice}',
+                      style: const TextStyle(
+                          color: AppColors.textSecondary, fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Row(
                     children: [
                       // Tombol Pesan Lagi
@@ -579,23 +577,22 @@ class _TicketsTabState extends State<TicketsTab>
                         borderRadius: BorderRadius.circular(6),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                              horizontal: 9, vertical: 5),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.15),
+                            color: AppColors.card,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                                color:
-                                    AppColors.primary.withValues(alpha: 0.4)),
+                            border: Border.all(color: AppColors.border),
                           ),
                           child: const Row(
                             children: [
                               Icon(Icons.refresh_rounded,
-                                  color: AppColors.primaryLight, size: 14),
+                                  color: AppColors.textPrimary, size: 14),
                               SizedBox(width: 4),
                               Text('Pesan Lagi',
                                   style: TextStyle(
-                                      color: AppColors.primaryLight,
-                                      fontSize: 11)),
+                                      color: AppColors.textPrimary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500)),
                             ],
                           ),
                         ),

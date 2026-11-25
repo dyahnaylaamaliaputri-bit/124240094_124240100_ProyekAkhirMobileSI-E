@@ -63,10 +63,9 @@ class TicketDetailView extends GetView<TicketDetailController> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                      color: AppColors.success.withValues(alpha: 0.4)),
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -78,9 +77,9 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       child: Text(
                         'Tersimpan Offline di Perangkat (Offline Ready)',
                         style: TextStyle(
-                          color: AppColors.success,
+                          color: AppColors.textPrimary,
                           fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -99,21 +98,21 @@ class TicketDetailView extends GetView<TicketDetailController> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E293B),
+                      backgroundColor: AppColors.card,
                       foregroundColor: Colors.white,
-                      side: const BorderSide(
-                          color: AppColors.primary, width: 1.2),
+                      elevation: 0,
+                      side: const BorderSide(color: AppColors.border),
                       padding: const EdgeInsets.symmetric(vertical: 13),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     icon: const Icon(Icons.share_rounded,
-                        color: AppColors.primaryLight, size: 18),
+                        color: AppColors.textPrimary, size: 18),
                     label: const Text(
                       'Bagikan E-Ticket / Ajak Nonton',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                         fontSize: 13,
                         color: Colors.white,
                       ),
@@ -136,9 +135,8 @@ class TicketDetailView extends GetView<TicketDetailController> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.gold,
-                        side:
-                            const BorderSide(color: AppColors.gold, width: 1.2),
+                        foregroundColor: AppColors.textPrimary,
+                        side: const BorderSide(color: AppColors.border),
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -266,13 +264,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
+          border: Border.all(color: AppColors.border),
         ),
         child: Column(
           children: [
@@ -280,7 +272,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
-                color: Color(0xFF131326),
+                color: AppColors.card,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Row(
@@ -289,7 +281,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                   Row(
                     children: [
                       const Icon(Icons.movie_rounded,
-                          color: AppColors.primaryLight, size: 18),
+                          color: AppColors.textPrimary, size: 18),
                       const SizedBox(width: 8),
                       Text(
                         ticket.cinemaName,
@@ -305,17 +297,16 @@ class TicketDetailView extends GetView<TicketDetailController> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryDark.withValues(alpha: 0.3),
+                      color: AppColors.cardLight,
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.5)),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: Text(
                       ticket.experience,
                       style: const TextStyle(
-                        color: AppColors.primaryLight,
+                        color: AppColors.textPrimary,
                         fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -431,7 +422,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       Text(
                         '${ticket.showTime} WIB',
                         style: const TextStyle(
-                            color: AppColors.gold,
+                            color: AppColors.textPrimary,
                             fontSize: 13,
                             fontWeight: FontWeight.bold),
                       ),
@@ -478,13 +469,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.25),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
                         ),
                         child: Opacity(
                           opacity: isHistory ? 0.35 : 1.0,
@@ -509,8 +493,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color:
-                                const Color(0xFF2E2E3E).withValues(alpha: 0.95),
+                            color: AppColors.card.withValues(alpha: 0.95),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: AppColors.border),
                           ),
@@ -561,7 +544,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       const SizedBox(width: 8),
                       IconButton(
                         icon: const Icon(Icons.copy_rounded,
-                            color: AppColors.primaryLight, size: 18),
+                            color: AppColors.textPrimary, size: 18),
                         onPressed: controller.copyBookingCode,
                         tooltip: 'Salin Kode Booking',
                       ),
@@ -592,7 +575,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       Text(
                         ticket.formattedPrice,
                         style: const TextStyle(
-                            color: AppColors.gold,
+                            color: AppColors.textPrimary,
                             fontSize: 15,
                             fontWeight: FontWeight.bold),
                       ),
@@ -606,20 +589,19 @@ class TicketDetailView extends GetView<TicketDetailController> {
                           style: TextStyle(
                               color: AppColors.textSecondary, fontSize: 12)),
                       Builder(builder: (_) {
-                        final Color badgeColor;
+                        final bool isActive = ticket.status != 'used' &&
+                            ticket.status != 'expired' &&
+                            !ticket.isShowPassed &&
+                            ticket.status != 'cancelled';
                         final String badgeText;
                         if (ticket.status == 'used') {
-                          badgeColor = const Color(0xFF38BDF8);
                           badgeText = 'SUDAH CHECK-IN';
                         } else if (ticket.status == 'expired' ||
                             ticket.isShowPassed) {
-                          badgeColor = Colors.orangeAccent;
                           badgeText = 'KEDALUWARSA';
                         } else if (ticket.status == 'cancelled') {
-                          badgeColor = AppColors.error;
                           badgeText = 'DIBATALKAN';
                         } else {
-                          badgeColor = AppColors.success;
                           badgeText = 'AKTIF (SIAP PAKAI)';
                         }
 
@@ -627,16 +609,24 @@ class TicketDetailView extends GetView<TicketDetailController> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: badgeColor.withValues(alpha: 0.15),
+                            color: isActive
+                                ? AppColors.primary.withValues(alpha: 0.16)
+                                : AppColors.cardLight,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: badgeColor),
+                            border: Border.all(
+                              color: isActive
+                                  ? AppColors.primary.withValues(alpha: 0.45)
+                                  : AppColors.border,
+                            ),
                           ),
                           child: Text(
                             badgeText,
                             style: TextStyle(
-                              color: badgeColor,
+                              color: isActive
+                                  ? AppColors.textPrimary
+                                  : AppColors.textSecondary,
                               fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         );
@@ -663,7 +653,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppColors.gold, size: 12),
+          Icon(icon, color: AppColors.textSecondary, size: 12),
           const SizedBox(width: 4),
           Text(text,
               style: const TextStyle(

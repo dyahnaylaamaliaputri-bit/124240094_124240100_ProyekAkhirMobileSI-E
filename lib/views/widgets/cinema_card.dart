@@ -29,27 +29,16 @@ class CinemaCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isTop
-              ? AppColors.primary.withValues(alpha: 0.4)
-              : AppColors.border,
-          width: isTop ? 1.4 : 1.0,
+          color: AppColors.border,
+          width: 1.0,
         ),
-        boxShadow: isTop
-            ? [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ]
-            : null,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           onTap: onTap ?? () => _showCinemaDetails(context),
           child: Padding(
             padding: const EdgeInsets.all(14),
@@ -65,12 +54,10 @@ class CinemaCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: isTop
-                            ? AppColors.primary.withValues(alpha: 0.2)
-                            : AppColors.surface,
+                        color: isTop ? AppColors.cardLight : AppColors.surface,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                          color: isTop ? AppColors.primary : AppColors.border,
+                          color: AppColors.border,
                           width: 0.8,
                         ),
                       ),
@@ -81,7 +68,7 @@ class CinemaCard extends StatelessWidget {
                             isTop ? Icons.star_rounded : Icons.place_rounded,
                             size: 13,
                             color: isTop
-                                ? AppColors.gold
+                                ? AppColors.primary
                                 : AppColors.textSecondary,
                           ),
                           const SizedBox(width: 4),
@@ -89,10 +76,10 @@ class CinemaCard extends StatelessWidget {
                             isTop ? '#1 Terdekat' : '#$rank Terdekat',
                             style: TextStyle(
                               color: isTop
-                                  ? AppColors.gold
+                                  ? AppColors.textPrimary
                                   : AppColors.textSecondary,
                               fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -105,9 +92,9 @@ class CinemaCard extends StatelessWidget {
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppColors.primaryLight.withValues(alpha: 0.3),
+                          color: AppColors.border,
                           width: 1,
                         ),
                       ),
@@ -117,15 +104,15 @@ class CinemaCard extends StatelessWidget {
                           const Icon(
                             Icons.near_me_rounded,
                             size: 13,
-                            color: AppColors.primaryLight,
+                            color: AppColors.textSecondary,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             cinema.formattedDistance,
                             style: const TextStyle(
-                              color: AppColors.primaryLight,
+                              color: AppColors.textPrimary,
                               fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -151,8 +138,8 @@ class CinemaCard extends StatelessWidget {
                       child: const Center(
                         child: Icon(
                           Icons.theater_comedy_rounded,
-                          color: AppColors.primaryLight,
-                          size: 24,
+                          color: AppColors.textPrimary,
+                          size: 22,
                         ),
                       ),
                     ),
@@ -237,14 +224,14 @@ class CinemaCard extends StatelessWidget {
                           Get.toNamed(Routes.bookByCinema, arguments: cinema),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 2),
+                            horizontal: 8, vertical: 10),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
                             Text(
                               'Lihat Jadwal',
                               style: TextStyle(
-                                color: AppColors.primaryLight,
+                                color: AppColors.textPrimary,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -253,7 +240,7 @@ class CinemaCard extends StatelessWidget {
                             Icon(
                               Icons.chevron_right_rounded,
                               size: 16,
-                              color: AppColors.primaryLight,
+                              color: AppColors.textSecondary,
                             ),
                           ],
                         ),
@@ -300,12 +287,12 @@ class CinemaCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: AppColors.cardLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
                       Icons.movie_filter_rounded,
-                      color: AppColors.primary,
+                      color: AppColors.textPrimary,
                       size: 26,
                     ),
                   ),
@@ -326,9 +313,9 @@ class CinemaCard extends StatelessWidget {
                         Text(
                           '${cinema.city} • Jarak: ${cinema.formattedDistance}',
                           style: const TextStyle(
-                            color: AppColors.gold,
+                            color: AppColors.textSecondary,
                             fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -385,8 +372,8 @@ class CinemaCard extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.gold,
-                        side: const BorderSide(color: AppColors.gold),
+                        foregroundColor: AppColors.textPrimary,
+                        side: const BorderSide(color: AppColors.border),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

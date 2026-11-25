@@ -66,19 +66,19 @@ class SelectSeatView extends GetView<BookingSeatController> {
                 width: double.infinity,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: AppColors.gold.withValues(alpha: 0.15),
+                color: AppColors.card,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.timer_rounded,
-                        size: 16, color: AppColors.gold),
+                        size: 16, color: AppColors.textSecondary),
                     const SizedBox(width: 8),
                     Text(
                       'Sisa Waktu Pemesanan Kursi: ${controller.formattedHoldTimer}',
                       style: const TextStyle(
-                        color: AppColors.gold,
+                        color: AppColors.textPrimary,
                         fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -128,14 +128,14 @@ class SelectSeatView extends GetView<BookingSeatController> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: AppColors.surface.withValues(alpha: 0.6),
+      color: AppColors.surface,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
               const Icon(Icons.calendar_today_rounded,
-                  size: 14, color: AppColors.gold),
+                  size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 6),
               Text(
                 '${controller.showtime.showDate} • ${controller.showtime.showTime} WIB',
@@ -150,17 +150,16 @@ class SelectSeatView extends GetView<BookingSeatController> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: AppColors.primaryDark.withValues(alpha: 0.3),
+              color: AppColors.cardLight,
               borderRadius: BorderRadius.circular(6),
-              border:
-                  Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+              border: Border.all(color: AppColors.border),
             ),
             child: Text(
               controller.showtime.experience,
               style: const TextStyle(
-                color: AppColors.primaryLight,
+                color: AppColors.textPrimary,
                 fontSize: 11,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -299,16 +298,16 @@ class SelectSeatView extends GetView<BookingSeatController> {
     Color textColor;
 
     if (isReserved) {
-      bgColor = const Color(0xFF1F1F2E);
+      bgColor = const Color(0xFF1E1E1E);
       borderColor = Colors.transparent;
       textColor = AppColors.textDisabled;
     } else if (isLocked) {
-      bgColor = const Color(0xFF2A2000);
-      borderColor = AppColors.gold.withValues(alpha: 0.8);
-      textColor = AppColors.gold;
+      bgColor = AppColors.cardLight;
+      borderColor = AppColors.textSecondary;
+      textColor = AppColors.textSecondary;
     } else if (isSelected) {
       bgColor = AppColors.primary;
-      borderColor = AppColors.primaryLight;
+      borderColor = AppColors.primary;
       textColor = Colors.white;
     } else {
       bgColor = AppColors.card;
@@ -331,25 +330,8 @@ class SelectSeatView extends GetView<BookingSeatController> {
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: borderColor,
-            width: isSelected || isLocked ? 1.5 : 1,
+            width: isSelected || isLocked ? 1.2 : 1,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.5),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : isLocked
-                  ? [
-                      BoxShadow(
-                        color: AppColors.gold.withValues(alpha: 0.3),
-                        blurRadius: 6,
-                        offset: const Offset(0, 1),
-                      ),
-                    ]
-                  : null,
         ),
         child: Center(
           child: isReserved
@@ -357,7 +339,7 @@ class SelectSeatView extends GetView<BookingSeatController> {
                   size: 13, color: AppColors.textDisabled)
               : isLocked
                   ? const Icon(Icons.lock_rounded,
-                      size: 12, color: AppColors.gold)
+                      size: 12, color: AppColors.textSecondary)
                   : Text(
                       '${seat.column}',
                       style: TextStyle(
@@ -377,9 +359,9 @@ class SelectSeatView extends GetView<BookingSeatController> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
-        color: AppColors.card.withValues(alpha: 0.5),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Wrap(
         alignment: WrapAlignment.center,
@@ -387,12 +369,12 @@ class SelectSeatView extends GetView<BookingSeatController> {
         runSpacing: 8,
         children: [
           _buildLegendItem('Tersedia', AppColors.card, AppColors.border),
+          _buildLegendItem('Dipilih', AppColors.primary, AppColors.primary),
           _buildLegendItem(
-              'Dipilih', AppColors.primary, AppColors.primaryLight),
-          _buildLegendItem(
-              'Terisi', const Color(0xFF1F1F2E), Colors.transparent,
+              'Terisi', const Color(0xFF1E1E1E), Colors.transparent,
               hasCloseIcon: true),
-          _buildLegendItem('Terkunci', const Color(0xFF2A2000), AppColors.gold,
+          _buildLegendItem(
+              'Terkunci', AppColors.cardLight, AppColors.textSecondary,
               hasLockIcon: true),
         ],
       ),
@@ -422,7 +404,7 @@ class SelectSeatView extends GetView<BookingSeatController> {
                   size: 11, color: AppColors.textDisabled)
               : hasLockIcon
                   ? const Icon(Icons.lock_rounded,
-                      size: 11, color: AppColors.gold)
+                      size: 11, color: AppColors.textSecondary)
                   : null,
         ),
         const SizedBox(width: 6),
@@ -440,16 +422,9 @@ class SelectSeatView extends GetView<BookingSeatController> {
       final hasSelected = controller.selectedSeats.isNotEmpty;
       return Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.4),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          border: Border(top: BorderSide(color: AppColors.border)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -484,10 +459,10 @@ class SelectSeatView extends GetView<BookingSeatController> {
                             : 'Harga @ ${controller.showtime.formattedPrice}',
                         style: TextStyle(
                           color: hasSelected
-                              ? AppColors.gold
+                              ? AppColors.textPrimary
                               : AppColors.textSecondary,
                           fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ],
@@ -570,12 +545,16 @@ class _FnbAddonBottomSheet extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: AppColors.cardLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text('🍿', style: TextStyle(fontSize: 22)),
+                child: const Icon(
+                  Icons.fastfood_rounded,
+                  color: AppColors.textPrimary,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -643,7 +622,7 @@ class _FnbAddonBottomSheet extends StatelessWidget {
                               Text(
                                 item.formattedPrice,
                                 style: const TextStyle(
-                                  color: AppColors.gold,
+                                  color: AppColors.textSecondary,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),

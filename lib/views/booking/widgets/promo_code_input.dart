@@ -74,9 +74,7 @@ class _PromoCodeInputState extends State<PromoCodeInput> {
         color: AppColors.card,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _appliedPromo != null
-              ? Colors.green.withValues(alpha: 0.5)
-              : Colors.white10,
+          color: AppColors.border,
         ),
       ),
       child: Column(
@@ -85,7 +83,7 @@ class _PromoCodeInputState extends State<PromoCodeInput> {
           Row(
             children: const [
               Icon(Icons.confirmation_num_outlined,
-                  color: AppColors.gold, size: 18),
+                  color: AppColors.textSecondary, size: 18),
               SizedBox(width: 8),
               Text(
                 'Punya Kode Promo / Kupon?',
@@ -149,7 +147,7 @@ class _PromoCodeInputState extends State<PromoCodeInput> {
             const SizedBox(height: 8),
             Text(
               _errorMessage!,
-              style: const TextStyle(color: Colors.redAccent, fontSize: 11),
+              style: const TextStyle(color: AppColors.error, fontSize: 11),
             ),
           ],
           if (_appliedPromo != null) ...[
@@ -157,14 +155,16 @@ class _PromoCodeInputState extends State<PromoCodeInput> {
             Row(
               children: [
                 const Icon(Icons.check_circle,
-                    color: Colors.greenAccent, size: 14),
+                    color: AppColors.success, size: 14),
                 const SizedBox(width: 6),
-                Text(
-                  '${_appliedPromo!.title} diterapkan! (-Rp ${_appliedPromo!.calculateDiscount(widget.subtotal)})',
-                  style: const TextStyle(
-                      color: Colors.greenAccent,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    '${_appliedPromo!.title} diterapkan! (-Rp ${_appliedPromo!.calculateDiscount(widget.subtotal)})',
+                    style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),

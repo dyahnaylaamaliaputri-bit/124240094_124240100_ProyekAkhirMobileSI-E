@@ -104,14 +104,11 @@ class TrailerPlayerWidget extends StatelessWidget {
                   height: 56,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.primary.withValues(alpha: 0.9),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.5),
-                        blurRadius: 16,
-                        spreadRadius: 2,
-                      ),
-                    ],
+                    color: AppColors.primary.withValues(alpha: 0.92),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      width: 1.5,
+                    ),
                   ),
                   child: const Icon(
                     Icons.play_arrow_rounded,

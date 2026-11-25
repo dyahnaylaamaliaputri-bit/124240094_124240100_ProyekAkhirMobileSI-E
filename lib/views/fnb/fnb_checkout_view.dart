@@ -192,14 +192,14 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.gold, size: 18),
+        Icon(icon, color: AppColors.textSecondary, size: 18),
         const SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
-            letterSpacing: 0.8,
+            letterSpacing: 0.6,
             fontSize: 13,
           ),
         ),
@@ -228,7 +228,7 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
               child: Row(
                 children: [
                   const Icon(Icons.location_on,
-                      size: 16, color: AppColors.gold),
+                      size: 16, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -261,15 +261,15 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.12),
+              color: AppColors.card,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withOpacity(0.35)),
+              border: Border.all(color: AppColors.border),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Icon(Icons.confirmation_number_rounded,
-                    color: AppColors.gold, size: 22),
+                    color: AppColors.textPrimary, size: 22),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -290,15 +290,15 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.gold.withOpacity(0.2),
+                              color: AppColors.cardLight,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
                               'Auto-filled',
                               style: TextStyle(
-                                color: AppColors.gold,
+                                color: AppColors.textSecondary,
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -333,14 +333,15 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.1),
+              color: AppColors.card,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
+              border: Border.all(color: AppColors.border),
             ),
             child: const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.fastfood_rounded, color: AppColors.gold, size: 22),
+                Icon(Icons.fastfood_rounded,
+                    color: AppColors.textPrimary, size: 22),
                 SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -349,7 +350,7 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
                       Text(
                         'Pemesanan F&B Mandiri',
                         style: TextStyle(
-                          color: AppColors.gold,
+                          color: AppColors.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
@@ -647,8 +648,8 @@ class _FnbCheckoutViewState extends State<FnbCheckoutView> {
               Text(
                 fnbCtrl.formattedGrandTotal,
                 style: const TextStyle(
-                    color: AppColors.primaryLight,
-                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
                     fontSize: 16),
               ),
             ],

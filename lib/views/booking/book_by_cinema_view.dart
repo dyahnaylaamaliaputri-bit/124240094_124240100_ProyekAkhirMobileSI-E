@@ -75,7 +75,7 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
             Text(
               'Pilih Film & Jadwal',
               style: TextStyle(
-                color: AppColors.primaryLight,
+                color: AppColors.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
               ),
@@ -164,15 +164,8 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
@@ -187,8 +180,8 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
             child: const Center(
               child: Icon(
                 Icons.theater_comedy_rounded,
-                color: AppColors.primaryLight,
-                size: 26,
+                color: AppColors.textPrimary,
+                size: 24,
               ),
             ),
           ),
@@ -214,20 +207,18 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                     if (cinema.distanceKm != null)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: AppColors.primaryLight
-                                  .withValues(alpha: 0.4)),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: Text(
                           cinema.formattedDistance,
                           style: const TextStyle(
-                            color: AppColors.primaryLight,
+                            color: AppColors.textPrimary,
                             fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -269,9 +260,9 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
             child: const Text(
               'Ganti',
               style: TextStyle(
-                color: AppColors.primaryLight,
+                color: AppColors.textPrimary,
                 fontSize: 12,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -328,23 +319,12 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                     width: 66,
                     decoration: BoxDecoration(
                       color: isSelected ? AppColors.primary : AppColors.card,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected
-                            ? AppColors.primaryLight
-                            : AppColors.border,
-                        width: isSelected ? 1.5 : 1.0,
+                        color:
+                            isSelected ? AppColors.primary : AppColors.border,
+                        width: 1.0,
                       ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color:
-                                    AppColors.primary.withValues(alpha: 0.35),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ]
-                          : null,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -489,25 +469,28 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                           const SizedBox(height: 6),
                           Text(
                             movie.title,
-                            style: TextStyle(
-                              color: isSelected
-                                  ? AppColors.primaryLight
-                                  : AppColors.textPrimary,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
                               fontSize: 11,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          Text(
-                            '★ ${movie.formattedRating}',
-                            style: const TextStyle(
-                              color: AppColors.gold,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              const Icon(Icons.star_rounded,
+                                  color: AppColors.gold, size: 11),
+                              const SizedBox(width: 2),
+                              Text(
+                                movie.formattedRating,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -594,7 +577,7 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                               ),
                               child: Icon(
                                 _getExperienceIcon(exp),
-                                color: AppColors.primaryLight,
+                                color: AppColors.textSecondary,
                                 size: 16,
                               ),
                             ),
@@ -620,9 +603,9 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                           child: Text(
                             samplePrice,
                             style: const TextStyle(
-                              color: AppColors.gold,
+                              color: AppColors.textPrimary,
                               fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -655,20 +638,10 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: isSelected
-                                      ? AppColors.primaryLight
+                                      ? AppColors.primary
                                       : AppColors.border,
-                                  width: isSelected ? 1.5 : 1.0,
+                                  width: 1.0,
                                 ),
-                                boxShadow: isSelected
-                                    ? [
-                                        BoxShadow(
-                                          color: AppColors.primary
-                                              .withValues(alpha: 0.3),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                    : null,
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -716,16 +689,9 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
   Widget _buildBottomActionBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.surface,
-        border: const Border(top: BorderSide(color: AppColors.border)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 10,
-            offset: const Offset(0, -3),
-          ),
-        ],
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Obx(() {
         final st = controller.selectedShowtime.value;
@@ -759,10 +725,11 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                         ? st.formattedPrice
                         : 'Silakan pilih jadwal di atas',
                     style: TextStyle(
-                      color:
-                          st != null ? AppColors.gold : AppColors.textDisabled,
+                      color: st != null
+                          ? AppColors.textPrimary
+                          : AppColors.textDisabled,
                       fontSize: 14,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
@@ -866,7 +833,7 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                         child: Icon(
                           Icons.theater_comedy_rounded,
                           color: isSelected
-                              ? AppColors.primaryLight
+                              ? AppColors.primary
                               : AppColors.textSecondary,
                           size: 20,
                         ),
@@ -874,9 +841,7 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                       title: Text(
                         c.name,
                         style: TextStyle(
-                          color: isSelected
-                              ? AppColors.primaryLight
-                              : AppColors.textPrimary,
+                          color: AppColors.textPrimary,
                           fontWeight:
                               isSelected ? FontWeight.bold : FontWeight.w500,
                         ),
@@ -970,7 +935,7 @@ class _BookByCinemaViewState extends State<BookByCinemaView> {
                         Text(
                           controller.selectedCinema.value?.name ?? 'Bioskop',
                           style: const TextStyle(
-                              color: AppColors.primaryLight, fontSize: 13),
+                              color: AppColors.textSecondary, fontSize: 13),
                         ),
                         const SizedBox(height: 2),
                         Text(

@@ -77,6 +77,7 @@ class MovieCard extends StatelessWidget {
                 ),
 
                 // Badge Rating (Now Playing) atau Tanggal Rilis (Upcoming)
+                // Gaya scrim gelap Netflix: tanpa border neon atau warna mencolok
                 Positioned(
                   top: 8,
                   right: 8,
@@ -84,11 +85,11 @@ class MovieCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(200),
-                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xCC121212),
+                      borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: isUpcoming ? AppColors.info : AppColors.gold,
-                        width: 1,
+                        color: Colors.white.withValues(alpha: 0.14),
+                        width: 0.8,
                       ),
                     ),
                     child: Row(
@@ -98,18 +99,20 @@ class MovieCard extends StatelessWidget {
                           isUpcoming
                               ? Icons.calendar_today_rounded
                               : Icons.star_rounded,
-                          color: isUpcoming ? AppColors.info : AppColors.gold,
+                          color: isUpcoming
+                              ? AppColors.textSecondary
+                              : AppColors.gold,
                           size: 12,
                         ),
-                        const SizedBox(width: 3),
+                        const SizedBox(width: 4),
                         Text(
                           isUpcoming
                               ? movie.releaseYear
                               : movie.formattedRating,
-                          style: TextStyle(
-                            color: isUpcoming ? AppColors.info : AppColors.gold,
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
                             fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],

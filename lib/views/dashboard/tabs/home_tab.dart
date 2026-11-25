@@ -4,7 +4,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../controllers/auth_controller.dart';
 import '../../../controllers/cinema_controller.dart';
 import '../../../controllers/movie_controller.dart';
 import '../../../models/movie_model.dart';
@@ -27,7 +26,6 @@ class _HomeTabState extends State<HomeTab> {
 
   MovieController get _movieCtrl => Get.find<MovieController>();
   CinemaController get _cinemaCtrl => Get.find<CinemaController>();
-  AuthController get _authCtrl => Get.find<AuthController>();
 
   @override
   void initState() {
@@ -128,40 +126,6 @@ class _HomeTabState extends State<HomeTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Salam Pengguna
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Obx(() {
-                  final user = _authCtrl.currentUser.value;
-                  final name = user?.fullName.isNotEmpty == true
-                      ? user!.fullName
-                      : 'Pengguna';
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Halo, $name! 👋',
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Mau nonton film apa hari ini?',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-              ),
-
-              const SizedBox(height: 14),
-
               // Search Bar Shortcut (PB-051)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -379,7 +343,7 @@ class _HomeTabState extends State<HomeTab> {
                                   )
                                 : const Icon(
                                     Icons.my_location_rounded,
-                                    color: Colors.greenAccent,
+                                    color: AppColors.textPrimary,
                                     size: 16,
                                   ),
                           ),
@@ -402,23 +366,24 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                         const SizedBox(width: 6),
                         InkWell(
+                          borderRadius: BorderRadius.circular(6),
                           onTap: () => _showLocationPicker(context),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
+                                horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: AppColors.card,
-                              borderRadius: BorderRadius.circular(4),
+                              color: AppColors.cardLight,
+                              borderRadius: BorderRadius.circular(6),
                               border: Border.all(
-                                color: AppColors.gold.withValues(alpha: 0.3),
+                                color: AppColors.border,
                               ),
                             ),
                             child: const Text(
                               'Ganti Kota',
                               style: TextStyle(
-                                color: AppColors.gold,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -552,13 +517,13 @@ class _HomeTabState extends State<HomeTab> {
                         children: [
                           const Icon(Icons.star_rounded,
                               color: AppColors.gold, size: 14),
-                          const SizedBox(width: 3),
+                          const SizedBox(width: 4),
                           Text(
                             movie.formattedRating,
                             style: const TextStyle(
-                              color: AppColors.gold,
+                              color: AppColors.textPrimary,
                               fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -610,15 +575,6 @@ class _HomeTabState extends State<HomeTab> {
           Expanded(
             child: Row(
               children: [
-                Container(
-                  width: 4,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 8),
                 Flexible(
                   child: Text(
                     title,
@@ -654,13 +610,13 @@ class _HomeTabState extends State<HomeTab> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (actionIcon != null) ...[
-                  Icon(actionIcon, size: 14, color: AppColors.primaryLight),
+                  Icon(actionIcon, size: 14, color: AppColors.textSecondary),
                   const SizedBox(width: 4),
                 ],
                 Text(
                   actionLabel,
                   style: const TextStyle(
-                    color: AppColors.primaryLight,
+                    color: AppColors.textSecondary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -724,21 +680,21 @@ class _HomeTabState extends State<HomeTab> {
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.15),
+                      color: AppColors.cardLight,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.greenAccent),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: const Icon(
                       Icons.my_location_rounded,
-                      color: Colors.greenAccent,
+                      color: AppColors.textPrimary,
                       size: 20,
                     ),
                   ),
                   title: const Text(
                     'Deteksi GPS Otomatis',
                     style: TextStyle(
-                      color: Colors.greenAccent,
-                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
                   ),
@@ -783,9 +739,7 @@ class _HomeTabState extends State<HomeTab> {
                       title: Text(
                         preset.name,
                         style: TextStyle(
-                          color: isSelected
-                              ? AppColors.primaryLight
-                              : AppColors.textPrimary,
+                          color: AppColors.textPrimary,
                           fontWeight:
                               isSelected ? FontWeight.bold : FontWeight.w500,
                           fontSize: 14,

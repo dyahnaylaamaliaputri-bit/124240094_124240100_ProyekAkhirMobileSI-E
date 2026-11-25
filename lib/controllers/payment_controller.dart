@@ -16,6 +16,7 @@ import '../services/storage_service.dart';
 import '../services/ticket_service.dart';
 import '../services/notification_service.dart';
 import '../services/fnb_service.dart';
+import '../views/booking/widgets/payment_success_sheet.dart';
 import 'fnb_controller.dart';
 import 'tickets_controller.dart';
 
@@ -270,158 +271,23 @@ class PaymentController extends GetxController {
   /// Menampilkan dialog / modal sukses pembayaran
   void _showPaymentSuccessDialog() {
     Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Color(0xFF1A1A2E),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icon Centang Hijau Beranimasi
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50).withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF4CAF50), width: 2),
-              ),
-              child: const Center(
-                child: Icon(Icons.check_rounded,
-                    color: Color(0xFF4CAF50), size: 40),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Pembayaran Berhasil! 🎉',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Status pesanan Anda telah berubah menjadi PAID.',
-              style: TextStyle(color: Color(0xFFB0B0B0), fontSize: 13),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-
-            // Card Ringkasan Pembayaran
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF16213E),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFF2E2E4E)),
-              ),
-              child: Column(
-                children: [
-                  _buildReceiptRow(
-                      'No. Referensi', order.value.paymentReference ?? '-'),
-                  const SizedBox(height: 8),
-                  _buildReceiptRow('Film', order.value.movie.title),
-                  const SizedBox(height: 8),
-                  _buildReceiptRow('Bioskop', order.value.cinema.name),
-                  const SizedBox(height: 8),
-                  _buildReceiptRow('Kursi (${order.value.seatCount})',
-                      order.value.seatsLabel),
-                  const SizedBox(height: 8),
-                  _buildReceiptRow(
-                      'Metode Bayar', order.value.paymentMethod ?? '-'),
-                  const Divider(color: Color(0xFF2A2A3E), height: 16),
-                  _buildReceiptRow(
-                      'Total Dibayar', order.value.formattedTotalAmount,
-                      isTotal: true),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Tombol Aksi
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Color(0xFF2E2E4E)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      Get.until(
-                          (route) => route.settings.name == Routes.dashboard);
-                    },
-                    child: const Text('Ke Beranda',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE50914),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      elevation: 4,
-                    ),
-                    icon: const Icon(Icons.qr_code_2_rounded, size: 20),
-                    label: const Text(
-                      'Lihat E-Ticket',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                    onPressed: () {
-                      Get.back(); // tutup modal
-                      if (createdTicket.value != null) {
-                        Get.toNamed(Routes.ticketDetail,
-                            arguments: createdTicket.value);
-                      } else {
-                        Get.toNamed(Routes.ticketDetail);
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+      PaymentSuccessSheet(
+        order: order.value,
+        onGoHome: () {
+          Get.until((route) => route.settings.name == Routes.dashboard);
+        },
+        onViewTicket: () {
+          Get.back(); // tutup modal
+          if (createdTicket.value != null) {
+            Get.toNamed(Routes.ticketDetail, arguments: createdTicket.value);
+          } else {
+            Get.toNamed(Routes.ticketDetail);
+          }
+        },
       ),
       isScrollControlled: true,
       isDismissible: false,
       enableDrag: false,
-    );
-  }
-
-  Widget _buildReceiptRow(String label, String value, {bool isTotal = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label,
-            style: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 12)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: isTotal ? const Color(0xFFFFD700) : Colors.white,
-              fontSize: isTotal ? 15 : 12,
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

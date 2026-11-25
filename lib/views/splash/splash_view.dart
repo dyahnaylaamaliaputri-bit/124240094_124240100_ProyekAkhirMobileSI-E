@@ -68,13 +68,6 @@ class _SplashViewState extends State<SplashView>
                 decoration: BoxDecoration(
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withAlpha(100),
-                      blurRadius: 30,
-                      spreadRadius: 5,
-                    ),
-                  ],
                 ),
                 child: const Icon(
                   Icons.movie_filter_rounded,

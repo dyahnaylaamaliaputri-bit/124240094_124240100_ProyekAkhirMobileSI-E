@@ -90,16 +90,9 @@ class ProfileTab extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: AppColors.cardGradient,
-                  borderRadius: BorderRadius.circular(18),
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.35),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Column(
                   children: [
@@ -124,15 +117,15 @@ class ProfileTab extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: AppColors.gold,
+                            color: AppColors.cardLight,
                             shape: BoxShape.circle,
                             border: Border.all(
                                 color: AppColors.card, width: 2),
                           ),
                           child: const Icon(
                             Icons.check,
-                            color: Colors.black,
-                            size: 14,
+                            color: AppColors.textPrimary,
+                            size: 13,
                           ),
                         ),
                       ],
@@ -159,25 +152,24 @@ class ProfileTab extends StatelessWidget {
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: AppColors.gold.withValues(alpha: 0.4)),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.verified_rounded,
-                              color: AppColors.gold, size: 14),
-                          SizedBox(width: 5),
+                              color: AppColors.textSecondary, size: 14),
+                          SizedBox(width: 6),
                           Text(
                             'Akun Terverifikasi',
                             style: TextStyle(
-                              color: AppColors.gold,
+                              color: AppColors.textSecondary,
                               fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -206,12 +198,12 @@ class ProfileTab extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.15),
+                            color: AppColors.cardLight,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
                             Icons.badge_outlined,
-                            color: AppColors.primary,
+                            color: AppColors.textSecondary,
                             size: 18,
                           ),
                         ),

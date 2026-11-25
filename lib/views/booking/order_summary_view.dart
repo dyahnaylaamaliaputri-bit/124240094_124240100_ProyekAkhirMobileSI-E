@@ -94,11 +94,11 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-        color: const Color(0xFF2C1E1E),
+        color: AppColors.card,
         child: Row(
           children: [
             const Icon(Icons.access_time_filled_rounded,
-                color: AppColors.gold, size: 16),
+                color: AppColors.textSecondary, size: 16),
             const SizedBox(width: 8),
             const Text(
               'Selesaikan pesanan dalam ',
@@ -197,7 +197,7 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                             Text(
                               movie.formattedRating,
                               style: const TextStyle(
-                                color: AppColors.gold,
+                                color: AppColors.textPrimary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -215,19 +215,16 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color:
-                                AppColors.primaryDark.withValues(alpha: 0.25),
+                            color: AppColors.cardLight,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                                color:
-                                    AppColors.primary.withValues(alpha: 0.4)),
+                            border: Border.all(color: AppColors.border),
                           ),
                           child: Text(
                             showtime.experience,
                             style: const TextStyle(
-                              color: AppColors.primaryLight,
+                              color: AppColors.textPrimary,
                               fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -294,28 +291,27 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 8),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: AppColors.cardLight,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                              color: AppColors.gold.withValues(alpha: 0.4)),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: const Row(
                           children: [
                             Icon(Icons.fastfood_rounded,
-                                color: AppColors.gold, size: 18),
+                                color: AppColors.textPrimary, size: 18),
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 '+ Tambah Popcorn & Minuman (F&B)',
                                 style: TextStyle(
-                                  color: AppColors.gold,
-                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
                                   fontSize: 12,
                                 ),
                               ),
                             ),
                             Icon(Icons.chevron_right_rounded,
-                                color: AppColors.gold, size: 18),
+                                color: AppColors.textSecondary, size: 18),
                           ],
                         ),
                       ),
@@ -550,7 +546,7 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -560,7 +556,8 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.fastfood_rounded, color: AppColors.gold, size: 18),
+                  Icon(Icons.fastfood_rounded,
+                      color: AppColors.textPrimary, size: 18),
                   SizedBox(width: 8),
                   Text(
                     'Tambah Camilan Bioskop',
@@ -575,16 +572,16 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.15),
+                  color: AppColors.cardLight,
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: AppColors.success),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: const Text(
                   'HEMAT 10RB',
                   style: TextStyle(
-                    color: AppColors.success,
+                    color: AppColors.textPrimary,
                     fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -593,7 +590,7 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
           const SizedBox(height: 4),
           const Text(
             'Langkah opsional: Bundling snack hemat langsung menyatu dalam 1 pembayaran tiket!',
-            style: TextStyle(color: AppColors.textDisabled, fontSize: 11),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
           ),
           const SizedBox(height: 12),
 
@@ -607,20 +604,26 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primaryDark.withValues(alpha: 0.25)
-                      : AppColors.card,
+                  color: AppColors.card,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? AppColors.gold : AppColors.border,
-                    width: isSelected ? 1.5 : 1.0,
+                    color: isSelected ? AppColors.primary : AppColors.border,
+                    width: isSelected ? 1.2 : 1.0,
                   ),
                 ),
                 child: Row(
                   children: [
-                    Text(
-                      bundle['emoji'] as String,
-                      style: const TextStyle(fontSize: 24),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardLight,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.fastfood_rounded,
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -660,7 +663,7 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                                 BookingOrderModel.formatRupiah(
                                     bundle['bundlePrice'] as int),
                                 style: const TextStyle(
-                                  color: AppColors.gold,
+                                  color: AppColors.textPrimary,
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -674,9 +677,8 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            isSelected ? AppColors.gold : AppColors.cardLight,
-                        foregroundColor:
-                            isSelected ? Colors.black : Colors.white,
+                            isSelected ? AppColors.primary : AppColors.cardLight,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 8),
                         shape: RoundedRectangleBorder(
@@ -685,7 +687,7 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                       ),
                       onPressed: () => controller.toggleSnackBundle(bundle),
                       child: Text(
-                        isSelected ? 'Dipilih ✓' : '+ Tambah',
+                        isSelected ? 'Dipilih' : '+ Tambah',
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -716,7 +718,8 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
         children: [
           const Row(
             children: [
-              Icon(Icons.local_offer_rounded, color: AppColors.gold, size: 16),
+              Icon(Icons.local_offer_rounded,
+                  color: AppColors.textSecondary, size: 16),
               SizedBox(width: 8),
               Text(
                 'Voucher / Kode Promo',
@@ -735,9 +738,9 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.15),
+                  color: AppColors.card,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.success),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -750,9 +753,9 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                         Text(
                           'Promo Aktif: ${controller.voucherCodeController.text} (-${controller.formattedDiscount})',
                           style: const TextStyle(
-                            color: AppColors.success,
+                            color: AppColors.textPrimary,
                             fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -903,7 +906,7 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                 Text(
                   'Instan di Tab Tiket (Offline Ready)',
                   style: TextStyle(
-                      color: AppColors.gold,
+                      color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                       fontSize: 11),
                 ),
@@ -920,16 +923,9 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
     return Obx(() {
       return Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.4),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          border: Border(top: BorderSide(color: AppColors.divider)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -947,9 +943,9 @@ class OrderSummaryView extends GetView<OrderSummaryController> {
                 Text(
                   controller.formattedFinalTotalAmount,
                   style: const TextStyle(
-                    color: AppColors.gold,
+                    color: AppColors.textPrimary,
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],

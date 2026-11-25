@@ -98,21 +98,20 @@ class _RegisterViewState extends State<RegisterView> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF9800).withAlpha(25),
+                    color: AppColors.card,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: const Color(0xFFFF9800).withAlpha(120)),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: const Row(
                     children: [
                       Icon(Icons.cloud_off_rounded,
-                          color: Color(0xFFFF9800), size: 18),
-                      SizedBox(width: 8),
+                          color: AppColors.textSecondary, size: 18),
+                      SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Mode Offline — akun akan tersimpan di perangkat ini dan tersinkronisasi saat Supabase kembali online.',
+                          'Mode Offline: akun akan tersimpan di perangkat ini dan tersinkronisasi saat Supabase kembali online.',
                           style: TextStyle(
-                              color: Color(0xFFFF9800),
+                              color: AppColors.textSecondary,
                               fontSize: 11,
                               height: 1.4),
                         ),

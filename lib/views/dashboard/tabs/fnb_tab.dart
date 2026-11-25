@@ -95,13 +95,13 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.primary,
-          indicatorWeight: 3,
-          labelColor: AppColors.primary,
+          indicatorWeight: 2.5,
+          labelColor: AppColors.textPrimary,
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle:
               const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
           tabs: [
-            const Tab(text: 'Katalog Menu 🍿'),
+            const Tab(text: 'Katalog Menu'),
             Obx(() => Tab(
                   text: 'Pesanan Saya (${fnbCtrl.userOrders.length})',
                 )),
@@ -131,31 +131,24 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                 onTap: () => FnbCartBottomSheet.show(context),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: AppColors.card,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.primary, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.border, width: 1),
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.2),
+                          color: AppColors.cardLight,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(Icons.shopping_bag_rounded,
-                            color: AppColors.primary, size: 24),
+                            color: AppColors.textPrimary, size: 22),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,10 +164,10 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                                 ),
                                 const SizedBox(width: 6),
                                 const Text(
-                                  '• Ketuk untuk rincian',
+                                  '• Ketuk rincian',
                                   style: TextStyle(
-                                      color: AppColors.primaryLight,
-                                      fontSize: 10,
+                                      color: AppColors.textSecondary,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w500),
                                 ),
                               ],
@@ -439,15 +432,15 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                   const SizedBox(height: 3),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       item.categoryLabel,
                       style: const TextStyle(
-                        color: AppColors.gold,
+                        color: AppColors.textSecondary,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -467,7 +460,7 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                   Text(
                     item.formattedPrice,
                     style: const TextStyle(
-                      color: AppColors.primaryLight,
+                      color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
@@ -484,7 +477,7 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                                 : Icons.add_comment_outlined,
                             size: 14,
                             color: fnbCtrl.getItemNote(item.id).isNotEmpty
-                                ? AppColors.primaryLight
+                                ? AppColors.textPrimary
                                 : AppColors.textSecondary,
                           ),
                           const SizedBox(width: 4),
@@ -497,7 +490,7 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: fnbCtrl.getItemNote(item.id).isNotEmpty
-                                    ? AppColors.primaryLight
+                                    ? AppColors.textPrimary
                                     : AppColors.textSecondary,
                                 fontSize: 11,
                                 fontStyle:
@@ -645,19 +638,21 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                           decoration: BoxDecoration(
                             color: order.status == 'ready'
                                 ? AppColors.primary
-                                : order.status == 'completed'
-                                    ? Colors.green.shade800
-                                    : AppColors.gold.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
+                                : AppColors.cardLight,
+                            borderRadius: BorderRadius.circular(8),
+                            border: order.status == 'ready'
+                                ? null
+                                : Border.all(color: AppColors.border),
                           ),
                           child: Text(
                             order.statusLabel,
                             style: TextStyle(
-                              color: order.status == 'completed' ||
-                                      order.status == 'ready'
+                              color: order.status == 'ready'
                                   ? Colors.white
-                                  : AppColors.gold,
-                              fontWeight: FontWeight.bold,
+                                  : order.status == 'completed'
+                                      ? AppColors.textSecondary
+                                      : AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
                               fontSize: 11,
                             ),
                           ),
@@ -682,12 +677,20 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                       children: [
                         Text(order.pickupMethodLabel,
                             style: const TextStyle(
-                                color: AppColors.gold, fontSize: 11)),
-                        const Text('Buka Voucher →',
-                            style: TextStyle(
-                                color: AppColors.primaryLight,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold)),
+                                color: AppColors.textSecondary, fontSize: 11)),
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Lihat Voucher',
+                                style: TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600)),
+                            SizedBox(width: 2),
+                            Icon(Icons.chevron_right_rounded,
+                                size: 16, color: AppColors.textSecondary),
+                          ],
+                        ),
                       ],
                     ),
                   ],
@@ -710,7 +713,7 @@ class _FnbTabState extends State<FnbTab> with SingleTickerProviderStateMixin {
                 : item.category == 'food'
                     ? Icons.dinner_dining_rounded
                     : Icons.lunch_dining_rounded,
-        color: AppColors.gold,
+        color: AppColors.textSecondary,
         size: 32,
       ),
     );

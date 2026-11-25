@@ -202,7 +202,7 @@ class MovieDetailView extends StatelessWidget {
                                 Text(
                                   movie.formattedRating,
                                   style: const TextStyle(
-                                    color: AppColors.gold,
+                                    color: AppColors.textPrimary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -288,15 +288,14 @@ class MovieDetailView extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(alpha: 0.15),
+                                    color: AppColors.cardLight,
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(
-                                        color: AppColors.primary.withValues(alpha: 0.5)),
+                                    border: Border.all(color: AppColors.border),
                                   ),
                                   child: Text(
                                     movie.ageRating,
                                     style: const TextStyle(
-                                      color: AppColors.primaryLight,
+                                      color: AppColors.textPrimary,
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -342,26 +341,14 @@ class MovieDetailView extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // ── 3. SINOPSIS ──────────────────────────────────────────
-                  Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Sinopsis Cerita',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  const Text(
+                    'Sinopsis Cerita',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Text(
@@ -380,26 +367,14 @@ class MovieDetailView extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Sutradara & Pemeran Utama
-                  Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Sutradara & Pemeran',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  const Text(
+                    'Sutradara & Pemeran',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Container(
@@ -475,49 +450,42 @@ class MovieDetailView extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Format Studio Tayang
-                  Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Format Studio Bioskop',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  const Text(
+                    'Format Studio Bioskop',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
                     children: movie.availableFormats.map((format) {
+                      final isPremium =
+                          format == 'IMAX' || format == 'Premiere';
                       return Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: isPremium
+                              ? AppColors.cardLight
+                              : AppColors.surface,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                              color: format == 'IMAX' || format == 'Premiere'
-                                  ? AppColors.gold.withValues(alpha: 0.6)
-                                  : AppColors.border),
+                            color: isPremium
+                                ? AppColors.textSecondary.withValues(alpha: 0.45)
+                                : AppColors.border,
+                          ),
                         ),
                         child: Text(
                           format,
                           style: TextStyle(
-                            color: format == 'IMAX' || format == 'Premiere'
-                                ? AppColors.gold
-                                : AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
+                            color: isPremium
+                                ? AppColors.textPrimary
+                                : AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),
                         ),
@@ -557,17 +525,9 @@ class MovieDetailView extends StatelessWidget {
       // ── 4. STICKY BOTTOM BAR (TOMBOL BELI TIKET) ──────────────────────────
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.surface,
-          border:
-              const Border(top: BorderSide(color: AppColors.divider, width: 1)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 10,
-              offset: const Offset(0, -3),
-            ),
-          ],
+          border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
         ),
         child: SafeArea(
           child: Row(
@@ -586,9 +546,9 @@ class MovieDetailView extends StatelessWidget {
                   Text(
                     'Rp 50.000',
                     style: TextStyle(
-                      color: AppColors.gold,
+                      color: AppColors.textPrimary,
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
@@ -608,7 +568,8 @@ class MovieDetailView extends StatelessWidget {
                         'Yuk nonton bareng film "${movie.title}" di bioskop!',
                   );
                 },
-                icon: const Icon(Icons.share_rounded, color: AppColors.gold),
+                icon:
+                    const Icon(Icons.share_rounded, color: AppColors.textPrimary),
                 tooltip: 'Ajak Nobar',
                 style: IconButton.styleFrom(
                   backgroundColor: AppColors.surface,
