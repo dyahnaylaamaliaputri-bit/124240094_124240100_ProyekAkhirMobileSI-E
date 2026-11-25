@@ -64,7 +64,6 @@ class TicketsController extends GetxController {
   /// Memeriksa dan mengubah status tiket yang jadwal tayangnya sudah lewat menjadi 'expired' (PB-026)
   Future<int> autoExpirePastTickets() async {
     int count = 0;
-    final now = DateTime.now();
     final toExpire = <TicketModel>[];
 
     // Cek tiket aktif yang jadwal tayangnya telah lewat (lebih dari 24 jam)

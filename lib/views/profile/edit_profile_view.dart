@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/profile_controller.dart';
+import '../../services/storage_service.dart';
 import '../../utils/app_colors.dart';
 
 class EditProfileView extends StatefulWidget {

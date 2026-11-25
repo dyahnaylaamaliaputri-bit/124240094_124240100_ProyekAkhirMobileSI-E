@@ -8,7 +8,6 @@
 // Referensi: NFR-003, NFR-005, NFR-016, NFR-033
 
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'storage_service.dart';
 
 class HttpService {
@@ -74,12 +73,6 @@ class HttpService {
     return _dio.post<T>(url,
         data: data, queryParameters: queryParameters, options: opts);
   }
-
-  /// Membangun URL gambar TMDB
-  static String tmdbImageUrl(String? path, {String size = 'w500'}) {
-    if (path == null || path.isEmpty) return '';
-    return 'https://image.tmdb.org/t/p/$size$path';
-  }
 }
 
 // ── Interceptor: inject Authorization header ────────────────────────────────
@@ -92,15 +85,9 @@ class _AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // Inject token untuk TMDB API
-    final tmdbKey = dotenv.env['TMDB_API_KEY'];
-    if (options.baseUrl.contains('themoviedb') && tmdbKey != null) {
-      options.headers['Authorization'] = 'Bearer $tmdbKey';
-    } else {
-      final token = await _storage.getSessionToken();
-      if (token != null && !options.headers.containsKey('Authorization')) {
-        options.headers['Authorization'] = 'Bearer $token';
-      }
+    final token = await _storage.getSessionToken();
+    if (token != null && !options.headers.containsKey('Authorization')) {
+      options.headers['Authorization'] = 'Bearer $token';
     }
     handler.next(options);
   }

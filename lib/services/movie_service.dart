@@ -1,6 +1,6 @@
 // lib/services/movie_service.dart
-// Service untuk memanggil API katalog film TMDB dengan Hive Cache & TTL 6 jam (PB-012, PB-013)
-// Referensi: SRS §3.1, PB-012, PB-013, Modul 6 & 7 Hive
+// Service untuk memanggil Public API katalog film TVmaze dengan Hive Cache & TTL 6 jam (PB-012, PB-013)
+// Referensi: SRS §3.1, PB-012, PB-013, Modul V & VI
 
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -16,26 +16,14 @@ class MovieService {
   final HttpService _http = HttpService();
   final StorageService _storage = StorageService();
 
-  String get _baseUrl =>
-      dotenv.env['TMDB_BASE_URL'] ?? 'https://api.themoviedb.org/3';
-
   String get _publicApiUrl =>
       dotenv.env['PUBLIC_MOVIE_API_URL'] ?? 'https://api.tvmaze.com';
-
-  String? get _apiKey {
-    final key = dotenv.env['TMDB_API_KEY'];
-    if (key == null || key.isEmpty || key == 'YOUR_TMDB_API_KEY_HERE') {
-      return null;
-    }
-    return key;
-  }
 
   // =========================================================================
   // 1. NOW PLAYING dengan Hive Cache (TTL 6 jam)
   // =========================================================================
 
-  /// Mengambil daftar film yang sedang tayang (Now Playing)
-  /// Menggunakan TMDB jika API key tersedia, atau Public API TVmaze (tanpa key).
+  /// Mengambil daftar film yang sedang tayang (Now Playing) dari Public API TVmaze (tanpa key).
   Future<
       ({
         List<MovieModel> movies,
@@ -62,42 +50,7 @@ class MovieService {
       }
     }
 
-    // 2. Fetch online dari TMDB (jika ada key) atau Public API TVmaze (tanpa key)
-    final key = _apiKey;
-    if (key != null) {
-      try {
-        final response = await _http.get(
-          '$_baseUrl/movie/now_playing',
-          queryParameters: {
-            'api_key': key,
-            'language': 'id-ID',
-            'page': page,
-          },
-          options: Options(
-            headers: {'Authorization': 'Bearer $key'},
-          ),
-        );
-
-        if (response.statusCode == 200 && response.data != null) {
-          final List results = response.data['results'] ?? [];
-          final list = results.map((e) => MovieModel.fromJson(e)).toList();
-
-          await _storage.cacheMovies(
-              cacheKey, list.map((m) => m.toJson()).toList());
-          return (
-            movies: list,
-            fromCache: false,
-            isExpired: false,
-            timestamp: DateTime.now()
-          );
-        }
-      } catch (e) {
-        debugPrint(
-            '[MovieService] Error TMDB Now Playing ($e), beralih ke Public API...');
-      }
-    }
-
-    // Public API (https://api.tvmaze.com/shows?page=0) - Tanpa API Key!
+    // 2. Fetch online dari Public API (https://api.tvmaze.com/shows?page=0) - Tanpa API Key!
     try {
       final response = await _http.get(
         '$_publicApiUrl/shows',
@@ -187,42 +140,7 @@ class MovieService {
       }
     }
 
-    // 2. Fetch online dari TMDB (jika ada key) atau Public API TVmaze (tanpa key)
-    final key = _apiKey;
-    if (key != null) {
-      try {
-        final response = await _http.get(
-          '$_baseUrl/movie/upcoming',
-          queryParameters: {
-            'api_key': key,
-            'language': 'id-ID',
-            'page': page,
-          },
-          options: Options(
-            headers: {'Authorization': 'Bearer $key'},
-          ),
-        );
-
-        if (response.statusCode == 200 && response.data != null) {
-          final List results = response.data['results'] ?? [];
-          final list = results.map((e) => MovieModel.fromJson(e)).toList();
-
-          await _storage.cacheMovies(
-              cacheKey, list.map((m) => m.toJson()).toList());
-          return (
-            movies: list,
-            fromCache: false,
-            isExpired: false,
-            timestamp: DateTime.now()
-          );
-        }
-      } catch (e) {
-        debugPrint(
-            '[MovieService] Error TMDB Upcoming ($e), beralih ke Public API...');
-      }
-    }
-
-    // Public API (https://api.tvmaze.com/shows?page=1) - Tanpa API Key!
+    // 2. Fetch online dari Public API (https://api.tvmaze.com/shows?page=1) - Tanpa API Key!
     try {
       final response = await _http.get(
         '$_publicApiUrl/shows',

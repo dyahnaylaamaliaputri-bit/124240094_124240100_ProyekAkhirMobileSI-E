@@ -12,7 +12,6 @@ class AppConstants {
   static const String envSupabaseUrl = 'SUPABASE_URL';
   static const String envSupabaseRestUrl = 'SUPABASE_REST_URL';
   static const String envSupabaseAnonKey = 'SUPABASE_ANON_KEY';
-  static const String envTmdbApiKey = 'TMDB_API_KEY';
 
   static const String defaultSupabaseUrl =
       'https://hbdhwsofkjkurewqnixk.supabase.co';

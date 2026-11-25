@@ -22,7 +22,6 @@ import '../views/fnb/fnb_order_detail_view.dart';
 import '../views/cinema/cinema_map_view.dart';
 import '../views/profile/edit_profile_view.dart';
 import '../views/search/search_view.dart';
-import '../bindings/profile_binding.dart';
 import '../bindings/search_binding.dart';
 import 'app_routes.dart';
 

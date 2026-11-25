@@ -68,6 +68,10 @@ class ProfileController extends GetxController {
   void onInit() {
     super.onInit();
     loadAvatar();
+    themeMode.value = _storage.themeMode;
+    isBiometricEnabled.value = _storage.biometricEnabled;
+    favoriteGenres.assignAll(_storage.getFavoriteGenres());
+    loadProfileStats();
   }
 
   void loadAvatar() {
@@ -448,17 +452,5 @@ class ProfileController extends GetxController {
     } finally {
       isLoadingStats.value = false;
     }
-  }
-
-  @override
-  void onInit() {
-    super.onInit();
-    // Inisialisasi state dari local storage
-    avatarPath.value = _storage.avatarPath;
-    themeMode.value = _storage.themeMode;
-    isBiometricEnabled.value = _storage.biometricEnabled;
-    favoriteGenres.assignAll(_storage.getFavoriteGenres());
-
-    loadProfileStats();
   }
 }
